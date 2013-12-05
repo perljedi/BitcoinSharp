@@ -65,6 +65,7 @@
     <Compile Include="PeerAddressTest.cs" />
     <Compile Include="PeerGroupTest.cs" />
     <Compile Include="PeerTest.cs" />
+    <Compile Include="PrivateKeyTests.cs" />
     <Compile Include="ScriptTest.cs" />
     <Compile Include="Moq\SetupExtensions.cs" />
     <Compile Include="Store\BoundedOverheadBlockStoreTest.cs" />
