@@ -193,7 +193,7 @@ namespace BitCoinSharp.Test
         [Test]
         public void Transactions()
         {
-            // This test covers a bug in which Transaction.getValueSentFromMe was calculating incorrectly.
+            // This test covers a _bug in which Transaction.getValueSentFromMe was calculating incorrectly.
             var tx = TestUtils.CreateFakeTx(Params, Utils.ToNanoCoins(1, 0), _myAddress);
             // Now add another output (ie, change) that goes to some other address.
             var someOtherGuy = new EcKey().ToAddress(Params);
@@ -214,7 +214,7 @@ namespace BitCoinSharp.Test
         [Test]
         public void Bounce()
         {
-            // This test covers bug 64 (False double spends). Check that if we create a spend and it's immediately sent
+            // This test covers _bug 64 (False double spends). Check that if we create a spend and it's immediately sent
             // back to us, this isn't considered as a double spend.
             var coin1 = Utils.ToNanoCoins(1, 0);
             var coinHalf = Utils.ToNanoCoins(0, 50);

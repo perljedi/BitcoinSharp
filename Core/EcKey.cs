@@ -33,6 +33,7 @@ namespace BitCoinSharp
     /// Bouncy Castle is used. In future this may become an interface with multiple implementations using different crypto
     /// libraries. The class also provides a static method that can verify a signature with just the public key.
     /// </summary>
+    /// //TODO: Give this class a more descriptive name based on it's domain use rather then it's implmentation.
     [Serializable]
     public class EcKey
     {

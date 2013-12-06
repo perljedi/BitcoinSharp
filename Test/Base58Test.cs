@@ -53,7 +53,7 @@ namespace BitCoinSharp.Test
             Base58.DecodeChecked("4stwEBjT6FYyVV");
 
             // Now check we can correctly decode the case where the high bit of the first byte is not zero, so BigInteger
-            // sign extends. Fix for a bug that stopped us parsing keys exported using Sipa's patch.
+            // sign extends. Fix for a _bug that stopped us parsing keys exported using Sipa's patch.
             Base58.DecodeChecked("93VYUMzRG9DdbRP72uQXjaWibbQwygnvaCu9DumcqDjGybD864T");
         }
     }
