@@ -1,5 +1,10 @@
-﻿using log4net;
+﻿using System;
+using FluentAssertions;
+using log4net;
 using NUnit.Framework;
+using Org.BouncyCastle.Crypto.Prng;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace BitCoinSharp.Test
 {
@@ -30,6 +35,21 @@ namespace BitCoinSharp.Test
             //address.
             Logger.Debug(address.ToString());
         }
+
+
+        [Test]
+        public void ImportExistingPrivateKey()
+        {
+            //arrange
+            //this is an exsiting (testnet) private key. 
+            const string testPrivateKey = "00d1470e342840b283c8007291992b21176d610a732a1f900334c0d71866422ad5";
+
+            var privkey = new BigInteger(1, Hex.Decode(testPrivateKey));
+            var key = new EcKey(privkey);
+
+            key.ToString().Should().Be("pub:045c7266196cb522208fad3541854a412e238044de415e7f9071ac27124481d0130e4eee6f76e0649eaa84bf35b1f84444f337ac902569c631fa73be80c5583fc0 priv:00d1470e342840b283c8007291992b21176d610a732a1f900334c0d71866422ad5");
+        }
+
  
     }
 }
