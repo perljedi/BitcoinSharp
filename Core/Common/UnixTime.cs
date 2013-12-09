@@ -45,7 +45,7 @@ namespace BitCoinSharp.Common
     /// </summary>
     internal static class UnixTime
     {
-        private static readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// Converts a DateTime to unix time. Unix time is the number of seconds
@@ -55,7 +55,7 @@ namespace BitCoinSharp.Common
         /// <returns>The number of seconds between Unix epoch and the input time</returns>
         public static ulong ToUnixTime(DateTime time)
         {
-            return (ulong) (time.ToUniversalTime() - _unixEpoch).TotalSeconds;
+            return (ulong) (time.ToUniversalTime() - UnixEpoch).TotalSeconds;
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace BitCoinSharp.Common
         [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "unix", Justification = "UNIX is a domain term")]
         public static DateTime FromUnixTime(ulong unixTime)
         {
-            return _unixEpoch.AddSeconds(unixTime);
+            return UnixEpoch.AddSeconds(unixTime);
         }
     }
 }

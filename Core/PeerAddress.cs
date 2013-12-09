@@ -75,7 +75,7 @@ namespace BitCoinSharp
         {
             if (ProtocolVersion >= 31402)
             {
-                var secs = UnixTime.ToUnixTime(DateTime.UtcNow);
+                var secs = SystemTime.UnixNow();
                 Utils.Uint32ToByteStreamLe((uint) secs, stream);
             }
             Utils.Uint64ToByteStreamLe(_services, stream); // nServices.

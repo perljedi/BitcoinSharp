@@ -94,11 +94,10 @@ namespace BitCoinSharp.Test
         public void ReceiveCoins()
         {
             // Quick check that we can actually receive coins.
-            var tx1 = TestUtils.CreateFakeTx(_unitTestParams,
-                                             Utils.ToNanoCoins(1, 0),
-                                             _wallet.Keychain[0].ToAddress(_unitTestParams));
-            var b1 = TestUtils.CreateFakeBlock(_unitTestParams, _blockStore, tx1).Block;
-            _chain.Add(b1);
+            var transaction = TestUtils.CreateFakeTx(_unitTestParams, Utils.ToNanoCoins(1, 0), _wallet.Keychain[0].ToAddress(_unitTestParams));
+            var block = TestUtils.CreateFakeBlock(_unitTestParams, _blockStore, transaction).Block;
+
+            _chain.Add(block);
             Assert.IsTrue(_wallet.GetBalance().CompareTo(0UL) > 0);
         }
 
@@ -156,14 +155,18 @@ namespace BitCoinSharp.Test
             // Add a bunch of blocks in a loop until we reach a difficulty transition point. The unit test params have an
             // artificially shortened period.
             var prev = _unitTestParams.GenesisBlock;
-            Block.FakeClock = UnixTime.ToUnixTime(DateTime.UtcNow);
+
+            var time = UnixTime.ToUnixTime(new DateTime(2011,02,02));
+            SystemTime.UnixNow = () => time;
+            
+
             for (var i = 0; i < _unitTestParams.Interval - 1; i++)
             {
-                var newBlock = prev.CreateNextBlock(_coinbaseTo, (uint) Block.FakeClock);
+                var newBlock = prev.CreateNextBlock(_coinbaseTo, (uint)SystemTime.UnixNow());
                 Assert.IsTrue(_chain.Add(newBlock));
                 prev = newBlock;
                 // The fake chain should seem to be "fast" for the purposes of difficulty calculations.
-                Block.FakeClock += 2;
+                SystemTime.UnixNow = () => time + (ulong) (2 * i);
             }
             // Now add another block that has no difficulty adjustment, it should be rejected.
             try
@@ -176,8 +179,8 @@ namespace BitCoinSharp.Test
             }
             // Create a new block with the right difficulty target given our blistering speed relative to the huge amount
             // of time it's supposed to take (set in the unit test network parameters).
-            var b = prev.CreateNextBlock(_coinbaseTo, (uint) Block.FakeClock);
-            b.DifficultyTarget = 0x201FFFFF;
+            var b = prev.CreateNextBlock(_coinbaseTo);
+            b.DifficultyTarget = 0x201fFFFF;
             b.Solve();
             Assert.IsTrue(_chain.Add(b));
         }

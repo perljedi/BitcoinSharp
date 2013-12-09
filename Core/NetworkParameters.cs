@@ -127,6 +127,7 @@ namespace BitCoinSharp
             networkParameters.Interval = _interval;
             networkParameters.TargetTimespan = _targetTimespan;
             networkParameters.GenesisBlock = CreateGenesis(networkParameters);
+            //TODO: Should this use SystemTime.UnixTime()?
             networkParameters.GenesisBlock.TimeSeconds = 1296688602;
             networkParameters.GenesisBlock.DifficultyTarget = 0x1d07fff8;
             networkParameters.GenesisBlock.Nonce = 384568319;

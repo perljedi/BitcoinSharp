@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using BitCoinSharp.Common;
 using BitCoinSharp.Store;
 using BitCoinSharp.Test.Moq;
 using Moq;
@@ -208,6 +210,8 @@ namespace BitCoinSharp.Test
         [Test]
         public void TestGetBlock()
         {
+            //SystemTime.UnixNow = () => UnixTime.ToUnixTime(DateTime.Now);
+
             var b1 = TestUtils.CreateFakeBlock(_unitTestParams, _blockStore).Block;
             _blockChain.Add(b1);
 
