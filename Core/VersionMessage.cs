@@ -80,7 +80,7 @@ namespace BitCoinSharp
         {
             ClientVersion = NetworkParameters.ProtocolVersion;
             LocalServices = 0;
-            Time = UnixTime.ToUnixTime(DateTime.UtcNow);
+            Time = SystemTime.UnixNow();
             // Note that the official client doesn't do anything with these, and finding out your own external IP address
             // is kind of tricky anyway, so we just put nonsense here for now.
             MyAddr = new PeerAddress(IPAddress.Loopback, @params.Port, 0);

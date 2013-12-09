@@ -56,6 +56,7 @@
     <Compile Include="Collections\Generic\AbstractQueue.cs" />
     <Compile Include="Collections\Generic\IQueue.cs" />
     <Compile Include="Collections\Generic\OrderedDictionary.cs" />
+    <Compile Include="Common\SystemTime.cs" />
     <Compile Include="Common\UnixTime.cs" />
     <Compile Include="Discovery\DnsDiscovery.cs" />
     <Compile Include="Discovery\IPeerDiscovery.cs" />
@@ -156,5 +157,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

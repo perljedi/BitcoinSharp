@@ -39,22 +39,19 @@ namespace BitCoinSharp
     [Serializable]
     public class Block : Message
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof (Block));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(Block));
 
         /// <summary>
         /// How many bytes are required to represent a block header.
         /// </summary>
         public const int HeaderSize = 80;
 
-        private const uint _allowedTimeDrift = 2*60*60; // Same value as official client.
+        private const uint AllowedTimeDrift = 2 * 60 * 60; // Same value as official client.
 
         /// <summary>
         /// A value for difficultyTarget (nBits) that allows half of all possible hash solutions. Used in unit testing.
         /// </summary>
         internal const uint EasiestDifficultyTarget = 0x207FFFFF;
-
-        // For unit testing. If not zero, use this instead of the current time.
-        internal static ulong FakeClock;
 
         // Fields defined as part of the protocol format.
         private uint _version;
@@ -72,7 +69,8 @@ namespace BitCoinSharp
         /// <summary>
         /// Stores the hash of the block. If null, getHash() will recalculate it.
         /// </summary>
-        [NonSerialized] private Sha256Hash _hash;
+        [NonSerialized]
+        private Sha256Hash _hash;
 
         /// <summary>
         /// Special case constructor, used for the genesis node, cloneAsHeader and unit tests.
@@ -83,7 +81,7 @@ namespace BitCoinSharp
             // Set up a few basic things. We are not complete after this though.
             _version = 1;
             _difficultyTarget = 0x1d07fff8;
-            _time = (uint) UnixTime.ToUnixTime(DateTime.UtcNow);
+            _time = (uint)SystemTime.UnixNow();
             _prevBlockHash = Sha256Hash.ZeroHash;
         }
 
@@ -114,7 +112,7 @@ namespace BitCoinSharp
                 return;
             }
 
-            var numTransactions = (int) ReadVarInt();
+            var numTransactions = (int)ReadVarInt();
             Transactions = new List<Transaction>(numTransactions);
             for (var i = 0; i < numTransactions; i++)
             {
@@ -141,7 +139,7 @@ namespace BitCoinSharp
             WriteHeader(stream);
             // We may only have enough data to write the header.
             if (Transactions == null) return;
-            stream.Write(new VarInt((ulong) Transactions.Count).Encode());
+            stream.Write(new VarInt((ulong)Transactions.Count).Encode());
             foreach (var tx in Transactions)
             {
                 tx.BitcoinSerializeToStream(stream);
@@ -225,7 +223,7 @@ namespace BitCoinSharp
             s.AppendFormat("v{0} block:", _version).AppendLine();
             s.AppendFormat("   previous block: {0}", _prevBlockHash).AppendLine();
             s.AppendFormat("   merkle root: {0}", MerkleRoot).AppendLine();
-            s.AppendFormat("   time: [{0}] {1}", _time, new DateTime(_time*1000)).AppendLine();
+            s.AppendFormat("   time: [{0}] {1}", _time, UnixTime.FromUnixTime(_time)).AppendLine();
             s.AppendFormat("   difficulty target (nBits): {0}", _difficultyTarget).AppendLine();
             s.AppendFormat("   nonce: {0}", _nonce).AppendLine();
             if (Transactions != null && Transactions.Count > 0)
@@ -303,10 +301,8 @@ namespace BitCoinSharp
         /// <exception cref="VerificationException"/>
         private void CheckTimestamp()
         {
-            // Allow injection of a fake clock to allow unit testing.
-            var currentTime = FakeClock != 0 ? FakeClock : UnixTime.ToUnixTime(DateTime.UtcNow);
-            if (_time > currentTime + _allowedTimeDrift)
-                throw new VerificationException("Block too far in future");
+            var currentTime = SystemTime.UnixNow();
+            if (_time > currentTime + AllowedTimeDrift){throw new VerificationException("Block too far in future");}
         }
 
         /// <exception cref="VerificationException"/>
@@ -315,7 +311,7 @@ namespace BitCoinSharp
             var calculatedRoot = CalculateMerkleRoot();
             if (!calculatedRoot.Equals(_merkleRoot))
             {
-                _log.Error("Merkle tree did not verify");
+                Log.Error("Merkle tree did not verify");
                 throw new VerificationException("Merkle hashes do not match: " +
                                                 calculatedRoot + " vs " + _merkleRoot);
             }
@@ -367,7 +363,7 @@ namespace BitCoinSharp
             }
             var levelOffset = 0; // Offset in the list where the currently processed level starts.
             // Step through each level, stopping when we reach the root (levelSize == 1).
-            for (var levelSize = Transactions.Count; levelSize > 1; levelSize = (levelSize + 1)/2)
+            for (var levelSize = Transactions.Count; levelSize > 1; levelSize = (levelSize + 1) / 2)
             {
                 // For each pair of nodes on that level:
                 for (var left = 0; left < levelSize; left += 2)
@@ -445,7 +441,7 @@ namespace BitCoinSharp
         public override bool Equals(object o)
         {
             if (!(o is Block)) return false;
-            var other = (Block) o;
+            var other = (Block)o;
             return Hash.Equals(other.Hash);
         }
 
@@ -564,7 +560,7 @@ namespace BitCoinSharp
             //
             // Here we will do things a bit differently so a new address isn't needed every time. We'll put a simple
             // counter in the scriptSig so every transaction has a different hash.
-            coinbase.AddInput(new TransactionInput(Params, coinbase, new[] {(byte) _txCounter++}));
+            coinbase.AddInput(new TransactionInput(Params, coinbase, new[] { (byte)_txCounter++ }));
             coinbase.AddOutput(new TransactionOutput(Params, coinbase, Script.CreateOutputScript(pubKeyTo)));
             Transactions.Add(coinbase);
         }
@@ -588,7 +584,7 @@ namespace BitCoinSharp
             // Importantly the outpoint hash cannot be zero as that's how we detect a coinbase transaction in isolation
             // but it must be unique to avoid 'different' transactions looking the same.
             var counter = new byte[32];
-            counter[0] = (byte) _txCounter++;
+            counter[0] = (byte)_txCounter++;
             input.Outpoint.Hash = new Sha256Hash(counter);
             t.AddInput(input);
             b.AddTransaction(t);
@@ -603,7 +599,7 @@ namespace BitCoinSharp
         // Visible for testing.
         public Block CreateNextBlock(Address to)
         {
-            return CreateNextBlock(to, (uint) UnixTime.ToUnixTime(DateTime.UtcNow));
+            return CreateNextBlock(to, (uint)SystemTime.UnixNow());
         }
     }
 }

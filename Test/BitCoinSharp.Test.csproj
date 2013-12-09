@@ -66,6 +66,7 @@
     <Compile Include="Discovery\IrcDiscoveryTest.cs" />
     <Compile Include="Discovery\SeedPeersTest.cs" />
     <Compile Include="EcKeyTest.cs" />
+    <Compile Include="Infrastructure\SystemTimeTests.cs" />
     <Compile Include="PeerAddressTest.cs" />
     <Compile Include="PeerGroupTest.cs" />
     <Compile Include="PeerTest.cs" />
@@ -84,5 +85,6 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
