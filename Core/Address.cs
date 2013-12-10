@@ -42,8 +42,8 @@ namespace BitCoinSharp
         /// Example:<p/>
         /// <pre>new Address(NetworkParameters.prodNet(), Hex.decode("4a22c3c4cbb31e4d03b15550636762bda0baf85a"));</pre>
         /// </remarks>
-        public Address(NetworkParameters @params, byte[] hash160)
-            : base(@params.AddressHeader, hash160)
+        public Address(NetworkParameters networkParameters, byte[] hash160)
+            : base(networkParameters.AddressHeader, hash160)
         {
             if (hash160.Length != 20) // 160 = 8 * 20
                 throw new ArgumentException("Addresses are 160-bit hashes, so you must provide 20 bytes", "hash160");
@@ -57,12 +57,12 @@ namespace BitCoinSharp
         /// <pre>new Address(NetworkParameters.prodNet(), "17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL");</pre>
         /// </remarks>
         /// <exception cref="AddressFormatException"/>
-        public Address(NetworkParameters @params, string address)
+        public Address(NetworkParameters networkParameters, string address)
             : base(address)
         {
-            if (Version != @params.AddressHeader)
+            if (Version != networkParameters.AddressHeader)
                 throw new AddressFormatException("Mismatched version number, trying to cross networks? " + Version +
-                                                 " vs " + @params.AddressHeader);
+                                                 " vs " + networkParameters.AddressHeader);
         }
 
         /// <summary>
