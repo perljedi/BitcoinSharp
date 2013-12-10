@@ -31,13 +31,13 @@ namespace BitCoinSharp
         private const ulong _maxInventoryItems = 50000;
 
         /// <exception cref="ProtocolException"/>
-        protected ListMessage(NetworkParameters @params, byte[] bytes)
-            : base(@params, bytes, 0)
+        protected ListMessage(NetworkParameters networkParameters, byte[] bytes)
+            : base(networkParameters, bytes, 0)
         {
         }
 
-        protected ListMessage(NetworkParameters @params)
-            : base(@params)
+        protected ListMessage(NetworkParameters networkParameters)
+            : base(networkParameters)
         {
             _items = new List<InventoryItem>();
         }

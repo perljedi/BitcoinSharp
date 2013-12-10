@@ -25,57 +25,57 @@ namespace BitCoinSharp
     [Serializable]
     public class AddressMessage : Message
     {
-        private const ulong _maxAddresses = 1024;
+        private const ulong MaxAddresses = 1024;
 
         internal IList<PeerAddress> Addresses { get; private set; }
 
-        /// <exception cref="ProtocolException"/>
-        internal AddressMessage(NetworkParameters @params, byte[] payload, int offset)
-            : base(@params, payload, offset)
+        /// <exception cref="ProtocolException" />
+        internal AddressMessage(NetworkParameters networkParameters, byte[] payload, int offset)
+            : base(networkParameters, payload, offset)
         {
         }
 
-        /// <exception cref="ProtocolException"/>
-        internal AddressMessage(NetworkParameters @params, byte[] payload)
-            : base(@params, payload, 0)
+        /// <exception cref="ProtocolException" />
+        internal AddressMessage(NetworkParameters networkParameters, byte[] payload)
+            : base(networkParameters, payload, 0)
         {
         }
 
-        /// <exception cref="ProtocolException"/>
+        /// <exception cref="ProtocolException" />
         protected override void Parse()
         {
             var numAddresses = ReadVarInt();
             // Guard against ultra large messages that will crash us.
-            if (numAddresses > _maxAddresses)
+            if (numAddresses > MaxAddresses)
                 throw new ProtocolException("Address message too large.");
             Addresses = new List<PeerAddress>((int) numAddresses);
             for (var i = 0UL; i < numAddresses; i++)
             {
-                var addr = new PeerAddress(Params, Bytes, Cursor, ProtocolVersion);
-                Addresses.Add(addr);
-                Cursor += addr.MessageSize;
+                var peerAddress = new PeerAddress(NetworkParameters, Bytes, Cursor, ProtocolVersion);
+                Addresses.Add(peerAddress);
+                Cursor += peerAddress.MessageSize;
             }
         }
 
-        public override void BitcoinSerializeToStream(Stream stream)
+        public override void BitcoinSerializeToStream(Stream outputStream)
         {
-            stream.Write(new VarInt((ulong) Addresses.Count).Encode());
-            foreach (var addr in Addresses)
+            outputStream.Write(new VarInt((ulong) Addresses.Count).Encode());
+            foreach (var peerAddress in Addresses)
             {
-                addr.BitcoinSerializeToStream(stream);
+                peerAddress.BitcoinSerializeToStream(outputStream);
             }
         }
 
         public override string ToString()
         {
-            var builder = new StringBuilder();
-            builder.Append("addr: ");
-            foreach (var a in Addresses)
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append("address: ");
+            foreach (var peerAddress in Addresses)
             {
-                builder.Append(a.ToString());
-                builder.Append(" ");
+                stringBuilder.Append(peerAddress);
+                stringBuilder.Append(" ");
             }
-            return builder.ToString();
+            return stringBuilder.ToString();
         }
     }
 }

@@ -75,8 +75,8 @@ namespace BitCoinSharp
         /// <summary>
         /// Special case constructor, used for the genesis node, cloneAsHeader and unit tests.
         /// </summary>
-        internal Block(NetworkParameters @params)
-            : base(@params)
+        internal Block(NetworkParameters networkParameters)
+            : base(networkParameters)
         {
             // Set up a few basic things. We are not complete after this though.
             _version = 1;
@@ -89,8 +89,8 @@ namespace BitCoinSharp
         /// Constructs a block object from the BitCoin wire format.
         /// </summary>
         /// <exception cref="ProtocolException"/>
-        public Block(NetworkParameters @params, byte[] payloadBytes)
-            : base(@params, payloadBytes, 0)
+        public Block(NetworkParameters networkParameters, byte[] payloadBytes)
+            : base(networkParameters, payloadBytes, 0)
         {
         }
 
@@ -116,7 +116,7 @@ namespace BitCoinSharp
             Transactions = new List<Transaction>(numTransactions);
             for (var i = 0; i < numTransactions; i++)
             {
-                var tx = new Transaction(Params, Bytes, Cursor);
+                var tx = new Transaction(NetworkParameters, Bytes, Cursor);
                 Transactions.Add(tx);
                 Cursor += tx.MessageSize;
             }
@@ -201,7 +201,7 @@ namespace BitCoinSharp
         /// </summary>
         public Block CloneAsHeader()
         {
-            var block = new Block(Params);
+            var block = new Block(NetworkParameters);
             block._nonce = _nonce;
             block._prevBlockHash = _prevBlockHash.Duplicate();
             block._merkleRoot = MerkleRoot.Duplicate();
@@ -265,7 +265,7 @@ namespace BitCoinSharp
         public BigInteger GetDifficultyTargetAsInteger()
         {
             var target = Utils.DecodeCompactBits(_difficultyTarget);
-            if (target.CompareTo(BigInteger.Zero) <= 0 || target.CompareTo(Params.ProofOfWorkLimit) > 0)
+            if (target.CompareTo(BigInteger.Zero) <= 0 || target.CompareTo(NetworkParameters.ProofOfWorkLimit) > 0)
                 throw new VerificationException("Difficulty target is bad: " + target);
             return target;
         }
@@ -554,14 +554,14 @@ namespace BitCoinSharp
         internal void AddCoinbaseTransaction(byte[] pubKeyTo)
         {
             Transactions = new List<Transaction>();
-            var coinbase = new Transaction(Params);
+            var coinbase = new Transaction(NetworkParameters);
             // A real coinbase transaction has some stuff in the scriptSig like the extraNonce and difficulty. The
             // transactions are distinguished by every TX output going to a different key.
             //
             // Here we will do things a bit differently so a new address isn't needed every time. We'll put a simple
             // counter in the scriptSig so every transaction has a different hash.
-            coinbase.AddInput(new TransactionInput(Params, coinbase, new[] { (byte)_txCounter++ }));
-            coinbase.AddOutput(new TransactionOutput(Params, coinbase, Script.CreateOutputScript(pubKeyTo)));
+            coinbase.AddInput(new TransactionInput(NetworkParameters, coinbase, new[] { (byte)_txCounter++ }));
+            coinbase.AddOutput(new TransactionOutput(NetworkParameters, coinbase, Script.CreateOutputScript(pubKeyTo)));
             Transactions.Add(coinbase);
         }
 
@@ -572,15 +572,15 @@ namespace BitCoinSharp
         /// </summary>
         internal Block CreateNextBlock(Address to, uint time)
         {
-            var b = new Block(Params);
+            var b = new Block(NetworkParameters);
             b.DifficultyTarget = _difficultyTarget;
             b.AddCoinbaseTransaction(_emptyBytes);
 
             // Add a transaction paying 50 coins to the "to" address.
-            var t = new Transaction(Params);
-            t.AddOutput(new TransactionOutput(Params, t, Utils.ToNanoCoins(50, 0), to));
+            var t = new Transaction(NetworkParameters);
+            t.AddOutput(new TransactionOutput(NetworkParameters, t, Utils.ToNanoCoins(50, 0), to));
             // The input does not really need to be a valid signature, as long as it has the right general form.
-            var input = new TransactionInput(Params, t, Script.CreateInputScript(_emptyBytes, _emptyBytes));
+            var input = new TransactionInput(NetworkParameters, t, Script.CreateInputScript(_emptyBytes, _emptyBytes));
             // Importantly the outpoint hash cannot be zero as that's how we detect a coinbase transaction in isolation
             // but it must be unique to avoid 'different' transactions looking the same.
             var counter = new byte[32];

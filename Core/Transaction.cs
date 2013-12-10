@@ -45,8 +45,8 @@ namespace BitCoinSharp
         // This is an in memory helper only.
         [NonSerialized] private Sha256Hash _hash;
 
-        internal Transaction(NetworkParameters @params)
-            : base(@params)
+        internal Transaction(NetworkParameters networkParameters)
+            : base(networkParameters)
         {
             _version = 1;
             _inputs = new List<TransactionInput>();
@@ -58,8 +58,8 @@ namespace BitCoinSharp
         /// Creates a transaction from the given serialized bytes, eg, from a block or a tx network message.
         /// </summary>
         /// <exception cref="ProtocolException"/>
-        public Transaction(NetworkParameters @params, byte[] payloadBytes)
-            : base(@params, payloadBytes, 0)
+        public Transaction(NetworkParameters networkParameters, byte[] payloadBytes)
+            : base(networkParameters, payloadBytes, 0)
         {
         }
 
@@ -67,8 +67,8 @@ namespace BitCoinSharp
         /// Creates a transaction by reading payload starting from offset bytes in. Length of a transaction is fixed.
         /// </summary>
         /// <exception cref="ProtocolException"/>
-        public Transaction(NetworkParameters @params, byte[] payload, int offset)
-            : base(@params, payload, offset)
+        public Transaction(NetworkParameters networkParameters, byte[] payload, int offset)
+            : base(networkParameters, payload, offset)
         {
             // inputs/outputs will be created in parse()
         }
@@ -247,7 +247,7 @@ namespace BitCoinSharp
             _inputs = new List<TransactionInput>((int) numInputs);
             for (var i = 0UL; i < numInputs; i++)
             {
-                var input = new TransactionInput(Params, this, Bytes, Cursor);
+                var input = new TransactionInput(NetworkParameters, this, Bytes, Cursor);
                 _inputs.Add(input);
                 Cursor += input.MessageSize;
             }
@@ -256,7 +256,7 @@ namespace BitCoinSharp
             _outputs = new List<TransactionOutput>((int) numOutputs);
             for (var i = 0UL; i < numOutputs; i++)
             {
-                var output = new TransactionOutput(Params, this, Bytes, Cursor);
+                var output = new TransactionOutput(NetworkParameters, this, Bytes, Cursor);
                 _outputs.Add(output);
                 Cursor += output.MessageSize;
             }
@@ -319,7 +319,7 @@ namespace BitCoinSharp
                 s.Append("to ");
                 try
                 {
-                    var toAddr = new Address(Params, @out.ScriptPubKey.PubKeyHash);
+                    var toAddr = new Address(NetworkParameters, @out.ScriptPubKey.PubKeyHash);
                     s.Append(toAddr.ToString());
                     s.Append(" ");
                     s.Append(Utils.BitcoinValueToFriendlyString(@out.Value));
@@ -342,7 +342,7 @@ namespace BitCoinSharp
         /// </summary>
         public void AddInput(TransactionOutput from)
         {
-            AddInput(new TransactionInput(Params, this, from));
+            AddInput(new TransactionInput(NetworkParameters, this, from));
         }
 
         /// <summary>

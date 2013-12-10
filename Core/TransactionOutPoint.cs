@@ -43,8 +43,8 @@ namespace BitCoinSharp
         // It points to the connected transaction.
         internal Transaction FromTx { get; set; }
 
-        internal TransactionOutPoint(NetworkParameters @params, int index, Transaction fromTx)
-            : base(@params)
+        internal TransactionOutPoint(NetworkParameters networkParameters, int index, Transaction fromTx)
+            : base(networkParameters)
         {
             Index = index;
             if (fromTx != null)
@@ -63,8 +63,8 @@ namespace BitCoinSharp
         /// Deserializes the message. This is usually part of a transaction message.
         /// </summary>
         /// <exception cref="ProtocolException"/>
-        public TransactionOutPoint(NetworkParameters @params, byte[] payload, int offset)
-            : base(@params, payload, offset)
+        public TransactionOutPoint(NetworkParameters networkParameters, byte[] payload, int offset)
+            : base(networkParameters, payload, offset)
         {
         }
 

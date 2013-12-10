@@ -67,7 +67,7 @@ namespace BitCoinSharp
         }
 
         // This will be saved by subclasses that implement Serializable.
-        protected NetworkParameters Params { get; private set; }
+        protected NetworkParameters NetworkParameters { get; private set; }
 
         /// <summary>
         /// This exists for the Java serialization framework to use only.
@@ -76,16 +76,16 @@ namespace BitCoinSharp
         {
         }
 
-        internal Message(NetworkParameters @params)
+        internal Message(NetworkParameters networkParameters)
         {
-            Params = @params;
+            NetworkParameters = networkParameters;
         }
 
         /// <exception cref="ProtocolException"/>
-        internal Message(NetworkParameters @params, byte[] msg, int offset, uint protocolVersion = NetworkParameters.ProtocolVersion)
+        internal Message(NetworkParameters networkParameters, byte[] msg, int offset, uint protocolVersion = NetworkParameters.ProtocolVersion)
         {
             ProtocolVersion = protocolVersion;
-            Params = @params;
+            NetworkParameters = networkParameters;
             Bytes = msg;
             Cursor = Offset = offset;
             Parse();

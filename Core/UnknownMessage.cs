@@ -24,8 +24,8 @@ namespace BitCoinSharp
         private readonly string _name;
 
         /// <exception cref="ProtocolException"/>
-        public UnknownMessage(NetworkParameters @params, string name, byte[] payloadBytes)
-            : base(@params, payloadBytes, 0)
+        public UnknownMessage(NetworkParameters networkParameters, string name, byte[] payloadBytes)
+            : base(networkParameters, payloadBytes, 0)
         {
             _name = name;
         }

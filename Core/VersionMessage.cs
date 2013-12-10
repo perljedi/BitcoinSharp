@@ -70,21 +70,21 @@ namespace BitCoinSharp
         public uint BestHeight { get; private set; }
 
         /// <exception cref="ProtocolException"/>
-        public VersionMessage(NetworkParameters @params, byte[] msg)
-            : base(@params, msg, 0)
+        public VersionMessage(NetworkParameters networkParameters, byte[] msg)
+            : base(networkParameters, msg, 0)
         {
         }
 
-        public VersionMessage(NetworkParameters @params, uint newBestHeight)
-            : base(@params)
+        public VersionMessage(NetworkParameters networkParameters, uint newBestHeight)
+            : base(networkParameters)
         {
             ClientVersion = NetworkParameters.ProtocolVersion;
             LocalServices = 0;
             Time = SystemTime.UnixNow();
             // Note that the official client doesn't do anything with these, and finding out your own external IP address
             // is kind of tricky anyway, so we just put nonsense here for now.
-            MyAddr = new PeerAddress(IPAddress.Loopback, @params.Port, 0);
-            TheirAddr = new PeerAddress(IPAddress.Loopback, @params.Port, 0);
+            MyAddr = new PeerAddress(IPAddress.Loopback, networkParameters.Port, 0);
+            TheirAddr = new PeerAddress(IPAddress.Loopback, networkParameters.Port, 0);
             SubVer = "BitCoinSharp 0.3-SNAPSHOT";
             BestHeight = newBestHeight;
         }
@@ -95,9 +95,9 @@ namespace BitCoinSharp
             ClientVersion = ReadUint32();
             LocalServices = ReadUint64();
             Time = ReadUint64();
-            MyAddr = new PeerAddress(Params, Bytes, Cursor, 0);
+            MyAddr = new PeerAddress(NetworkParameters, Bytes, Cursor, 0);
             Cursor += MyAddr.MessageSize;
-            TheirAddr = new PeerAddress(Params, Bytes, Cursor, 0);
+            TheirAddr = new PeerAddress(NetworkParameters, Bytes, Cursor, 0);
             Cursor += TheirAddr.MessageSize;
             // uint64 localHostNonce  (random data)
             // We don't care about the localhost nonce. It's used to detect connecting back to yourself in cases where

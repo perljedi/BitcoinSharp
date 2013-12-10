@@ -52,11 +52,11 @@ namespace BitCoinSharp
         /// <summary>
         /// Used only in creation of the genesis block.
         /// </summary>
-        internal TransactionInput(NetworkParameters @params, Transaction parentTransaction, byte[] scriptBytes)
-            : base(@params)
+        internal TransactionInput(NetworkParameters networkParameters, Transaction parentTransaction, byte[] scriptBytes)
+            : base(networkParameters)
         {
             ScriptBytes = scriptBytes;
-            Outpoint = new TransactionOutPoint(@params, -1, null);
+            Outpoint = new TransactionOutPoint(networkParameters, -1, null);
             _sequence = uint.MaxValue;
             ParentTransaction = parentTransaction;
         }
@@ -64,11 +64,11 @@ namespace BitCoinSharp
         /// <summary>
         /// Creates an UNSIGNED input that links to the given output
         /// </summary>
-        internal TransactionInput(NetworkParameters @params, Transaction parentTransaction, TransactionOutput output)
-            : base(@params)
+        internal TransactionInput(NetworkParameters networkParameters, Transaction parentTransaction, TransactionOutput output)
+            : base(networkParameters)
         {
             var outputIndex = output.Index;
-            Outpoint = new TransactionOutPoint(@params, outputIndex, output.ParentTransaction);
+            Outpoint = new TransactionOutPoint(networkParameters, outputIndex, output.ParentTransaction);
             ScriptBytes = EmptyArray;
             _sequence = uint.MaxValue;
             ParentTransaction = parentTransaction;
@@ -78,8 +78,8 @@ namespace BitCoinSharp
         /// Deserializes an input message. This is usually part of a transaction message.
         /// </summary>
         /// <exception cref="ProtocolException"/>
-        public TransactionInput(NetworkParameters @params, Transaction parentTransaction, byte[] payload, int offset)
-            : base(@params, payload, offset)
+        public TransactionInput(NetworkParameters networkParameters, Transaction parentTransaction, byte[] payload, int offset)
+            : base(networkParameters, payload, offset)
         {
             ParentTransaction = parentTransaction;
         }
@@ -87,7 +87,7 @@ namespace BitCoinSharp
         /// <exception cref="ProtocolException"/>
         protected override void Parse()
         {
-            Outpoint = new TransactionOutPoint(Params, Bytes, Cursor);
+            Outpoint = new TransactionOutPoint(NetworkParameters, Bytes, Cursor);
             Cursor += Outpoint.MessageSize;
             var scriptLen = (int) ReadVarInt();
             ScriptBytes = ReadBytes(scriptLen);
@@ -124,7 +124,7 @@ namespace BitCoinSharp
                 if (_scriptSig == null)
                 {
                     Debug.Assert(ScriptBytes != null);
-                    _scriptSig = new Script(Params, ScriptBytes, 0, ScriptBytes.Length);
+                    _scriptSig = new Script(NetworkParameters, ScriptBytes, 0, ScriptBytes.Length);
                 }
                 return _scriptSig;
             }

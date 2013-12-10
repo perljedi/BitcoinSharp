@@ -17,12 +17,11 @@
 namespace BitCoinSharp
 {
     /// <summary>
-    /// Convenience abstract class for implementing a PeerEventListener.
+    ///     Convenience abstract class for implementing a PeerEventListener.
     /// </summary>
     /// <remarks>
-    /// The default method implementations do nothing.
-    /// 
-    /// @author miron@google.com (Miron Cuperman)
+    ///     The default method implementations do nothing.
+    ///     @author miron@google.com (Miron Cuperman)
     /// </remarks>
     public class AbstractPeerEventListener : IPeerEventListener
     {

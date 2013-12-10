@@ -22,13 +22,13 @@ namespace BitCoinSharp
     public class InventoryMessage : ListMessage
     {
         /// <exception cref="ProtocolException"/>
-        public InventoryMessage(NetworkParameters @params, byte[] bytes)
-            : base(@params, bytes)
+        public InventoryMessage(NetworkParameters networkParameters, byte[] bytes)
+            : base(networkParameters, bytes)
         {
         }
 
-        public InventoryMessage(NetworkParameters @params)
-            : base(@params)
+        public InventoryMessage(NetworkParameters networkParameters)
+            : base(networkParameters)
         {
         }
     }

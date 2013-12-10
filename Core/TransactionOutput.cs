@@ -53,15 +53,15 @@ namespace BitCoinSharp
         /// Deserializes a transaction output message. This is usually part of a transaction message.
         /// </summary>
         /// <exception cref="ProtocolException"/>
-        public TransactionOutput(NetworkParameters @params, Transaction parent, byte[] payload, int offset)
-            : base(@params, payload, offset)
+        public TransactionOutput(NetworkParameters networkParameters, Transaction parent, byte[] payload, int offset)
+            : base(networkParameters, payload, offset)
         {
             ParentTransaction = parent;
             _availableForSpending = true;
         }
 
-        internal TransactionOutput(NetworkParameters @params, Transaction parent, ulong value, Address to)
-            : base(@params)
+        internal TransactionOutput(NetworkParameters networkParameters, Transaction parent, ulong value, Address to)
+            : base(networkParameters)
         {
             _value = value;
             _scriptBytes = Script.CreateOutputScript(to);
@@ -72,8 +72,8 @@ namespace BitCoinSharp
         /// <summary>
         /// Used only in creation of the genesis blocks and in unit tests.
         /// </summary>
-        internal TransactionOutput(NetworkParameters @params, Transaction parent, byte[] scriptBytes)
-            : base(@params)
+        internal TransactionOutput(NetworkParameters networkParameters, Transaction parent, byte[] scriptBytes)
+            : base(networkParameters)
         {
             _scriptBytes = scriptBytes;
             _value = Utils.ToNanoCoins(50, 0);
@@ -84,7 +84,7 @@ namespace BitCoinSharp
         /// <exception cref="ScriptException"/>
         public Script ScriptPubKey
         {
-            get { return _scriptPubKey ?? (_scriptPubKey = new Script(Params, _scriptBytes, 0, _scriptBytes.Length)); }
+            get { return _scriptPubKey ?? (_scriptPubKey = new Script(NetworkParameters, _scriptBytes, 0, _scriptBytes.Length)); }
         }
 
         /// <exception cref="ProtocolException"/>
