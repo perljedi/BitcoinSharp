@@ -69,7 +69,7 @@ namespace BitCoinSharp
         public override string ToString()
         {
             var stringBuilder = new StringBuilder();
-            stringBuilder.Append("address: ");
+            stringBuilder.Append("addr: ");
             foreach (var peerAddress in Addresses)
             {
                 stringBuilder.Append(peerAddress);

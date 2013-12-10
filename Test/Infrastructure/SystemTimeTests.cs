@@ -23,7 +23,8 @@ namespace BitCoinSharp.Test.Infrastructure
             Assert.AreNotEqual(DateTime.Now, SystemTime.Now());
         }
 
-
+        // TODO Fails sometimes?
+        // More info: https://github.com/detroitpro/BitcoinSharp/issues/10
         [Test]
         public void can_be_used_to_get_unix_date_time()
         {
