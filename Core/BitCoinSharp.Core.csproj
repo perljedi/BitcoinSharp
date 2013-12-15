@@ -51,10 +51,6 @@
     <Compile Include="BitcoinSerializer.cs" />
     <Compile Include="Block.cs" />
     <Compile Include="BlockChain.cs" />
-    <Compile Include="Collections\Generic\AbstractCollection.cs" />
-    <Compile Include="Collections\Generic\AbstractEnumerator.cs" />
-    <Compile Include="Collections\Generic\AbstractQueue.cs" />
-    <Compile Include="Collections\Generic\IQueue.cs" />
     <Compile Include="Collections\Generic\OrderedDictionary.cs" />
     <Compile Include="Common\SystemTime.cs" />
     <Compile Include="Common\UnixTime.cs" />
