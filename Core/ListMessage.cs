@@ -28,7 +28,7 @@ namespace BitCoinSharp
         // For some reason the compiler complains if this is inside InventoryItem
         private IList<InventoryItem> _items;
 
-        private const ulong _maxInventoryItems = 50000;
+        private const ulong MaxInventoryItems = 50000;
 
         /// <exception cref="ProtocolException"/>
         protected ListMessage(NetworkParameters networkParameters, byte[] bytes)
@@ -56,11 +56,11 @@ namespace BitCoinSharp
         protected override void Parse()
         {
             // An inv is vector<CInv> where CInv is int+hash. The int is either 1 or 2 for tx or block.
-            var arrayLen = ReadVarInt();
-            if (arrayLen > _maxInventoryItems)
-                throw new ProtocolException("Too many items in INV message: " + arrayLen);
-            _items = new List<InventoryItem>((int) arrayLen);
-            for (var i = 0UL; i < arrayLen; i++)
+            var arrayLength = ReadVarInt();
+            if (arrayLength > MaxInventoryItems)
+                throw new ProtocolException("Too many items in INV message: " + arrayLength);
+            _items = new List<InventoryItem>((int) arrayLength);
+            for (var i = 0UL; i < arrayLength; i++)
             {
                 if (Cursor + 4 + 32 > Bytes.Length)
                 {
@@ -93,12 +93,12 @@ namespace BitCoinSharp
         public override void BitcoinSerializeToStream(Stream stream)
         {
             stream.Write(new VarInt((ulong) _items.Count).Encode());
-            foreach (var i in _items)
+            foreach (var inventoryItem in _items)
             {
                 // Write out the type code.
-                Utils.Uint32ToByteStreamLe((uint) i.Type, stream);
+                Utils.Uint32ToByteStreamLe((uint) inventoryItem.Type, stream);
                 // And now the hash.
-                stream.Write(Utils.ReverseBytes(i.Hash.Bytes));
+                stream.Write(Utils.ReverseBytes(inventoryItem.Hash.Bytes));
             }
         }
     }

@@ -70,8 +70,8 @@ namespace BitCoinSharp
         public uint BestHeight { get; private set; }
 
         /// <exception cref="ProtocolException"/>
-        public VersionMessage(NetworkParameters networkParameters, byte[] msg)
-            : base(networkParameters, msg, 0)
+        public VersionMessage(NetworkParameters networkParameters, byte[] byteMessage)
+            : base(networkParameters, byteMessage, 0)
         {
         }
 

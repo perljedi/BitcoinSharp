@@ -37,16 +37,16 @@ namespace BitCoinSharp
     [Serializable]
     public class EcKey
     {
-        private static readonly ECDomainParameters _ecParams;
+        private static readonly ECDomainParameters EcParams;
 
-        private static readonly SecureRandom _secureRandom;
+        private static readonly SecureRandom SecureRandom;
 
         static EcKey()
         {
             // All clients must agree on the curve to use by agreement. BitCoin uses secp256k1.
             var @params = SecNamedCurves.GetByName("secp256k1");
-            _ecParams = new ECDomainParameters(@params.Curve, @params.G, @params.N, @params.H);
-            _secureRandom = new SecureRandom();
+            EcParams = new ECDomainParameters(@params.Curve, @params.G, @params.N, @params.H);
+            SecureRandom = new SecureRandom();
         }
 
         private readonly BigInteger _priv;
@@ -61,7 +61,7 @@ namespace BitCoinSharp
         public EcKey()
         {
             var generator = new ECKeyPairGenerator();
-            var keygenParams = new ECKeyGenerationParameters(_ecParams, _secureRandom);
+            var keygenParams = new ECKeyGenerationParameters(EcParams, SecureRandom);
             generator.Init(keygenParams);
             var keypair = generator.GenerateKeyPair();
             var privParams = (ECPrivateKeyParameters) keypair.Private;
@@ -122,7 +122,7 @@ namespace BitCoinSharp
         /// </summary>
         private static byte[] PublicKeyFromPrivate(BigInteger privKey)
         {
-            return _ecParams.G.Multiply(privKey).GetEncoded();
+            return EcParams.G.Multiply(privKey).GetEncoded();
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace BitCoinSharp
         public byte[] Sign(byte[] input)
         {
             var signer = new ECDsaSigner();
-            var privKey = new ECPrivateKeyParameters(_priv, _ecParams);
+            var privKey = new ECPrivateKeyParameters(_priv, EcParams);
             signer.Init(true, privKey);
             var sigs = signer.GenerateSignature(input);
             // What we get back from the signer are the two components of a signature, r and s. To get a flat byte stream
@@ -192,7 +192,7 @@ namespace BitCoinSharp
         public static bool Verify(byte[] data, byte[] signature, byte[] pub)
         {
             var signer = new ECDsaSigner();
-            var @params = new ECPublicKeyParameters(_ecParams.Curve.DecodePoint(pub), _ecParams);
+            var @params = new ECPublicKeyParameters(EcParams.Curve.DecodePoint(pub), EcParams);
             signer.Init(false, @params);
             DerInteger r;
             DerInteger s;
@@ -259,11 +259,11 @@ namespace BitCoinSharp
         /// Exports the private key in the form used by the Satoshi client "dumpprivkey" and "importprivkey" commands. Use
         /// the <see cref="DumpedPrivateKey.ToString"/> method to get the string.
         /// </summary>
-        /// <param name="params">The network this key is intended for use on.</param>
+        /// <param name="networkParameters">The network this key is intended for use on.</param>
         /// <returns>Private key bytes as a <see cref="DumpedPrivateKey"/>.</returns>
-        public DumpedPrivateKey GetPrivateKeyEncoded(NetworkParameters @params)
+        public DumpedPrivateKey GetPrivateKeyEncoded(NetworkParameters networkParameters)
         {
-            return new DumpedPrivateKey(@params, GetPrivKeyBytes());
+            return new DumpedPrivateKey(networkParameters, GetPrivKeyBytes());
         }
     }
 }

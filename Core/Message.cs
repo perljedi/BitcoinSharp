@@ -82,11 +82,12 @@ namespace BitCoinSharp
         }
 
         /// <exception cref="ProtocolException"/>
-        internal Message(NetworkParameters networkParameters, byte[] msg, int offset, uint protocolVersion = NetworkParameters.ProtocolVersion)
+        internal Message(NetworkParameters networkParameters, byte[] byteMessage, int offset,
+            uint protocolVersion = NetworkParameters.ProtocolVersion)
         {
             ProtocolVersion = protocolVersion;
             NetworkParameters = networkParameters;
-            Bytes = msg;
+            Bytes = byteMessage;
             Cursor = Offset = offset;
             Parse();
 #if SELF_CHECK
@@ -94,7 +95,7 @@ namespace BitCoinSharp
             if (GetType() != typeof (VersionMessage))
             {
                 var msgbytes = new byte[Cursor - offset];
-                Array.Copy(msg, offset, msgbytes, 0, Cursor - offset);
+                Array.Copy(byteMessage, offset, msgbytes, 0, Cursor - offset);
                 var reserialized = BitcoinSerialize();
                 if (!reserialized.SequenceEqual(msgbytes))
                     throw new Exception("Serialization is wrong: " + Environment.NewLine +
@@ -185,7 +186,7 @@ namespace BitCoinSharp
             if (varInt.Value == 0)
             {
                 Cursor += 1;
-                return "";
+                return string.Empty;
             }
             var characters = new byte[varInt.Value];
             Array.Copy(Bytes, Cursor, characters, 0, characters.Length);

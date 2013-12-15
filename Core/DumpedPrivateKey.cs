@@ -26,25 +26,26 @@ namespace BitCoinSharp
     public class DumpedPrivateKey : VersionedChecksummedBytes
     {
         // Used by EcKey.PrivateKeyEncoded
-        internal DumpedPrivateKey(NetworkParameters @params, byte[] keyBytes)
-            : base(@params.DumpedPrivateKeyHeader, keyBytes)
+        internal DumpedPrivateKey(NetworkParameters networkParameters, byte[] keyBytes)
+            : base(networkParameters.DumpedPrivateKeyHeader, keyBytes)
         {
             if (keyBytes.Length != 32) // 256 bit keys
-                throw new ArgumentException("Keys are 256 bits, so you must provide 32 bytes, got " + keyBytes.Length + " bytes", "keyBytes");
+                throw new ArgumentException(
+                    "Keys are 256 bits, so you must provide 32 bytes, got " + keyBytes.Length + " bytes", "keyBytes");
         }
 
         /// <summary>
         /// Parses the given private key as created by the "dumpprivkey" BitCoin C++ RPC.
         /// </summary>
-        /// <param name="params">The expected network parameters of the key. If you don't care, provide null.</param>
+        /// <param name="networkParameters">The expected network parameters of the key. If you don't care, provide null.</param>
         /// <param name="encoded">The base58 encoded string.</param>
         /// <exception cref="AddressFormatException">If the string is invalid or the header byte doesn't match the network params.</exception>
-        public DumpedPrivateKey(NetworkParameters @params, string encoded)
+        public DumpedPrivateKey(NetworkParameters networkParameters, string encoded)
             : base(encoded)
         {
-            if (@params != null && Version != @params.DumpedPrivateKeyHeader)
+            if (networkParameters != null && Version != networkParameters.DumpedPrivateKeyHeader)
                 throw new AddressFormatException("Mismatched version number, trying to cross networks? " + Version +
-                                                 " vs " + @params.DumpedPrivateKeyHeader);
+                                                 " vs " + networkParameters.DumpedPrivateKeyHeader);
         }
 
         /// <summary>
