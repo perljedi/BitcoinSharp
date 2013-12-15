@@ -27,7 +27,11 @@ namespace BitCoinSharp.Test.Infrastructure
         [Test]
         public void can_be_used_to_get_unix_date_time()
         {
-            Assert.AreEqual(UnixTime.ToUnixTime(DateTime.Now), SystemTime.UnixNow());
+            var date = UnixTime.ToUnixTime(DateTime.Now);
+            SystemTime.UnixNow = () => date;
+
+
+            Assert.AreEqual(date, SystemTime.UnixNow());
         }
 
 

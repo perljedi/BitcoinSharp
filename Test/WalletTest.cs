@@ -15,7 +15,6 @@
  */
 
 using BitCoinSharp.Store;
-using log4net;
 using NUnit.Framework;
 
 namespace BitCoinSharp.Test
