@@ -1,8 +1,6 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using log4net;
 using NUnit.Framework;
-using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities.Encoders;
 

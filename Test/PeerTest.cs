@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using BitCoinSharp.Common;
 using BitCoinSharp.Store;
 using BitCoinSharp.Test.Moq;
 using Moq;

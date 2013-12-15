@@ -15,18 +15,16 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using BitCoinSharp.Discovery;
 using BitCoinSharp.Store;
-using BitCoinSharp.Threading;
-using BitCoinSharp.Threading.AtomicTypes;
-using BitCoinSharp.Threading.Collections.Generic;
-using BitCoinSharp.Threading.Execution;
 using log4net;
 
 namespace BitCoinSharp
@@ -49,30 +47,24 @@ namespace BitCoinSharp
     /// </remarks>
     public class PeerGroup
     {
-        private const int _defaultConnections = 4;
-
-        private static readonly ILog _log = LogManager.GetLogger(typeof (PeerGroup));
+        private static readonly ILog Log = LogManager.GetLogger(typeof (PeerGroup));
 
         public const int DefaultConnectionDelayMillis = 5*1000;
-        private const int _coreThreads = 1;
-        private const int _threadKeepAliveSeconds = 1;
 
         // Addresses to try to connect to, excluding active peers
-        private readonly IBlockingQueue<PeerAddress> _inactives;
+        private readonly BlockingCollection<PeerAddress> _inactives;
         // Connection initiation thread
         private Thread _connectThread;
         // True if the connection initiation thread should be running
         private bool _running;
-        // A pool of threads for peers, of size maxConnection
-        private readonly ThreadPoolExecutor _peerPool;
         // Currently active peers
-        private readonly ICollection<Peer> _peers;
+        private readonly BlockingCollection<Peer> _peers;
         // The peer we are currently downloading the chain from
         private Peer _downloadPeer;
         // Callback for events related to chain download
         private IPeerEventListener _downloadListener;
         // Peer discovery sources, will be polled occasionally if there aren't enough in-actives.
-        private readonly ICollection<IPeerDiscovery> _peerDiscoverers;
+        private readonly BlockingCollection<IPeerDiscovery> _peerDiscoverers;
 
         private readonly NetworkParameters _params;
         private readonly IBlockStore _blockStore;
@@ -98,13 +90,9 @@ namespace BitCoinSharp
             _chain = chain;
             _connectionDelayMillis = connectionDelayMillis;
 
-            _inactives = new LinkedBlockingQueue<PeerAddress>();
-            _peers = new SynchronizedHashSet<Peer>();
-            _peerDiscoverers = new SynchronizedHashSet<IPeerDiscovery>();
-            _peerPool = new ThreadPoolExecutor(_coreThreads, _defaultConnections,
-                                               TimeSpan.FromSeconds(_threadKeepAliveSeconds),
-                                               new LinkedBlockingQueue<IRunnable>(1),
-                                               new PeerGroupThreadFactory());
+            _inactives = new BlockingCollection<PeerAddress>();
+            _peers = new BlockingCollection<Peer>();
+            _peerDiscoverers = new BlockingCollection<IPeerDiscovery>();
         }
 
         /// <summary>
@@ -120,11 +108,6 @@ namespace BitCoinSharp
         /// <summary>
         /// Depending on the environment, this should normally be between 1 and 10, default is 4.
         /// </summary>
-        public int MaxConnections
-        {
-            get { return _peerPool.MaximumPoolSize; }
-            set { _peerPool.MaximumPoolSize = value; }
-        }
 
         /// <summary>
         /// Add an address to the list of potential peers to connect to.
@@ -189,7 +172,7 @@ namespace BitCoinSharp
                     }
                     catch (IOException e)
                     {
-                        _log.Error("failed to broadcast to " + peer, e);
+                        Log.Error("failed to broadcast to " + peer, e);
                     }
                 }
             }
@@ -231,7 +214,8 @@ namespace BitCoinSharp
                     _running = false;
                 }
             }
-            _peerPool.ShutdownNow();
+            //TODO: 
+            //_peerPool.ShutdownNow();
             lock (_peers)
             {
                 foreach (var peer in _peers)
@@ -253,7 +237,7 @@ namespace BitCoinSharp
                 catch (PeerDiscoveryException e)
                 {
                     // Will try again later.
-                    _log.Error("Failed to discover peer addresses from discovery source", e);
+                    Log.Error("Failed to discover peer addresses from discovery source", e);
                     return;
                 }
 
@@ -279,12 +263,12 @@ namespace BitCoinSharp
                 try
                 {
                     var peer = new Peer(_params, address, _blockStore.GetChainHead().Height, _chain);
-                    _peerPool.Execute(
+                    Task.Factory.StartNew(
                         () =>
                         {
                             try
                             {
-                                _log.Info("Connecting to " + peer);
+                                Log.Info("Connecting to " + peer);
                                 peer.Connect();
                                 _peers.Add(peer);
                                 HandleNewPeer(peer);
@@ -295,20 +279,21 @@ namespace BitCoinSharp
                                 // Do not propagate PeerException - log and try next peer. Suppress stack traces for
                                 // exceptions we expect as part of normal network behaviour.
                                 var cause = ex.InnerException;
-                                if (cause is SocketException)
+                                var exception = cause as SocketException;
+                                if (exception != null)
                                 {
-                                    if (((SocketException) cause).SocketErrorCode == SocketError.TimedOut)
-                                        _log.Info("Timeout talking to " + peer + ": " + cause.Message);
+                                    if (exception.SocketErrorCode == SocketError.TimedOut)
+                                        Log.Info("Timeout talking to " + peer + ": " + cause.Message);
                                     else
-                                        _log.Info("Could not connect to " + peer + ": " + cause.Message);
+                                        Log.Info("Could not connect to " + peer + ": " + cause.Message);
                                 }
                                 else if (cause is IOException)
                                 {
-                                    _log.Info("Error talking to " + peer + ": " + cause.Message);
+                                    Log.Info("Error talking to " + peer + ": " + cause.Message);
                                 }
                                 else
                                 {
-                                    _log.Error("Unexpected exception whilst talking to " + peer, ex);
+                                    Log.Error("Unexpected exception whilst talking to " + peer, ex);
                                 }
                             }
                             finally
@@ -318,25 +303,26 @@ namespace BitCoinSharp
                                 peer.Disconnect();
 
                                 _inactives.Add(address);
-                                if (_peers.Remove(peer))
+                                //TODO: Ensure this is the logic that we expect.
+                                if (_peers.TryTake(out peer))
                                     HandlePeerDeath(peer);
                             }
                         });
                     break;
                 }
-                catch (RejectedExecutionException)
-                {
-                    // Reached maxConnections, try again after a delay
+                //catch (RejectedExecutionException)
+                //{
+                //    // Reached maxConnections, try again after a delay
 
-                    // TODO - consider being smarter about retry. No need to retry
-                    // if we reached maxConnections or if peer queue is empty. Also consider
-                    // exponential backoff on peers and adjusting the sleep time according to the
-                    // lowest backoff value in queue.
-                }
+                //    // TODO - consider being smarter about retry. No need to retry
+                //    // if we reached maxConnections or if peer queue is empty. Also consider
+                //    // exponential backoff on peers and adjusting the sleep time according to the
+                //    // lowest backoff value in queue.
+                //}
                 catch (BlockStoreException e)
                 {
                     // Fatal error
-                    _log.Error("Block store corrupt?", e);
+                    Log.Error("Block store corrupt?", e);
                     _running = false;
                     throw new Exception(e.Message, e);
                 }
@@ -435,35 +421,10 @@ namespace BitCoinSharp
                 }
                 catch (IOException e)
                 {
-                    _log.Error("failed to start block chain download from " + peer, e);
+                    Log.Error("failed to start block chain download from " + peer, e);
                     return;
                 }
                 _downloadPeer = peer;
-            }
-        }
-
-        private class PeerGroupThreadFactory : IThreadFactory
-        {
-            private static readonly AtomicInteger _poolNumber = new AtomicInteger(1);
-            private readonly AtomicInteger _threadNumber = new AtomicInteger(1);
-            private readonly string _namePrefix;
-
-            public PeerGroupThreadFactory()
-            {
-                _namePrefix = "PeerGroup-" +
-                              _poolNumber.ReturnValueAndIncrement() +
-                              "-thread-";
-            }
-
-            public Thread NewThread(IRunnable r)
-            {
-                var t = new Thread(r.Run, 0) {Name = _namePrefix + _threadNumber.ReturnValueAndIncrement()};
-                // Lower the priority of the peer threads. This is to avoid competing with UI threads created by the API
-                // user when doing lots of work, like downloading the block chain. We select a priority level one lower
-                // than the parent thread, or the minimum.
-                t.Priority = (ThreadPriority) Math.Max((int) ThreadPriority.Lowest, ((int) Thread.CurrentThread.Priority) - 1);
-                t.IsBackground = true;
-                return t;
             }
         }
     }

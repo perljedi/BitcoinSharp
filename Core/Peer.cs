@@ -20,7 +20,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using BitCoinSharp.Threading;
 using log4net;
 
 namespace BitCoinSharp
@@ -320,7 +319,7 @@ namespace BitCoinSharp
             private readonly InventoryItem _item;
             private readonly AsyncCallback _callback;
             private readonly object _state;
-            private readonly CountDownLatch _latch;
+          //  private readonly CountDownLatch _latch;
             private WaitHandle _waitHandle;
             private T _result;
 
@@ -329,7 +328,7 @@ namespace BitCoinSharp
                 _item = item;
                 _callback = callback;
                 _state = state;
-                _latch = new CountDownLatch(1);
+              //  _latch = new CountDownLatch(1);
             }
 
             public bool IsCompleted
@@ -339,7 +338,11 @@ namespace BitCoinSharp
 
             public WaitHandle AsyncWaitHandle
             {
-                get { return _waitHandle ?? (_waitHandle = new LatchWaitHandle(_latch)); }
+                get
+                {
+                    //return _waitHandle ?? (_waitHandle = new LatchWaitHandle(_latch));
+                    return null;
+                }
             }
 
             public object AsyncState
@@ -354,7 +357,7 @@ namespace BitCoinSharp
 
             internal T Get()
             {
-                _latch.Await();
+                //await _latch;
                 Debug.Assert(!Equals(_result, default(T)));
                 return _result;
             }
@@ -373,7 +376,7 @@ namespace BitCoinSharp
                 _result = result;
                 // Now release the thread that is waiting. We don't need to synchronize here as the latch establishes
                 // a memory barrier.
-                _latch.CountDown();
+                //_latch.CountDown();
                 if (_callback != null)
                     _callback(this);
                 if (_waitHandle != null)
@@ -383,25 +386,25 @@ namespace BitCoinSharp
                 }
             }
 
-            private class LatchWaitHandle : WaitHandle
-            {
-                private readonly CountDownLatch _latch;
+            //private class LatchWaitHandle : WaitHandle
+            //{
+            //   // private readonly CountDownLatch _latch;
 
-                public LatchWaitHandle(CountDownLatch latch)
-                {
-                    _latch = latch;
-                }
+            //    public LatchWaitHandle(CountDownLatch latch)
+            //    {
+            //        _latch = latch;
+            //    }
 
-                public override bool WaitOne(int millisecondsTimeout, bool exitContext)
-                {
-                    return WaitOne(TimeSpan.FromMilliseconds(millisecondsTimeout));
-                }
+            //    public override bool WaitOne(int millisecondsTimeout, bool exitContext)
+            //    {
+            //        return WaitOne(TimeSpan.FromMilliseconds(millisecondsTimeout));
+            //    }
 
-                public override bool WaitOne(TimeSpan timeout, bool exitContext)
-                {
-                    return _latch.Await(timeout);
-                }
-            }
+            //    public override bool WaitOne(TimeSpan timeout, bool exitContext)
+            //    {
+            //        return _latch.Await(timeout);
+            //    }
+            //}
         }
 
         /// <summary>
