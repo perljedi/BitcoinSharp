@@ -26,7 +26,7 @@ namespace BitCoinSharp
         }
 
         // this is needed by the BitcoinSerializer
-        public VersionAck(NetworkParameters @params, byte[] payload)
+        public VersionAck(NetworkParameters networkParameters, byte[] payload)
         {
         }
 

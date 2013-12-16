@@ -15,7 +15,6 @@ namespace BitCoinSharp.Test.Infrastructure
             Assert.AreEqual(date, SystemTime.Now());
         }
 
-
         [Test]
         public void can_be_set_to_specific_time()
         {
@@ -23,18 +22,14 @@ namespace BitCoinSharp.Test.Infrastructure
             Assert.AreNotEqual(DateTime.Now, SystemTime.Now());
         }
 
-        // TODO Fails sometimes?
-        // More info: https://github.com/detroitpro/BitcoinSharp/issues/10
         [Test]
         public void can_be_used_to_get_unix_date_time()
         {
             var date = UnixTime.ToUnixTime(DateTime.Now);
             SystemTime.UnixNow = () => date;
 
-
             Assert.AreEqual(date, SystemTime.UnixNow());
         }
-
 
         [Test]
         public void can_be_used_to_set_specific_unix_date_time()

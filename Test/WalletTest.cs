@@ -63,8 +63,8 @@ namespace BitCoinSharp.Test
             Assert.AreEqual(1, _wallet.GetPoolSize(Wallet.Pool.All));
 
             // Do some basic sanity checks.
-            Assert.AreEqual(1, t2.Inputs.Count);
-            Assert.AreEqual(_myAddress, t2.Inputs[0].ScriptSig.FromAddress);
+            Assert.AreEqual(1, t2.TransactionInputs.Count);
+            Assert.AreEqual(_myAddress, t2.TransactionInputs[0].ScriptSig.FromAddress);
 
             // We have NOT proven that the signature is correct!
 
@@ -103,9 +103,9 @@ namespace BitCoinSharp.Test
             _wallet.CoinsReceived +=
                 (sender, e) =>
                 {
-                    Assert.IsTrue(e.PrevBalance.Equals(0));
+                    Assert.IsTrue(e.PreviousBalance.Equals(0));
                     Assert.IsTrue(e.NewBalance.Equals(Utils.ToNanoCoins(1, 0)));
-                    Assert.AreEqual(e.Tx, fakeTx);
+                    Assert.AreEqual(e.Transaction, fakeTx);
                     Assert.AreEqual(sender, _wallet);
                     didRun = true;
                 };
@@ -231,7 +231,7 @@ namespace BitCoinSharp.Test
             // That other guy gives us the coins right back.
             var inbound2 = new Transaction(Params);
             inbound2.AddOutput(new TransactionOutput(Params, inbound2, coinHalf, _myAddress));
-            inbound2.AddInput(outbound1.Outputs[0]);
+            inbound2.AddInput(outbound1.TransactionOutputs[0]);
             _wallet.Receive(inbound2, null, BlockChain.NewBlockType.BestChain);
             Assert.AreEqual(coin1, _wallet.GetBalance());
         }
@@ -255,8 +255,8 @@ namespace BitCoinSharp.Test
             _wallet.DeadTransaction +=
                 (sender, e) =>
                 {
-                    eventDead = e.DeadTx;
-                    eventReplacement = e.ReplacementTx;
+                    eventDead = e.DeadTransaction;
+                    eventReplacement = e.ReplacementTransaction;
                 };
 
             // Receive 1 BTC.

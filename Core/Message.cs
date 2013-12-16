@@ -126,7 +126,7 @@ namespace BitCoinSharp
         /// Serializes this message to the provided stream. If you just want the raw bytes use bitcoinSerialize().
         /// </summary>
         /// <exception cref="IOException"/>
-        public virtual void BitcoinSerializeToStream(Stream stream)
+        public virtual void BitcoinSerializeToStream(Stream outputStream)
         {
         }
 
@@ -180,7 +180,7 @@ namespace BitCoinSharp
             return b;
         }
 
-        internal string ReadStr()
+        internal string ReadString()
         {
             var varInt = new VarInt(Bytes, Cursor);
             if (varInt.Value == 0)

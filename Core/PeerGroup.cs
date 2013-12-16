@@ -49,7 +49,7 @@ namespace BitCoinSharp
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof (PeerGroup));
 
-        public const int DefaultConnectionDelayMillis = 5*1000;
+        public const int DefaultConnectionDelayMillis = 5 * 1000;
 
         // Addresses to try to connect to, excluding active peers
         private readonly BlockingCollection<PeerAddress> _inactives;
@@ -66,16 +66,16 @@ namespace BitCoinSharp
         // Peer discovery sources, will be polled occasionally if there aren't enough in-actives.
         private readonly BlockingCollection<IPeerDiscovery> _peerDiscoverers;
 
-        private readonly NetworkParameters _params;
+        private readonly NetworkParameters _networkParameters;
         private readonly IBlockStore _blockStore;
-        private readonly BlockChain _chain;
+        private readonly BlockChain _blockChain;
         private readonly int _connectionDelayMillis;
 
         /// <summary>
         /// Creates a PeerGroup with the given parameters and a default 5 second connection timeout.
         /// </summary>
-        public PeerGroup(IBlockStore blockStore, NetworkParameters @params, BlockChain chain)
-            : this(blockStore, @params, chain, DefaultConnectionDelayMillis)
+        public PeerGroup(IBlockStore blockStore, NetworkParameters networkParameters, BlockChain blockChain)
+            : this(blockStore, networkParameters, blockChain, DefaultConnectionDelayMillis)
         {
         }
 
@@ -83,11 +83,12 @@ namespace BitCoinSharp
         /// Creates a PeerGroup with the given parameters. The connectionDelayMillis parameter controls how long the
         /// PeerGroup will wait between attempts to connect to nodes or read from any added peer discovery sources.
         /// </summary>
-        public PeerGroup(IBlockStore blockStore, NetworkParameters @params, BlockChain chain, int connectionDelayMillis)
+        public PeerGroup(IBlockStore blockStore, NetworkParameters networkParameters, BlockChain blockChain,
+            int connectionDelayMillis)
         {
             _blockStore = blockStore;
-            _params = @params;
-            _chain = chain;
+            _networkParameters = networkParameters;
+            _blockChain = blockChain;
             _connectionDelayMillis = connectionDelayMillis;
 
             _inactives = new BlockingCollection<PeerAddress>();
@@ -108,7 +109,6 @@ namespace BitCoinSharp
         /// <summary>
         /// Depending on the environment, this should normally be between 1 and 10, default is 4.
         /// </summary>
-
         /// <summary>
         /// Add an address to the list of potential peers to connect to.
         /// </summary>
@@ -262,7 +262,7 @@ namespace BitCoinSharp
             {
                 try
                 {
-                    var peer = new Peer(_params, address, _blockStore.GetChainHead().Height, _chain);
+                    var peer = new Peer(_networkParameters, address, _blockStore.GetChainHead().Height, _blockChain);
                     Task.Factory.StartNew(
                         () =>
                         {
@@ -310,15 +310,15 @@ namespace BitCoinSharp
                         });
                     break;
                 }
-                //catch (RejectedExecutionException)
-                //{
-                //    // Reached maxConnections, try again after a delay
+                    //catch (RejectedExecutionException)
+                    //{
+                    //    // Reached maxConnections, try again after a delay
 
-                //    // TODO - consider being smarter about retry. No need to retry
-                //    // if we reached maxConnections or if peer queue is empty. Also consider
-                //    // exponential backoff on peers and adjusting the sleep time according to the
-                //    // lowest backoff value in queue.
-                //}
+                    //    // TODO - consider being smarter about retry. No need to retry
+                    //    // if we reached maxConnections or if peer queue is empty. Also consider
+                    //    // exponential backoff on peers and adjusting the sleep time according to the
+                    //    // lowest backoff value in queue.
+                    //}
                 catch (BlockStoreException e)
                 {
                     // Fatal error
@@ -329,6 +329,7 @@ namespace BitCoinSharp
 
                 // If we got here, we should retry this address because an error unrelated
                 // to the peer has occurred.
+                // TODO: Code is unreachable?
                 Thread.Sleep(_connectionDelayMillis);
             }
         }
@@ -367,9 +368,9 @@ namespace BitCoinSharp
         /// </remarks>
         public void DownloadBlockChain()
         {
-            var listener = new DownloadListener();
-            StartBlockChainDownload(listener);
-            listener.Await();
+            var downloadListener = new DownloadListener();
+            StartBlockChainDownload(downloadListener);
+            downloadListener.Await();
         }
 
         protected void HandleNewPeer(Peer peer)
@@ -413,8 +414,12 @@ namespace BitCoinSharp
         {
             lock (this)
             {
-                peer.BlocksDownloaded += (sender, e) => _downloadListener.OnBlocksDownloaded((Peer) sender, e.Block, e.BlocksLeft);
-                peer.ChainDownloadStarted += (sender, e) => _downloadListener.OnChainDownloadStarted((Peer) sender, e.BlocksLeft);
+                peer.BlocksDownloaded +=
+                    (sender, blocksDownloadedEventArgs) =>
+                        _downloadListener.OnBlocksDownloaded((Peer) sender, blocksDownloadedEventArgs.Block,
+                            blocksDownloadedEventArgs.BlocksLeft);
+                peer.ChainDownloadStarted +=
+                    (sender, e) => _downloadListener.OnChainDownloadStarted((Peer) sender, e.BlocksLeft);
                 try
                 {
                     peer.StartBlockChainDownload();

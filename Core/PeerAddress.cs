@@ -24,19 +24,19 @@ using Org.BouncyCastle.Math;
 namespace BitCoinSharp
 {
     /// <summary>
-    /// A PeerAddress holds an IP address and port number representing the network location of
+    /// A PeerAddress holds an IP ipAddress and port number representing the network location of
     /// a peer in the BitCoin P2P network. It exists primarily for serialization purposes.
     /// </summary>
     [Serializable]
     public class PeerAddress : Message
     {
-        internal IPAddress Addr { get; private set; }
+        internal IPAddress IpAddress { get; private set; }
         internal int Port { get; private set; }
         private ulong _services;
         private uint _time;
 
         /// <summary>
-        /// Construct a peer address from a serialized payload.
+        /// Construct a peer ipAddress from a serialized payload.
         /// </summary>
         /// <exception cref="ProtocolException"/>
         public PeerAddress(NetworkParameters networkParameters, byte[] payload, int offset, uint protocolVersion)
@@ -45,23 +45,23 @@ namespace BitCoinSharp
         }
 
         /// <summary>
-        /// Construct a peer address from a memorized or hardcoded address.
+        /// Construct a peer ipAddress from a memorized or hardcoded ipAddress.
         /// </summary>
-        public PeerAddress(IPAddress addr, int port, uint protocolVersion)
+        public PeerAddress(IPAddress ipAddress, int port, uint protocolVersion)
         {
-            Addr = addr;
+            IpAddress = ipAddress;
             Port = port;
             ProtocolVersion = protocolVersion;
             _services = 0;
         }
 
-        public PeerAddress(IPAddress addr, int port)
-            : this(addr, port, NetworkParameters.ProtocolVersion)
+        public PeerAddress(IPAddress ipAddress, int port)
+            : this(ipAddress, port, NetworkParameters.ProtocolVersion)
         {
         }
 
-        public PeerAddress(IPAddress addr)
-            : this(addr, 0)
+        public PeerAddress(IPAddress ipAddress)
+            : this(ipAddress, 0)
         {
         }
 
@@ -71,41 +71,38 @@ namespace BitCoinSharp
         }
 
         /// <exception cref="IOException"/>
-        public override void BitcoinSerializeToStream(Stream stream)
+        public override void BitcoinSerializeToStream(Stream outputStream)
         {
             if (ProtocolVersion >= 31402)
             {
                 var secs = SystemTime.UnixNow();
-                Utils.Uint32ToByteStreamLe((uint) secs, stream);
+                Utils.Uint32ToByteStreamLe((uint) secs, outputStream);
             }
-            Utils.Uint64ToByteStreamLe(_services, stream); // nServices.
-            // Java does not provide any utility to map an IPv4 address into IPv6 space, so we have to do it by hand.
-            var ipBytes = Addr.GetAddressBytes();
+            Utils.Uint64ToByteStreamLe(_services, outputStream); // nServices.
+            // Java does not provide any utility to map an IPv4 ipAddress into IPv6 space, so we have to do it by hand.
+            var ipBytes = IpAddress.GetAddressBytes();
             if (ipBytes.Length == 4)
             {
-                var v6Addr = new byte[16];
-                Array.Copy(ipBytes, 0, v6Addr, 12, 4);
-                v6Addr[10] = 0xFF;
-                v6Addr[11] = 0xFF;
-                ipBytes = v6Addr;
+                var ipV6Address = new byte[16];
+                Array.Copy(ipBytes, 0, ipV6Address, 12, 4);
+                ipV6Address[10] = 0xFF;
+                ipV6Address[11] = 0xFF;
+                ipBytes = ipV6Address;
             }
-            stream.Write(ipBytes);
-            // And write out the port. Unlike the rest of the protocol, address and port is in big endian byte order.
-            stream.Write((byte) (Port >> 8));
-            stream.Write((byte) Port);
+            outputStream.Write(ipBytes);
+            // And write out the port. Unlike the rest of the protocol, ipAddress and port is in big endian byte order.
+            outputStream.Write((byte) (Port >> 8));
+            outputStream.Write((byte) Port);
         }
 
         protected override void Parse()
         {
-            // Format of a serialized address:
+            // Format of a serialized ipAddress:
             //   uint32 timestamp
             //   uint64 services   (flags determining what the node can do)
-            //   16 bytes IP address
+            //   16 bytes IP ipAddress
             //   2 bytes port num
-            if (ProtocolVersion > 31402)
-                _time = ReadUint32();
-            else
-                _time = uint.MaxValue;
+            _time = ProtocolVersion > 31402 ? ReadUint32() : uint.MaxValue;
             _services = ReadUint64();
             var addrBytes = ReadBytes(16);
             if (new BigInteger(addrBytes, 0, 12).Equals(BigInteger.ValueOf(0xFFFF)))
@@ -114,13 +111,13 @@ namespace BitCoinSharp
                 Array.Copy(addrBytes, 12, newBytes, 0, 4);
                 addrBytes = newBytes;
             }
-            Addr = new IPAddress(addrBytes);
+            IpAddress = new IPAddress(addrBytes);
             Port = (Bytes[Cursor++] << 8) | Bytes[Cursor++];
         }
 
         public override string ToString()
         {
-            return "[" + Addr + "]:" + Port;
+            return "[" + IpAddress + "]:" + Port;
         }
     }
 }

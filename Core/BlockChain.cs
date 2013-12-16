@@ -49,7 +49,7 @@ namespace BitCoinSharp
     /// </remarks>
     public class BlockChain
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (BlockChain));
+        private static readonly ILog Log = LogManager.GetLogger(typeof (BlockChain));
 
         /// <summary>
         ///     Keeps a map of block hashes to StoredBlocks.
@@ -110,7 +110,7 @@ namespace BitCoinSharp
         {
             _blockStore = blockStore;
             _chainHead = blockStore.GetChainHead();
-            Logger.InfoFormat("chain head is:{0}{1}", Environment.NewLine, _chainHead.Header);
+            Log.InfoFormat("chain head is:{0}{1}", Environment.NewLine, _chainHead.BlockHeader);
             _networkParameters = networkParameters;
             _wallets = new List<Wallet>(wallets);
         }
@@ -157,12 +157,12 @@ namespace BitCoinSharp
                 if (Environment.TickCount - _statsLastTime > 1000)
                 {
                     // More than a second passed since last stats logging.
-                    Logger.InfoFormat("{0} blocks per second", _statsBlocksAdded);
+                    Log.InfoFormat("{0} blocks per second", _statsBlocksAdded);
                     _statsLastTime = Environment.TickCount;
                     _statsBlocksAdded = 0;
                 }
                 // We check only the chain head for double adds here to avoid potentially expensive block chain misses.
-                if (block.Equals(_chainHead.Header))
+                if (block.Equals(_chainHead.BlockHeader))
                 {
                     // Duplicate add of the block at the top of the chain, can be a natural artifact of the download process.
                     return true;
@@ -191,20 +191,20 @@ namespace BitCoinSharp
                 }
                 catch (VerificationException e)
                 {
-                    Logger.Error("Failed to verify block:", e);
-                    Logger.Error(block.HashAsString);
+                    Log.Error("Failed to verify block:", e);
+                    Log.Error(block.HashAsString);
                     throw;
                 }
 
                 // Try linking it to a place in the currently known blocks.
-                var previousStoredBlock = _blockStore.Get(block.PrevBlockHash);
+                var previousStoredBlock = _blockStore.Get(block.PreviousBlockHash);
 
                 if (previousStoredBlock == null)
                 {
                     // We can't find the previous block. Probably we are still in the process of downloading the chain and a
                     // block was solved whilst we were doing it. We put it to one side and try to connect it later when we
                     // have more blocks.
-                    Logger.WarnFormat("Block does not connect: {0}", block.HashAsString);
+                    Log.WarnFormat("Block does not connect: {0}", block.HashAsString);
                     _unconnectedBlocks.Add(block);
                     return false;
                 }
@@ -234,7 +234,7 @@ namespace BitCoinSharp
             {
                 // This block connects to the best known block, it is a normal continuation of the system.
                 ChainHead = newStoredBlock;
-                Logger.DebugFormat("Chain is now {0} blocks high", _chainHead.Height);
+                Log.DebugFormat("Chain is now {0} blocks high", _chainHead.Height);
                 if (newTransactions != null)
                     SendTransactionsToWallet(newStoredBlock, NewBlockType.BestChain, newTransactions);
             }
@@ -247,13 +247,13 @@ namespace BitCoinSharp
                 var haveNewBestChain = newStoredBlock.MoreWorkThan(_chainHead);
                 if (haveNewBestChain)
                 {
-                    Logger.Info("Block is causing a re-organize");
+                    Log.Info("Block is causing a re-organize");
                 }
                 else
                 {
                     var splitPoint = FindSplit(newStoredBlock, _chainHead);
-                    var splitPointHash = splitPoint != null ? splitPoint.Header.HashAsString : "?";
-                    Logger.InfoFormat("Block forks the chain at {0}, but it did not cause a reorganize:{1}{2}",
+                    var splitPointHash = splitPoint != null ? splitPoint.BlockHeader.HashAsString : "?";
+                    Log.InfoFormat("Block forks the chain at {0}, but it did not cause a reorganize:{1}{2}",
                         splitPointHash, Environment.NewLine, newStoredBlock);
                 }
 
@@ -281,10 +281,10 @@ namespace BitCoinSharp
             // Firstly, calculate the block at which the chain diverged. We only need to examine the
             // chain from beyond this block to find differences.
             var splitPoint = FindSplit(newChainHead, _chainHead);
-            Logger.InfoFormat("Re-organize after split at height {0}", splitPoint.Height);
-            Logger.InfoFormat("Old chain head: {0}", _chainHead.Header.HashAsString);
-            Logger.InfoFormat("New chain head: {0}", newChainHead.Header.HashAsString);
-            Logger.InfoFormat("Split at block: {0}", splitPoint.Header.HashAsString);
+            Log.InfoFormat("Re-organize after split at height {0}", splitPoint.Height);
+            Log.InfoFormat("Old chain head: {0}", _chainHead.BlockHeader.HashAsString);
+            Log.InfoFormat("New chain head: {0}", newChainHead.BlockHeader.HashAsString);
+            Log.InfoFormat("Split at block: {0}", splitPoint.BlockHeader.HashAsString);
             // Then build a list of all blocks in the old part of the chain and the new part.
             var oldBlocks = GetPartialChain(_chainHead, splitPoint);
             var newBlocks = GetPartialChain(newChainHead, splitPoint);
@@ -372,7 +372,7 @@ namespace BitCoinSharp
                 {
                     // We don't want scripts we don't understand to break the block chain so just note that this tx was
                     // not scanned here and continue.
-                    Logger.WarnFormat("Failed to parse a script: {0}", e);
+                    Log.WarnFormat("Failed to parse a script: {0}", e);
                 }
             }
         }
@@ -394,7 +394,7 @@ namespace BitCoinSharp
                 blocksConnectedThisRound = 0;
                 foreach (var block in _unconnectedBlocks.ToList())
                 {
-                    var prev = _blockStore.Get(block.PrevBlockHash);
+                    var prev = _blockStore.Get(block.PreviousBlockHash);
                     if (prev == null)
                     {
                         // This is still an unconnected/orphan block.
@@ -408,7 +408,7 @@ namespace BitCoinSharp
                 }
                 if (blocksConnectedThisRound > 0)
                 {
-                    Logger.InfoFormat("Connected {0} floating blocks.", blocksConnectedThisRound);
+                    Log.InfoFormat("Connected {0} floating blocks.", blocksConnectedThisRound);
                 }
             } while (blocksConnectedThisRound > 0);
         }
@@ -420,22 +420,22 @@ namespace BitCoinSharp
         /// <exception cref="VerificationException" />
         private void CheckDifficultyTransitions(StoredBlock previousStoredBlock, StoredBlock nextStoredBlock)
         {
-            var previousBlockHeader = previousStoredBlock.Header;
-            Logger.DebugFormat("Previous Block Header: {0}", previousBlockHeader);
+            var previousBlockHeader = previousStoredBlock.BlockHeader;
+            Log.DebugFormat("Previous Block Header: {0}", previousBlockHeader);
 
-            var nextBlockHeader = nextStoredBlock.Header;
-            Logger.DebugFormat("Next Block Header: {0}", nextBlockHeader);
+            var nextBlockHeader = nextStoredBlock.BlockHeader;
+            Log.DebugFormat("Next Block Header: {0}", nextBlockHeader);
 
             //Check if this is supposed to be a difficulty transition point.
             if ((previousStoredBlock.Height + 1) % _networkParameters.Interval != 0)
             {
                 // No ... so check the difficulty didn't actually change.
-                if (nextBlockHeader.DifficultyTarget != previousBlockHeader.DifficultyTarget)
+                if (nextBlockHeader.TargetDifficulty != previousBlockHeader.TargetDifficulty)
                 {
                     throw new VerificationException("Unexpected change in difficulty at height " +
                                                     previousStoredBlock.Height +
-                                                    ": " + nextBlockHeader.DifficultyTarget.ToString("x") + " vs " +
-                                                    previousBlockHeader.DifficultyTarget.ToString("x"));
+                                                    ": " + nextBlockHeader.TargetDifficulty.ToString("x") + " vs " +
+                                                    previousBlockHeader.TargetDifficulty.ToString("x"));
                 }
                 //Since this is not a difficulty transition point. return.
                 return;
@@ -453,11 +453,11 @@ namespace BitCoinSharp
                     throw new VerificationException(
                         "Difficulty transition point but we did not find a way back to the genesis block.");
                 }
-                cursor = _blockStore.Get(cursor.Header.PrevBlockHash);
+                cursor = _blockStore.Get(cursor.BlockHeader.PreviousBlockHash);
             }
-            Logger.DebugFormat("Difficulty transition traversal took {0}ms", Environment.TickCount - now);
+            Log.DebugFormat("Difficulty transition traversal took {0}ms", Environment.TickCount - now);
 
-            var blockIntervalAgo = cursor.Header;
+            var blockIntervalAgo = cursor.BlockHeader;
             var timespan = (int) (previousBlockHeader.TimeSeconds - blockIntervalAgo.TimeSeconds);
             // Limit the adjustment step.
             if (timespan < _networkParameters.TargetTimespan / 4)
@@ -465,17 +465,17 @@ namespace BitCoinSharp
             if (timespan > _networkParameters.TargetTimespan * 4)
                 timespan = _networkParameters.TargetTimespan * 4;
 
-            var newDifficulty = Utils.DecodeCompactBits(blockIntervalAgo.DifficultyTarget);
+            var newDifficulty = Utils.DecodeCompactBits(blockIntervalAgo.TargetDifficulty);
             newDifficulty = newDifficulty.Multiply(BigInteger.ValueOf(timespan));
             newDifficulty = newDifficulty.Divide(BigInteger.ValueOf(_networkParameters.TargetTimespan));
 
             if (newDifficulty.CompareTo(_networkParameters.ProofOfWorkLimit) > 0)
             {
-                Logger.DebugFormat("Difficulty hit proof of work limit: {0}", newDifficulty.ToString(16));
+                Log.DebugFormat("Difficulty hit proof of work limit: {0}", newDifficulty.ToString(16));
                 newDifficulty = _networkParameters.ProofOfWorkLimit;
             }
 
-            var accuracyBytes = (int) (nextBlockHeader.DifficultyTarget >> 24) - 3;
+            var accuracyBytes = (int) (nextBlockHeader.TargetDifficulty >> 24) - 3;
             var receivedDifficulty = nextBlockHeader.GetDifficultyTargetAsInteger();
 
             // The calculated difficulty is to a higher precision than received, so reduce here.
@@ -505,17 +505,17 @@ namespace BitCoinSharp
                     foreach (var wallet in _wallets)
                     {
                         var shouldReceive =
-                            transaction.Outputs.Where(output => !output.ScriptPubKey.IsSentToIp)
+                            transaction.TransactionOutputs.Where(output => !output.ScriptPublicKey.IsSentToIp)
                                 .Any(output => output.IsMine(wallet));
 
                         // Coinbase transactions don't have anything useful in their inputs (as they create coins out of thin air).
                         if (!shouldReceive && !transaction.IsCoinBase)
                         {
-                            foreach (var transactionInput in transaction.Inputs)
+                            foreach (var transactionInput in transaction.TransactionInputs)
                             {
-                                var publicKey = transactionInput.ScriptSig.PubKey;
+                                var publicKey = transactionInput.ScriptSig.PublicKey;
                                 // This is not thread safe as a key could be removed between the call to isPubKeyMine and receive.
-                                if (wallet.IsPubKeyMine(publicKey))
+                                if (wallet.IsPublicKeyMine(publicKey))
                                 {
                                     shouldReceive = true;
                                 }
@@ -536,7 +536,7 @@ namespace BitCoinSharp
                 {
                     // We don't want scripts we don't understand to break the block chain so just note that this tx was
                     // not scanned here and continue.
-                    Logger.Warn("Failed to parse a script: " + e);
+                    Log.Warn("Failed to parse a script: " + e);
                 }
             }
         }

@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using BitCoinSharp.IO;
 
@@ -38,8 +39,8 @@ namespace BitCoinSharp
     {
         // These are serialized in both BitCoin and java serialization.
         private uint _version;
-        private List<TransactionInput> _inputs;
-        private List<TransactionOutput> _outputs;
+        private List<TransactionInput> _transactionInputs;
+        private List<TransactionOutput> _transactionOutputs;
         private uint _lockTime;
 
         // This is an in memory helper only.
@@ -49,8 +50,8 @@ namespace BitCoinSharp
             : base(networkParameters)
         {
             _version = 1;
-            _inputs = new List<TransactionInput>();
-            _outputs = new List<TransactionOutput>();
+            _transactionInputs = new List<TransactionInput>();
+            _transactionOutputs = new List<TransactionOutput>();
             // We don't initialize appearsIn deliberately as it's only useful for transactions stored in the wallet.
         }
 
@@ -76,17 +77,17 @@ namespace BitCoinSharp
         /// <summary>
         /// Returns a read-only list of the inputs of this transaction.
         /// </summary>
-        public IList<TransactionInput> Inputs
+        public IList<TransactionInput> TransactionInputs
         {
-            get { return _inputs.AsReadOnly(); }
+            get { return _transactionInputs.AsReadOnly(); }
         }
 
         /// <summary>
         /// Returns a read-only list of the outputs of this transaction.
         /// </summary>
-        public IList<TransactionOutput> Outputs
+        public IList<TransactionOutput> TransactionOutputs
         {
-            get { return _outputs.AsReadOnly(); }
+            get { return _transactionOutputs.AsReadOnly(); }
         }
 
         /// <summary>
@@ -94,7 +95,10 @@ namespace BitCoinSharp
         /// </summary>
         public Sha256Hash Hash
         {
-            get { return _hash ?? (_hash = new Sha256Hash(Utils.ReverseBytes(Utils.DoubleDigest(BitcoinSerialize())))); }
+            get
+            {
+                return _hash ?? (_hash = new Sha256Hash(Utils.ReverseBytes(Utils.DoubleDigest(BitcoinSerialize()))));
+            }
         }
 
         public string HashAsString
@@ -109,14 +113,10 @@ namespace BitCoinSharp
         internal ulong GetValueSentToMe(Wallet wallet, bool includeSpent)
         {
             // This is tested in WalletTest.
-            var v = 0UL;
-            foreach (var o in _outputs)
-            {
-                if (!o.IsMine(wallet)) continue;
-                if (!includeSpent && !o.IsAvailableForSpending) continue;
-                v += o.Value;
-            }
-            return v;
+            return
+                _transactionOutputs.Where(transactionOutput => transactionOutput.IsMine(wallet))
+                    .Where(transactionOutput => includeSpent || transactionOutput.IsAvailableForSpending)
+                    .Aggregate(0UL, (current, transactionOutput) => current + transactionOutput.Value);
         }
 
         /// <summary>
@@ -157,35 +157,20 @@ namespace BitCoinSharp
         public ulong GetValueSentFromMe(Wallet wallet)
         {
             // This is tested in WalletTest.
-            var v = 0UL;
-            foreach (var input in _inputs)
-            {
-                // This input is taking value from an transaction in our wallet. To discover the value,
-                // we must find the connected transaction.
-                var connected = input.GetConnectedOutput(wallet.Unspent);
-                if (connected == null)
-                    connected = input.GetConnectedOutput(wallet.Spent);
-                if (connected == null)
-                    connected = input.GetConnectedOutput(wallet.Pending);
-                if (connected == null)
-                    continue;
-                // The connected output may be the change to the sender of a previous input sent to this wallet. In this
-                // case we ignore it.
-                if (!connected.IsMine(wallet))
-                    continue;
-                v += connected.Value;
-            }
-            return v;
+            return
+                _transactionInputs.Select(
+                    transactionInput =>
+                        (transactionInput.GetConnectedOutput(wallet.Unspent) ??
+                         transactionInput.GetConnectedOutput(wallet.Spent)) ??
+                        transactionInput.GetConnectedOutput(wallet.Pending))
+                    .Where(connected => connected != null)
+                    .Where(connected => connected.IsMine(wallet))
+                    .Aggregate(0UL, (current, connected) => current + connected.Value);
         }
 
         internal bool DisconnectInputs()
         {
-            var disconnected = false;
-            foreach (var input in _inputs)
-            {
-                disconnected |= input.Disconnect();
-            }
-            return disconnected;
+            return _transactionInputs.Aggregate(false, (current, input) => current | input.Disconnect());
         }
 
         /// <summary>
@@ -194,32 +179,18 @@ namespace BitCoinSharp
         /// </summary>
         internal TransactionInput ConnectForReorganize(IDictionary<Sha256Hash, Transaction> transactions)
         {
-            foreach (var input in _inputs)
-            {
-                // Coinbase transactions, by definition, do not have connectable inputs.
-                if (input.IsCoinBase) continue;
-                var result = input.Connect(transactions, false);
-                // Connected to another tx in the wallet?
-                if (result == TransactionInput.ConnectionResult.Success)
-                    continue;
-                // The input doesn't exist in the wallet, eg because it belongs to somebody else (inbound spend).
-                if (result == TransactionInput.ConnectionResult.NoSuchTx)
-                    continue;
-                // Could not connect this input, so return it and abort.
-                return input;
-            }
-            return null;
+            return (from transactionInput in _transactionInputs
+                where !transactionInput.IsCoinBase
+                let result = transactionInput.Connect(transactions, false)
+                where result != TransactionInput.ConnectionResult.Success
+                where result != TransactionInput.ConnectionResult.NoSuchTx
+                select transactionInput).FirstOrDefault();
         }
 
         /// <returns>true if every output is marked as spent.</returns>
         public bool IsEveryOutputSpent()
         {
-            foreach (var output in _outputs)
-            {
-                if (output.IsAvailableForSpending)
-                    return false;
-            }
-            return true;
+            return _transactionOutputs.All(transactionOutput => !transactionOutput.IsAvailableForSpending);
         }
 
         /// <summary>
@@ -244,20 +215,20 @@ namespace BitCoinSharp
             _version = ReadUint32();
             // First come the inputs.
             var numInputs = ReadVarInt();
-            _inputs = new List<TransactionInput>((int) numInputs);
+            _transactionInputs = new List<TransactionInput>((int) numInputs);
             for (var i = 0UL; i < numInputs; i++)
             {
                 var input = new TransactionInput(NetworkParameters, this, Bytes, Cursor);
-                _inputs.Add(input);
+                _transactionInputs.Add(input);
                 Cursor += input.MessageSize;
             }
             // Now the outputs
             var numOutputs = ReadVarInt();
-            _outputs = new List<TransactionOutput>((int) numOutputs);
+            _transactionOutputs = new List<TransactionOutput>((int) numOutputs);
             for (var i = 0UL; i < numOutputs; i++)
             {
                 var output = new TransactionOutput(NetworkParameters, this, Bytes, Cursor);
-                _outputs.Add(output);
+                _transactionOutputs.Add(output);
                 Cursor += output.MessageSize;
             }
             _lockTime = ReadUint32();
@@ -271,24 +242,24 @@ namespace BitCoinSharp
         /// </summary>
         public bool IsCoinBase
         {
-            get { return _inputs[0].IsCoinBase; }
+            get { return _transactionInputs[0].IsCoinBase; }
         }
 
         /// <returns>A human readable version of the transaction useful for debugging.</returns>
         public override string ToString()
         {
-            var s = new StringBuilder();
-            s.Append("  ");
-            s.Append(HashAsString);
-            s.AppendLine();
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append("  ");
+            stringBuilder.Append(HashAsString);
+            stringBuilder.AppendLine();
             if (IsCoinBase)
             {
                 string script;
                 string script2;
                 try
                 {
-                    script = _inputs[0].ScriptSig.ToString();
-                    script2 = _outputs[0].ScriptPubKey.ToString();
+                    script = _transactionInputs[0].ScriptSig.ToString();
+                    script2 = _transactionOutputs[0].ScriptPublicKey.ToString();
                 }
                 catch (ScriptException)
                 {
@@ -297,41 +268,41 @@ namespace BitCoinSharp
                 }
                 return "     == COINBASE TXN (scriptSig " + script + ")  (scriptPubKey " + script2 + ")";
             }
-            foreach (var @in in _inputs)
+            foreach (var transactionInput in _transactionInputs)
             {
-                s.Append("     ");
-                s.Append("from ");
+                stringBuilder.Append("     ");
+                stringBuilder.Append("from ");
 
                 try
                 {
-                    s.Append(@in.ScriptSig.FromAddress.ToString());
+                    stringBuilder.Append(transactionInput.ScriptSig.FromAddress);
                 }
                 catch (Exception e)
                 {
-                    s.Append("[exception: ").Append(e.Message).Append("]");
+                    stringBuilder.Append("[exception: ").Append(e.Message).Append("]");
                     throw;
                 }
-                s.AppendLine();
+                stringBuilder.AppendLine();
             }
-            foreach (var @out in _outputs)
+            foreach (var transactionOutput in _transactionOutputs)
             {
-                s.Append("       ");
-                s.Append("to ");
+                stringBuilder.Append("       ");
+                stringBuilder.Append("to ");
                 try
                 {
-                    var toAddr = new Address(NetworkParameters, @out.ScriptPubKey.PubKeyHash);
-                    s.Append(toAddr.ToString());
-                    s.Append(" ");
-                    s.Append(Utils.BitcoinValueToFriendlyString(@out.Value));
-                    s.Append(" BTC");
+                    var toAddress = new Address(NetworkParameters, transactionOutput.ScriptPublicKey.PublicKeyHash);
+                    stringBuilder.Append(toAddress);
+                    stringBuilder.Append(" ");
+                    stringBuilder.Append(Utils.BitcoinValueToFriendlyString(transactionOutput.Value));
+                    stringBuilder.Append(" BTC");
                 }
                 catch (Exception e)
                 {
-                    s.Append("[exception: ").Append(e.Message).Append("]");
+                    stringBuilder.Append("[exception: ").Append(e.Message).Append("]");
                 }
-                s.AppendLine();
+                stringBuilder.AppendLine();
             }
-            return s.ToString();
+            return stringBuilder.ToString();
         }
 
         /// <summary>
@@ -340,6 +311,7 @@ namespace BitCoinSharp
         /// signInputs() must be called to finalize the transaction and finish the inputs off. Otherwise it won't be
         /// accepted by the network.
         /// </summary>
+        // TODO: Rename from
         public void AddInput(TransactionOutput from)
         {
             AddInput(new TransactionInput(NetworkParameters, this, from));
@@ -348,18 +320,19 @@ namespace BitCoinSharp
         /// <summary>
         /// Adds an input directly, with no checking that it's valid.
         /// </summary>
-        public void AddInput(TransactionInput input)
+        public void AddInput(TransactionInput transactionInput)
         {
-            _inputs.Add(input);
+            _transactionInputs.Add(transactionInput);
         }
 
         /// <summary>
         /// Adds the given output to this transaction. The output must be completely initialized.
         /// </summary>
+        // TODO: Rename to
         public void AddOutput(TransactionOutput to)
         {
             to.ParentTransaction = this;
-            _outputs.Add(to);
+            _transactionOutputs.Add(to);
         }
 
         /// <summary>
@@ -375,8 +348,8 @@ namespace BitCoinSharp
         /// <exception cref="ScriptException"/>
         public void SignInputs(SigHash hashType, Wallet wallet)
         {
-            Debug.Assert(_inputs.Count > 0);
-            Debug.Assert(_outputs.Count > 0);
+            Debug.Assert(_transactionInputs.Count > 0);
+            Debug.Assert(_transactionOutputs.Count > 0);
 
             // I don't currently have an easy way to test other modes work, as the official client does not use them.
             Debug.Assert(hashType == SigHash.All);
@@ -388,78 +361,80 @@ namespace BitCoinSharp
             // Note that each input may be claiming an output sent to a different key. So we have to look at the outputs
             // to figure out which key to sign with.
 
-            var signatures = new byte[_inputs.Count][];
-            var signingKeys = new EcKey[_inputs.Count];
-            for (var i = 0; i < _inputs.Count; i++)
+            var signatures = new byte[_transactionInputs.Count][];
+            var signingKeys = new EcKey[_transactionInputs.Count];
+            for (var i = 0; i < _transactionInputs.Count; i++)
             {
-                var input = _inputs[i];
-                Debug.Assert(input.ScriptBytes.Length == 0, "Attempting to sign a non-fresh transaction");
+                var transactionInput = _transactionInputs[i];
+                Debug.Assert(transactionInput.ScriptBytes.Length == 0, "Attempting to sign a non-fresh transaction");
                 // Set the input to the script of its output.
-                input.ScriptBytes = input.Outpoint.ConnectedPubKeyScript;
+                transactionInput.ScriptBytes = transactionInput.Outpoint.ConnectedPubKeyScript;
                 // Find the signing key we'll need to use.
-                var connectedPubKeyHash = input.Outpoint.ConnectedPubKeyHash;
-                var key = wallet.FindKeyFromPubHash(connectedPubKeyHash);
+                var connectedPublicKeyHash = transactionInput.Outpoint.ConnectedPubKeyHash;
+                var key = wallet.FindKeyFromPublicHash(connectedPublicKeyHash);
                 // This assert should never fire. If it does, it means the wallet is inconsistent.
-                Debug.Assert(key != null, "Transaction exists in wallet that we cannot redeem: " + Utils.BytesToHexString(connectedPubKeyHash));
+                Debug.Assert(key != null,
+                    "Transaction exists in wallet that we cannot redeem: " +
+                    Utils.BytesToHexString(connectedPublicKeyHash));
                 // Keep the key around for the script creation step below.
                 signingKeys[i] = key;
                 // The anyoneCanPay feature isn't used at the moment.
                 const bool anyoneCanPay = false;
                 var hash = HashTransactionForSignature(hashType, anyoneCanPay);
                 // Set the script to empty again for the next input.
-                input.ScriptBytes = TransactionInput.EmptyArray;
+                transactionInput.ScriptBytes = TransactionInput.EmptyArray;
 
                 // Now sign for the output so we can redeem it. We use the keypair to sign the hash,
                 // and then put the resulting signature in the script along with the public key (below).
-                using (var bos = new MemoryStream())
+                using (var byteOutputStream = new MemoryStream())
                 {
-                    bos.Write(key.Sign(hash));
-                    bos.Write((byte) (((int) hashType + 1) | (anyoneCanPay ? 0x80 : 0)));
-                    signatures[i] = bos.ToArray();
+                    byteOutputStream.Write(key.Sign(hash));
+                    byteOutputStream.Write((byte) (((int) hashType + 1) | (0)));
+                    signatures[i] = byteOutputStream.ToArray();
                 }
             }
 
             // Now we have calculated each signature, go through and create the scripts. Reminder: the script consists of
             // a signature (over a hash of the transaction) and the complete public key needed to sign for the connected
             // output.
-            for (var i = 0; i < _inputs.Count; i++)
+            for (var i = 0; i < _transactionInputs.Count; i++)
             {
-                var input = _inputs[i];
-                Debug.Assert(input.ScriptBytes.Length == 0);
-                var key = signingKeys[i];
-                input.ScriptBytes = Script.CreateInputScript(signatures[i], key.PubKey);
+                var transactionInput = _transactionInputs[i];
+                Debug.Assert(transactionInput.ScriptBytes.Length == 0);
+                var signingKey = signingKeys[i];
+                transactionInput.ScriptBytes = Script.CreateInputScript(signatures[i], signingKey.PublicKey);
             }
 
             // Every input is now complete.
         }
 
-        private byte[] HashTransactionForSignature(SigHash type, bool anyoneCanPay)
+        private byte[] HashTransactionForSignature(SigHash sigHash, bool anyoneCanPay)
         {
-            using (var bos = new MemoryStream())
+            using (var outputStream = new MemoryStream())
             {
-                BitcoinSerializeToStream(bos);
+                BitcoinSerializeToStream(outputStream);
                 // We also have to write a hash type.
-                var hashType = (uint) type + 1;
+                var hashType = (uint) sigHash + 1;
                 if (anyoneCanPay)
                     hashType |= 0x80;
-                Utils.Uint32ToByteStreamLe(hashType, bos);
+                Utils.Uint32ToByteStreamLe(hashType, outputStream);
                 // Note that this is NOT reversed to ensure it will be signed correctly. If it were to be printed out
                 // however then we would expect that it is IS reversed.
-                return Utils.DoubleDigest(bos.ToArray());
+                return Utils.DoubleDigest(outputStream.ToArray());
             }
         }
 
         /// <exception cref="IOException"/>
-        public override void BitcoinSerializeToStream(Stream stream)
+        public override void BitcoinSerializeToStream(Stream outputStream)
         {
-            Utils.Uint32ToByteStreamLe(_version, stream);
-            stream.Write(new VarInt((ulong) _inputs.Count).Encode());
-            foreach (var @in in _inputs)
-                @in.BitcoinSerializeToStream(stream);
-            stream.Write(new VarInt((ulong) _outputs.Count).Encode());
-            foreach (var @out in _outputs)
-                @out.BitcoinSerializeToStream(stream);
-            Utils.Uint32ToByteStreamLe(_lockTime, stream);
+            Utils.Uint32ToByteStreamLe(_version, outputStream);
+            outputStream.Write(new VarInt((ulong) _transactionInputs.Count).Encode());
+            foreach (var transactionInput in _transactionInputs)
+                transactionInput.BitcoinSerializeToStream(outputStream);
+            outputStream.Write(new VarInt((ulong) _transactionOutputs.Count).Encode());
+            foreach (var transactionOutput in _transactionOutputs)
+                transactionOutput.BitcoinSerializeToStream(outputStream);
+            Utils.Uint32ToByteStreamLe(_lockTime, outputStream);
         }
 
         public override bool Equals(object other)

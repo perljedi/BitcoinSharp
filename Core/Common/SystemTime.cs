@@ -4,14 +4,13 @@ namespace BitCoinSharp.Common
 {
     public static class SystemTime
     {
-
         private static Func<ulong> _unixNow = () => UnixTime.ToUnixTime(DateTime.Now);
+
         public static Func<ulong> UnixNow
         {
             get { return _unixNow; }
             set { _unixNow = value; }
         }
-
 
         private static Func<DateTime> _now = () => DateTime.Now;
 

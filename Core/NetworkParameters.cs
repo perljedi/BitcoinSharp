@@ -135,7 +135,7 @@ namespace BitCoinSharp
             networkParameters.GenesisBlock = CreateGenesis(networkParameters);
             //TODO: Should this use SystemTime.UnixTime()?
             networkParameters.GenesisBlock.TimeSeconds = 1296688602;
-            networkParameters.GenesisBlock.DifficultyTarget = 0x1d07fff8;
+            networkParameters.GenesisBlock.TargetDifficulty = 0x1d07fff8;
             networkParameters.GenesisBlock.Nonce = 384568319;
             var genesisHash = networkParameters.GenesisBlock.HashAsString;
             Debug.Assert(genesisHash.Equals("00000007199508e34a9ff81e6ec0c477a4cccff2a4767a8eee39c11db367b008"),
@@ -169,7 +169,7 @@ namespace BitCoinSharp
                 TargetTimespan = _targetTimespan
             };
             networkParameters.GenesisBlock = CreateGenesis(networkParameters);
-            networkParameters.GenesisBlock.DifficultyTarget = 0x1d00ffff;
+            networkParameters.GenesisBlock.TargetDifficulty = 0x1d00ffff;
             networkParameters.GenesisBlock.TimeSeconds = 1231006505;
             networkParameters.GenesisBlock.Nonce = 2083236893;
             var genesisHash = networkParameters.GenesisBlock.HashAsString;
@@ -188,7 +188,7 @@ namespace BitCoinSharp
             networkParameters = CreateTestNet(networkParameters);
             networkParameters.ProofOfWorkLimit =
                 new BigInteger("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
-            networkParameters.GenesisBlock.DifficultyTarget = Block.EasiestDifficultyTarget;
+            networkParameters.GenesisBlock.TargetDifficulty = Block.EasiestDifficultyTarget;
             networkParameters.Interval = 10;
             networkParameters.TargetTimespan = 200000000; // 6 years. Just a very big number.
             return networkParameters;

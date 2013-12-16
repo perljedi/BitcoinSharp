@@ -29,22 +29,20 @@ namespace BitCoinSharp
     [Serializable]
     public class TransactionOutput : Message
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof (TransactionOutput));
+        private static readonly ILog Log = LogManager.GetLogger(typeof (TransactionOutput));
 
         // A transaction output has some value and a script used for authenticating that the redeemer is allowed to spend
         // this output.
-        private ulong _value;
         private byte[] _scriptBytes;
 
         // The script bytes are parsed and turned into a Script on demand.
-        [NonSerialized] private Script _scriptPubKey;
+        [NonSerialized] private Script _scriptPublicKey;
 
         // These fields are Java serialized but not BitCoin serialized. They are used for tracking purposes in our wallet
         // only. If set to true, this output is counted towards our balance. If false and spentBy is null the tx output
         // was owned by us and was sent to somebody else. If false and spentBy is true it means this output was owned by
         // us and used in one of our own transactions (eg, because it is a change output).
         private bool _availableForSpending;
-        private TransactionInput _spentBy;
 
         // A reference to the transaction which holds this output.
         internal Transaction ParentTransaction { get; set; }
@@ -53,75 +51,79 @@ namespace BitCoinSharp
         /// Deserializes a transaction output message. This is usually part of a transaction message.
         /// </summary>
         /// <exception cref="ProtocolException"/>
-        public TransactionOutput(NetworkParameters networkParameters, Transaction parent, byte[] payload, int offset)
+        public TransactionOutput(NetworkParameters networkParameters, Transaction parentTransaction, byte[] payload,
+            int offset)
             : base(networkParameters, payload, offset)
         {
-            ParentTransaction = parent;
+            ParentTransaction = parentTransaction;
             _availableForSpending = true;
         }
 
-        internal TransactionOutput(NetworkParameters networkParameters, Transaction parent, ulong value, Address to)
+        internal TransactionOutput(NetworkParameters networkParameters, Transaction parentTransaction, ulong value,
+            Address to)
             : base(networkParameters)
         {
-            _value = value;
+            Value = value;
             _scriptBytes = Script.CreateOutputScript(to);
-            ParentTransaction = parent;
+            ParentTransaction = parentTransaction;
             _availableForSpending = true;
         }
 
         /// <summary>
         /// Used only in creation of the genesis blocks and in unit tests.
         /// </summary>
-        internal TransactionOutput(NetworkParameters networkParameters, Transaction parent, byte[] scriptBytes)
+        internal TransactionOutput(NetworkParameters networkParameters, Transaction parentTransaction,
+            byte[] scriptBytes)
             : base(networkParameters)
         {
             _scriptBytes = scriptBytes;
-            _value = Utils.ToNanoCoins(50, 0);
-            ParentTransaction = parent;
+            Value = Utils.ToNanoCoins(50, 0);
+            ParentTransaction = parentTransaction;
             _availableForSpending = true;
         }
 
         /// <exception cref="ScriptException"/>
-        public Script ScriptPubKey
+        public Script ScriptPublicKey
         {
-            get { return _scriptPubKey ?? (_scriptPubKey = new Script(NetworkParameters, _scriptBytes, 0, _scriptBytes.Length)); }
+            get
+            {
+                return _scriptPublicKey ??
+                       (_scriptPublicKey = new Script(NetworkParameters, _scriptBytes, 0, _scriptBytes.Length));
+            }
         }
 
         /// <exception cref="ProtocolException"/>
         protected override void Parse()
         {
-            _value = ReadUint64();
-            var scriptLen = (int) ReadVarInt();
-            _scriptBytes = ReadBytes(scriptLen);
+            Value = ReadUint64();
+            var scriptLength = (int) ReadVarInt();
+            _scriptBytes = ReadBytes(scriptLength);
         }
 
         /// <exception cref="IOException"/>
-        public override void BitcoinSerializeToStream(Stream stream)
+        public override void BitcoinSerializeToStream(Stream outputStream)
         {
             Debug.Assert(_scriptBytes != null);
-            Utils.Uint64ToByteStreamLe(Value, stream);
+            Utils.Uint64ToByteStreamLe(Value, outputStream);
             // TODO: Move script serialization into the Script class, where it belongs.
-            stream.Write(new VarInt((ulong) _scriptBytes.Length).Encode());
-            stream.Write(_scriptBytes);
+            outputStream.Write(new VarInt((ulong) _scriptBytes.Length).Encode());
+            outputStream.Write(_scriptBytes);
         }
 
         /// <summary>
         /// Returns the value of this output in nanocoins. This is the amount of currency that the destination address
         /// receives.
         /// </summary>
-        public ulong Value
-        {
-            get { return _value; }
-        }
+        public ulong Value { get; private set; }
 
         internal int Index
         {
             get
             {
                 Debug.Assert(ParentTransaction != null);
-                for (var i = 0; i < ParentTransaction.Outputs.Count; i++)
+                for (var i = 0; i < ParentTransaction.TransactionOutputs.Count; i++)
                 {
-                    if (ParentTransaction.Outputs[i] == this)
+                    if (ParentTransaction.TransactionOutputs[i] == this)
                         return i;
                 }
                 // Should never happen.
@@ -137,13 +139,13 @@ namespace BitCoinSharp
         {
             Debug.Assert(_availableForSpending);
             _availableForSpending = false;
-            _spentBy = input;
+            SpentBy = input;
         }
 
         internal void MarkAsUnspent()
         {
             _availableForSpending = true;
-            _spentBy = null;
+            SpentBy = null;
         }
 
         internal bool IsAvailableForSpending
@@ -163,12 +165,12 @@ namespace BitCoinSharp
         {
             try
             {
-                var pubkeyHash = ScriptPubKey.PubKeyHash;
-                return wallet.IsPubKeyHashMine(pubkeyHash);
+                var publicKeyHash = ScriptPublicKey.PublicKeyHash;
+                return wallet.IsPubKeyHashMine(publicKeyHash);
             }
             catch (ScriptException e)
             {
-                _log.ErrorFormat("Could not parse tx output script: {0}", e);
+                Log.ErrorFormat("Could not parse tx output script: {0}", e);
                 return false;
             }
         }
@@ -178,16 +180,13 @@ namespace BitCoinSharp
         /// </summary>
         public override string ToString()
         {
-            return "TxOut of " + Utils.BitcoinValueToFriendlyString(_value) + " to " + ScriptPubKey.ToAddress +
-                   " script:" + ScriptPubKey;
+            return "TxOut of " + Utils.BitcoinValueToFriendlyString(Value) + " to " + ScriptPublicKey.ToAddress +
+                   " script:" + ScriptPublicKey;
         }
 
         /// <summary>
         /// Returns the connected input.
         /// </summary>
-        internal TransactionInput SpentBy
-        {
-            get { return _spentBy; }
-        }
+        internal TransactionInput SpentBy { get; private set; }
     }
 }

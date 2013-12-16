@@ -45,10 +45,10 @@ namespace BitCoinSharp
         /// <summary>
         /// Creates a Sha256Hash by decoding the given hex string. It must be 64 characters long.
         /// </summary>
-        public Sha256Hash(string @string)
+        public Sha256Hash(string hexString)
         {
-            Debug.Assert(@string.Length == 64);
-            _bytes = Hex.Decode(@string);
+            Debug.Assert(hexString.Length == 64);
+            _bytes = Hex.Decode(hexString);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace BitCoinSharp
         /// </summary>
         public override int GetHashCode()
         {
-            return _bytes != null ? _bytes.Aggregate(1, (current, element) => 31*current + element) : 0;
+            return _bytes != null ? _bytes.Aggregate(1, (current, element) => 31 * current + element) : 0;
         }
 
         public override string ToString()

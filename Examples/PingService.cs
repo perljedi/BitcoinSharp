@@ -88,9 +88,9 @@ namespace BitCoinSharp.Examples
                         // It's impossible to pick one specific identity that you receive coins from in BitCoin as there
                         // could be inputs from many addresses. So instead we just pick the first and assume they were all
                         // owned by the same person.
-                        var input = e.Tx.Inputs[0];
+                        var input = e.Transaction.TransactionInputs[0];
                         var from = input.FromAddress;
-                        var value = e.Tx.GetValueSentToMe(wallet);
+                        var value = e.Transaction.GetValueSentToMe(wallet);
                         Console.WriteLine("Received " + Utils.BitcoinValueToFriendlyString(value) + " from " + from);
                         // Now send the coins back!
                         var sendTx = wallet.SendCoins(peerGroup, from, value);

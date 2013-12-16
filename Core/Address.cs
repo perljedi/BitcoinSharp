@@ -41,7 +41,7 @@ namespace BitCoinSharp
         /// </summary>
         /// <remarks>
         ///     Example:<p />
-        ///     <pre>new Address(NetworkParameters.prodNet(), Hex.decode("4a22c3c4cbb31e4d03b15550636762bda0baf85a"));</pre>
+        ///     <pre>new ipAddress(NetworkParameters.prodNet(), Hex.decode("4a22c3c4cbb31e4d03b15550636762bda0baf85a"));</pre>
         /// </remarks>
         public Address(NetworkParameters networkParameters, byte[] hash160)
             : base(networkParameters.AddressHeader, hash160)
@@ -55,7 +55,7 @@ namespace BitCoinSharp
         /// </summary>
         /// <remarks>
         ///     Example:<p />
-        ///     <pre>new Address(NetworkParameters.prodNet(), "17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL");</pre>
+        ///     <pre>new ipAddress(NetworkParameters.prodNet(), "17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL");</pre>
         /// </remarks>
         /// <exception cref="AddressFormatException" />
         public Address(NetworkParameters networkParameters, string address)

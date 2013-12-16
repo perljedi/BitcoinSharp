@@ -47,7 +47,7 @@ namespace BitCoinSharp
             var numAddresses = ReadVarInt();
             // Guard against ultra large messages that will crash us.
             if (numAddresses > MaxAddresses)
-                throw new ProtocolException("Address message too large.");
+                throw new ProtocolException("ipAddress message too large.");
             Addresses = new List<PeerAddress>((int) numAddresses);
             for (var i = 0UL; i < numAddresses; i++)
             {

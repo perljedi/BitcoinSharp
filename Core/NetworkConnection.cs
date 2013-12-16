@@ -34,7 +34,7 @@ namespace BitCoinSharp
     /// </remarks>
     public class NetworkConnection : IDisposable
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (NetworkConnection));
+        private static readonly ILog Log = LogManager.GetLogger(typeof (NetworkConnection));
 
         private Socket _socket;
         private Stream _outputStream;
@@ -64,7 +64,7 @@ namespace BitCoinSharp
             int connectTimeout)
         {
             _networkParameters = networkParameters;
-            _remoteIp = peerAddress.Addr;
+            _remoteIp = peerAddress.IpAddress;
 
             var port = (peerAddress.Port > 0) ? peerAddress.Port : networkParameters.Port;
 
@@ -92,9 +92,9 @@ namespace BitCoinSharp
             ReadMessage();
             // Switch to the new protocol version.
             var peerVersion = _versionMessage.ClientVersion;
-            Logger.InfoFormat("Connected to peer: version={0}, subVer='{1}', services=0x{2:X}, time={3}, blocks={4}",
+            Log.InfoFormat("Connected to peer: version={0}, subVer='{1}', services=0x{2:X}, time={3}, blocks={4}",
                 peerVersion,
-                _versionMessage.SubVer,
+                _versionMessage.SubVersion,
                 _versionMessage.LocalServices,
                 UnixTime.FromUnixTime(_versionMessage.Time),
                 _versionMessage.BestHeight

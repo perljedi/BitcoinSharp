@@ -60,13 +60,13 @@ namespace BitCoinSharp.Test
         /// <exception cref="BlockStoreException"/>
         public static Block MakeTestBlock(NetworkParameters @params, IBlockStore blockStore)
         {
-            return blockStore.GetChainHead().Header.CreateNextBlock(new EcKey().ToAddress(@params));
+            return blockStore.GetChainHead().BlockHeader.CreateNextBlock(new EcKey().ToAddress(@params));
         }
 
         /// <exception cref="BlockStoreException"/>
         public static Block MakeSolvedTestBlock(NetworkParameters @params, IBlockStore blockStore)
         {
-            var b = blockStore.GetChainHead().Header.CreateNextBlock(new EcKey().ToAddress(@params));
+            var b = blockStore.GetChainHead().BlockHeader.CreateNextBlock(new EcKey().ToAddress(@params));
             b.Solve();
             return b;
         }

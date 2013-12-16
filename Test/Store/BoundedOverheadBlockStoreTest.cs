@@ -38,17 +38,17 @@ namespace BitCoinSharp.Test.Store
                 {
                     // Check the first block in a new store is the genesis block.
                     var genesis = store.GetChainHead();
-                    Assert.AreEqual(@params.GenesisBlock, genesis.Header);
+                    Assert.AreEqual(@params.GenesisBlock, genesis.BlockHeader);
 
                     // Build a new block.
-                    b1 = genesis.Build(genesis.Header.CreateNextBlock(to).CloneAsHeader());
+                    b1 = genesis.Build(genesis.BlockHeader.CreateNextBlock(to).CloneAsHeader());
                     store.Put(b1);
                     store.SetChainHead(b1);
                 }
                 // Check we can get it back out again if we rebuild the store object.
                 using (var store = new BoundedOverheadBlockStore(@params, temp))
                 {
-                    var b2 = store.Get(b1.Header.Hash);
+                    var b2 = store.Get(b1.BlockHeader.Hash);
                     Assert.AreEqual(b1, b2);
                     // Check the chain head was stored correctly also.
                     Assert.AreEqual(b1, store.GetChainHead());

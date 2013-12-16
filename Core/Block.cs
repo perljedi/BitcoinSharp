@@ -52,7 +52,7 @@ namespace BitCoinSharp
         /// </summary>
         public const int HeaderSize = 80;
 
-        private const uint AllowedTimeDrift = 2*60*60; // Same value as official client.
+        private const uint AllowedTimeDrift = 2 * 60 * 60; // Same value as official client.
 
         /// <summary>
         ///     A value for difficultyTarget (nBits) that allows half of all possible hash solutions. Used in unit testing.
@@ -61,10 +61,10 @@ namespace BitCoinSharp
 
         // Fields defined as part of the protocol format.
         private uint _version;
-        private Sha256Hash _prevBlockHash;
+        private Sha256Hash _previousBlockHash;
         private Sha256Hash _merkleRoot;
         private uint _time;
-        private uint _difficultyTarget; // "nBits"
+        private uint _targetDifficulty; // "nBits"
         private uint _nonce;
 
         /// <summary>
@@ -85,9 +85,9 @@ namespace BitCoinSharp
         {
             // Set up a few basic things. We are not complete after this though.
             _version = 1;
-            _difficultyTarget = 0x1d07fff8;
+            _targetDifficulty = 0x1d07fff8;
             _time = (uint) SystemTime.UnixNow();
-            _prevBlockHash = Sha256Hash.ZeroHash;
+            _previousBlockHash = Sha256Hash.ZeroHash;
         }
 
         /// <summary>
@@ -103,10 +103,10 @@ namespace BitCoinSharp
         protected override void Parse()
         {
             _version = ReadUint32();
-            _prevBlockHash = ReadHash();
+            _previousBlockHash = ReadHash();
             _merkleRoot = ReadHash();
             _time = ReadUint32();
-            _difficultyTarget = ReadUint32();
+            _targetDifficulty = ReadUint32();
             _nonce = ReadUint32();
 
             _hash = new Sha256Hash(Utils.ReverseBytes(Utils.DoubleDigest(Bytes, 0, Cursor)));
@@ -131,10 +131,10 @@ namespace BitCoinSharp
         private void WriteHeader(Stream outputStream)
         {
             Utils.Uint32ToByteStreamLe(_version, outputStream);
-            outputStream.Write(Utils.ReverseBytes(_prevBlockHash.Bytes));
+            outputStream.Write(Utils.ReverseBytes(_previousBlockHash.Bytes));
             outputStream.Write(Utils.ReverseBytes(MerkleRoot.Bytes));
             Utils.Uint32ToByteStreamLe(_time, outputStream);
-            Utils.Uint32ToByteStreamLe(_difficultyTarget, outputStream);
+            Utils.Uint32ToByteStreamLe(_targetDifficulty, outputStream);
             Utils.Uint32ToByteStreamLe(_nonce, outputStream);
         }
 
@@ -156,10 +156,10 @@ namespace BitCoinSharp
         /// </summary>
         private Sha256Hash CalculateHash()
         {
-            using (var bos = new MemoryStream())
+            using (var byteOutputStream = new MemoryStream())
             {
-                WriteHeader(bos);
-                return new Sha256Hash(Utils.ReverseBytes(Utils.DoubleDigest(bos.ToArray())));
+                WriteHeader(byteOutputStream);
+                return new Sha256Hash(Utils.ReverseBytes(Utils.DoubleDigest(byteOutputStream.ToArray())));
             }
         }
 
@@ -204,11 +204,11 @@ namespace BitCoinSharp
             var block = new Block(NetworkParameters)
             {
                 _nonce = _nonce,
-                _prevBlockHash = _prevBlockHash.Duplicate(),
+                _previousBlockHash = _previousBlockHash.Duplicate(),
                 _merkleRoot = MerkleRoot.Duplicate(),
                 _version = _version,
                 _time = _time,
-                _difficultyTarget = _difficultyTarget,
+                _targetDifficulty = _targetDifficulty,
                 Transactions = null,
                 _hash = Hash.Duplicate()
             };
@@ -223,10 +223,10 @@ namespace BitCoinSharp
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendFormat("v{0} block:", _version).AppendLine();
-            stringBuilder.AppendFormat("   previous block: {0}", _prevBlockHash).AppendLine();
+            stringBuilder.AppendFormat("   previous block: {0}", _previousBlockHash).AppendLine();
             stringBuilder.AppendFormat("   merkle root: {0}", MerkleRoot).AppendLine();
             stringBuilder.AppendFormat("   time: [{0}] {1}", _time, UnixTime.FromUnixTime(_time)).AppendLine();
-            stringBuilder.AppendFormat("   difficulty target (nBits): {0}", _difficultyTarget).AppendLine();
+            stringBuilder.AppendFormat("   target difficulty (nBits): {0}", _targetDifficulty).AppendLine();
             stringBuilder.AppendFormat("   nonce: {0}", _nonce).AppendLine();
             if (Transactions != null && Transactions.Count > 0)
             {
@@ -240,7 +240,7 @@ namespace BitCoinSharp
         }
 
         /// <summary>
-        ///     Finds a value of nonce that makes the blocks hash lower than the difficulty target. This is called mining,
+        ///     Finds a value of nonce that makes the blocks hash lower than the target difficulty. This is called mining,
         ///     but solve() is far too slow to do real mining with. It exists only for unit testing purposes and is not a part
         ///     of the public API.
         /// </summary>
@@ -259,21 +259,21 @@ namespace BitCoinSharp
         }
 
         /// <summary>
-        ///     Returns the difficulty target as a 256 bit value that can be compared to a SHA-256 hash. Inside a block the
+        ///     Returns the target difficulty as a 256 bit value that can be compared to a SHA-256 hash. Inside a block the
         ///     target is represented using a compact form. If this form decodes to a value that is out of bounds,
         ///     an exception is thrown.
         /// </summary>
         /// <exception cref="VerificationException" />
         public BigInteger GetDifficultyTargetAsInteger()
         {
-            var target = Utils.DecodeCompactBits(_difficultyTarget);
+            var target = Utils.DecodeCompactBits(_targetDifficulty);
             if (target.CompareTo(BigInteger.Zero) <= 0 || target.CompareTo(NetworkParameters.ProofOfWorkLimit) > 0)
-                throw new VerificationException("Difficulty target is bad: " + target);
+                throw new VerificationException("Target difficulty is bad: " + target);
             return target;
         }
 
         /// <summary>
-        ///     Returns true if the hash of the block is OK (lower than difficulty target).
+        ///     Returns true if the hash of the block is OK (lower than target difficulty).
         /// </summary>
         /// <exception cref="VerificationException" />
         private bool CheckProofOfWork(bool throwException)
@@ -490,12 +490,12 @@ namespace BitCoinSharp
         /// <summary>
         ///     Returns the hash of the previous block in the chain, as defined by the block header.
         /// </summary>
-        public Sha256Hash PrevBlockHash
+        public Sha256Hash PreviousBlockHash
         {
-            get { return _prevBlockHash; }
+            get { return _previousBlockHash; }
             internal set
             {
-                _prevBlockHash = value;
+                _previousBlockHash = value;
                 _hash = null;
             }
         }
@@ -520,19 +520,19 @@ namespace BitCoinSharp
         ///     is
         ///     added. To find the actual value the hash should be compared against, use getDifficultyTargetBI.
         /// </summary>
-        public uint DifficultyTarget
+        public uint TargetDifficulty
         {
-            get { return _difficultyTarget; }
+            get { return _targetDifficulty; }
             internal set
             {
-                _difficultyTarget = value;
+                _targetDifficulty = value;
                 _hash = null;
             }
         }
 
         /// <summary>
         ///     Returns the nonce, an arbitrary value that exists only to make the hash of the block header fall below the
-        ///     difficulty target.
+        ///     target difficulty.
         /// </summary>
         public uint Nonce
         {
@@ -567,15 +567,15 @@ namespace BitCoinSharp
             Transactions.Add(coinbase);
         }
 
-        private static readonly byte[] _emptyBytes = new byte[32];
+        private static readonly byte[] EmptyBytes = new byte[32];
 
         /// <summary>
         ///     Returns a solved block that builds on top of this one. This exists for unit tests.
         /// </summary>
         internal Block CreateNextBlock(Address toAddress, uint time)
         {
-            var block = new Block(NetworkParameters) {DifficultyTarget = _difficultyTarget};
-            block.AddCoinbaseTransaction(_emptyBytes);
+            var block = new Block(NetworkParameters) {TargetDifficulty = _targetDifficulty};
+            block.AddCoinbaseTransaction(EmptyBytes);
 
             // Add a transaction paying 50 coins to the "to" address.
             var transaction = new Transaction(NetworkParameters);
@@ -583,7 +583,7 @@ namespace BitCoinSharp
                 toAddress));
             // The input does not really need to be a valid signature, as long as it has the right general form.
             var input = new TransactionInput(NetworkParameters, transaction,
-                Script.CreateInputScript(_emptyBytes, _emptyBytes));
+                Script.CreateInputScript(EmptyBytes, EmptyBytes));
             // Importantly the outpoint hash cannot be zero as that's how we detect a coinbase transaction in isolation
             // but it must be unique to avoid 'different' transactions looking the same.
             var counter = new byte[32];
@@ -592,7 +592,7 @@ namespace BitCoinSharp
             transaction.AddInput(input);
             block.AddTransaction(transaction);
 
-            block.PrevBlockHash = Hash;
+            block.PreviousBlockHash = Hash;
             block.TimeSeconds = time;
             block.Solve();
             block.VerifyHeader();

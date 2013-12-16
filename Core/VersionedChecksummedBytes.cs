@@ -31,12 +31,12 @@ namespace BitCoinSharp
         protected byte[] Bytes { get; private set; }
 
         /// <exception cref="AddressFormatException"/>
-        protected VersionedChecksummedBytes(string encoded)
+        protected VersionedChecksummedBytes(string base58EncodedString)
         {
-            var tmp = Base58.DecodeChecked(encoded);
-            Version = tmp[0];
-            Bytes = new byte[tmp.Length - 1];
-            Array.Copy(tmp, 1, Bytes, 0, tmp.Length - 1);
+            var decodedStringByteArray = Base58.DecodeChecked(base58EncodedString);
+            Version = decodedStringByteArray[0];
+            Bytes = new byte[decodedStringByteArray.Length - 1];
+            Array.Copy(decodedStringByteArray, 1, Bytes, 0, decodedStringByteArray.Length - 1);
         }
 
         protected VersionedChecksummedBytes(int version, byte[] bytes)
@@ -60,7 +60,7 @@ namespace BitCoinSharp
 
         public override int GetHashCode()
         {
-            return Bytes != null ? Bytes.Aggregate(1, (current, element) => 31*current + element) : 0;
+            return Bytes != null ? Bytes.Aggregate(1, (current, element) => 31 * current + element) : 0;
         }
 
         public override bool Equals(object o)

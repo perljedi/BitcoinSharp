@@ -37,7 +37,7 @@ namespace BitCoinSharp
     /// </remarks>
     public class BitcoinSerializer
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (BitcoinSerializer));
+        private static readonly ILog Log = LogManager.GetLogger(typeof (BitcoinSerializer));
         private const int CommandLength = 12;
 
         private readonly NetworkParameters _networkParameters;
@@ -110,8 +110,8 @@ namespace BitCoinSharp
             outputStream.Write(header);
             outputStream.Write(payload);
 
-            if (Logger.IsDebugEnabled)
-                Logger.DebugFormat("Sending {0} message: {1}", name,
+            if (Log.IsDebugEnabled)
+                Log.DebugFormat("Sending {0} message: {1}", name,
                     Utils.BytesToHexString(header) + Utils.BytesToHexString(payload));
         }
 
@@ -212,9 +212,9 @@ namespace BitCoinSharp
                 }
             }
 
-            if (Logger.IsDebugEnabled)
+            if (Log.IsDebugEnabled)
             {
-                Logger.DebugFormat("Received {0} byte '{1}' message: {2}",
+                Log.DebugFormat("Received {0} byte '{1}' message: {2}",
                     size,
                     command,
                     Utils.BytesToHexString(payloadBytes)

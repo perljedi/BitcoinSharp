@@ -38,10 +38,10 @@ namespace BitCoinSharp
         /// Parses the given private key as created by the "dumpprivkey" BitCoin C++ RPC.
         /// </summary>
         /// <param name="networkParameters">The expected network parameters of the key. If you don't care, provide null.</param>
-        /// <param name="encoded">The base58 encoded string.</param>
+        /// <param name="base58EncodedString">The base58 encoded string.</param>
         /// <exception cref="AddressFormatException">If the string is invalid or the header byte doesn't match the network params.</exception>
-        public DumpedPrivateKey(NetworkParameters networkParameters, string encoded)
-            : base(encoded)
+        public DumpedPrivateKey(NetworkParameters networkParameters, string base58EncodedString)
+            : base(base58EncodedString)
         {
             if (networkParameters != null && Version != networkParameters.DumpedPrivateKeyHeader)
                 throw new AddressFormatException("Mismatched version number, trying to cross networks? " + Version +

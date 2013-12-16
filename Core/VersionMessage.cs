@@ -49,12 +49,12 @@ namespace BitCoinSharp
         /// <summary>
         /// What the other side believes the address of this program is. Not used.
         /// </summary>
-        public PeerAddress MyAddr { get; private set; }
+        public PeerAddress MyAddress { get; private set; }
 
         /// <summary>
         /// What the other side believes their own address is. Not used.
         /// </summary>
-        public PeerAddress TheirAddr { get; private set; }
+        public PeerAddress TheirAddress { get; private set; }
 
         private ulong _localHostNonce;
 
@@ -62,7 +62,7 @@ namespace BitCoinSharp
         /// An additional string that today the official client sets to the empty string. We treat it as something like an
         /// HTTP User-Agent header.
         /// </summary>
-        public string SubVer { get; private set; }
+        public string SubVersion { get; private set; }
 
         /// <summary>
         /// How many blocks are in the chain, according to the other side.
@@ -83,9 +83,9 @@ namespace BitCoinSharp
             Time = SystemTime.UnixNow();
             // Note that the official client doesn't do anything with these, and finding out your own external IP address
             // is kind of tricky anyway, so we just put nonsense here for now.
-            MyAddr = new PeerAddress(IPAddress.Loopback, networkParameters.Port, 0);
-            TheirAddr = new PeerAddress(IPAddress.Loopback, networkParameters.Port, 0);
-            SubVer = "BitCoinSharp 0.3-SNAPSHOT";
+            MyAddress = new PeerAddress(IPAddress.Loopback, networkParameters.Port, 0);
+            TheirAddress = new PeerAddress(IPAddress.Loopback, networkParameters.Port, 0);
+            SubVersion = "BitCoinSharp 0.3-SNAPSHOT";
             BestHeight = newBestHeight;
         }
 
@@ -95,40 +95,40 @@ namespace BitCoinSharp
             ClientVersion = ReadUint32();
             LocalServices = ReadUint64();
             Time = ReadUint64();
-            MyAddr = new PeerAddress(NetworkParameters, Bytes, Cursor, 0);
-            Cursor += MyAddr.MessageSize;
-            TheirAddr = new PeerAddress(NetworkParameters, Bytes, Cursor, 0);
-            Cursor += TheirAddr.MessageSize;
+            MyAddress = new PeerAddress(NetworkParameters, Bytes, Cursor, 0);
+            Cursor += MyAddress.MessageSize;
+            TheirAddress = new PeerAddress(NetworkParameters, Bytes, Cursor, 0);
+            Cursor += TheirAddress.MessageSize;
             // uint64 localHostNonce  (random data)
             // We don't care about the localhost nonce. It's used to detect connecting back to yourself in cases where
             // there are NATs and proxies in the way. However we don't listen for inbound connections so it's irrelevant.
             _localHostNonce = ReadUint64();
             //   string subVer  (currently "")
-            SubVer = ReadStr();
+            SubVersion = ReadString();
             //   int bestHeight (size of known block chain).
             BestHeight = ReadUint32();
         }
 
         /// <exception cref="IOException"/>
-        public override void BitcoinSerializeToStream(Stream buf)
+        public override void BitcoinSerializeToStream(Stream outputStream)
         {
-            Utils.Uint32ToByteStreamLe(ClientVersion, buf);
-            Utils.Uint64ToByteStreamLe(LocalServices, buf);
-            Utils.Uint64ToByteStreamLe(Time, buf);
+            Utils.Uint32ToByteStreamLe(ClientVersion, outputStream);
+            Utils.Uint64ToByteStreamLe(LocalServices, outputStream);
+            Utils.Uint64ToByteStreamLe(Time, outputStream);
             // My address.
-            MyAddr.BitcoinSerializeToStream(buf);
+            MyAddress.BitcoinSerializeToStream(outputStream);
             // Their address.
-            TheirAddr.BitcoinSerializeToStream(buf);
+            TheirAddress.BitcoinSerializeToStream(outputStream);
             // Next up is the "local host nonce", this is to detect the case of connecting
             // back to yourself. We don't care about this as we won't be accepting inbound
             // connections.
-            Utils.Uint64ToByteStreamLe(_localHostNonce, buf);
+            Utils.Uint64ToByteStreamLe(_localHostNonce, outputStream);
             // Now comes subVer.
-            var subVerBytes = Encoding.UTF8.GetBytes(SubVer);
-            buf.Write(new VarInt((ulong) subVerBytes.Length).Encode());
-            buf.Write(subVerBytes);
+            var subVersionBytes = Encoding.UTF8.GetBytes(SubVersion);
+            outputStream.Write(new VarInt((ulong) subVersionBytes.Length).Encode());
+            outputStream.Write(subVersionBytes);
             // Size of known block chain.
-            Utils.Uint32ToByteStreamLe(BestHeight, buf);
+            Utils.Uint32ToByteStreamLe(BestHeight, outputStream);
         }
 
         /// <summary>

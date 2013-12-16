@@ -93,7 +93,7 @@ namespace BitCoinSharp.Store
                         buf.Put(_emptyBytes, 0, _chainWorkBytes - chainWorkBytes.Length);
                     }
                     buf.Put(chainWorkBytes);
-                    buf.Put(block.Header.BitcoinSerialize());
+                    buf.Put(block.BlockHeader.BitcoinSerialize());
                     buf.Position = 0;
                     channel.Position = channel.Length;
                     channel.Write(buf.ToArray());
@@ -195,7 +195,7 @@ namespace BitCoinSharp.Store
                 // Set up the genesis block. When we start out fresh, it is by definition the top of the chain.
                 var genesis = @params.GenesisBlock.CloneAsHeader();
                 var storedGenesis = new StoredBlock(genesis, genesis.GetWork(), 0);
-                _chainHead = storedGenesis.Header.Hash;
+                _chainHead = storedGenesis.BlockHeader.Hash;
                 _channel.Write(_chainHead.Bytes);
                 Put(storedGenesis);
             }
@@ -255,7 +255,7 @@ namespace BitCoinSharp.Store
             {
                 try
                 {
-                    var hash = block.Header.Hash;
+                    var hash = block.BlockHeader.Hash;
                     // Append to the end of the file.
                     Record.Write(_channel, block);
                     _blockCache[hash] = block;
@@ -379,7 +379,7 @@ namespace BitCoinSharp.Store
             {
                 try
                 {
-                    _chainHead = chainHead.Header.Hash;
+                    _chainHead = chainHead.BlockHeader.Hash;
                     // Write out new hash to the first 32 bytes of the file past one (first byte is version number).
                     var originalPos = _channel.Position;
                     _channel.Position = 1;

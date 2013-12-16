@@ -60,9 +60,9 @@ namespace BitCoinSharp
         public static ulong ToNanoCoins(uint coins, uint cents)
         {
             Debug.Assert(cents < 100);
-            var bi = coins*Coin;
-            bi += cents*Cent;
-            return bi;
+            var nanoCoins = coins * Coin;
+            nanoCoins += cents * Cent;
+            return nanoCoins;
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace BitCoinSharp
         /// <exception cref="ArithmeticException">If you try to specify fractional nanocoins.</exception>
         public static ulong ToNanoCoins(string coins)
         {
-            var value = decimal.Parse(coins, NumberStyles.Float)*Coin;
+            var value = decimal.Parse(coins, NumberStyles.Float) * Coin;
             if (value != Math.Round(value))
             {
                 throw new ArithmeticException();
@@ -83,40 +83,40 @@ namespace BitCoinSharp
             return checked((ulong) value);
         }
 
-        public static void Uint32ToByteArrayBe(uint val, byte[] @out, int offset)
+        public static void Uint32ToByteArrayBe(uint val, byte[] bigEndianByteArray, int offset)
         {
-            @out[offset + 0] = (byte) (val >> 24);
-            @out[offset + 1] = (byte) (val >> 16);
-            @out[offset + 2] = (byte) (val >> 8);
-            @out[offset + 3] = (byte) (val >> 0);
+            bigEndianByteArray[offset + 0] = (byte) (val >> 24);
+            bigEndianByteArray[offset + 1] = (byte) (val >> 16);
+            bigEndianByteArray[offset + 2] = (byte) (val >> 8);
+            bigEndianByteArray[offset + 3] = (byte) (val >> 0);
         }
 
-        public static void Uint32ToByteArrayLe(uint val, byte[] @out, int offset)
+        public static void Uint32ToByteArrayLe(uint val, byte[] littleEndianByteArray, int offset)
         {
-            @out[offset + 0] = (byte) (val >> 0);
-            @out[offset + 1] = (byte) (val >> 8);
-            @out[offset + 2] = (byte) (val >> 16);
-            @out[offset + 3] = (byte) (val >> 24);
-        }
-
-        /// <exception cref="IOException"/>
-        public static void Uint32ToByteStreamLe(uint val, Stream stream)
-        {
-            stream.Write((byte) (val >> 0));
-            stream.Write((byte) (val >> 8));
-            stream.Write((byte) (val >> 16));
-            stream.Write((byte) (val >> 24));
+            littleEndianByteArray[offset + 0] = (byte) (val >> 0);
+            littleEndianByteArray[offset + 1] = (byte) (val >> 8);
+            littleEndianByteArray[offset + 2] = (byte) (val >> 16);
+            littleEndianByteArray[offset + 3] = (byte) (val >> 24);
         }
 
         /// <exception cref="IOException"/>
-        public static void Uint64ToByteStreamLe(ulong val, Stream stream)
+        public static void Uint32ToByteStreamLe(uint val, Stream littleEndianByteStream)
+        {
+            littleEndianByteStream.Write((byte) (val >> 0));
+            littleEndianByteStream.Write((byte) (val >> 8));
+            littleEndianByteStream.Write((byte) (val >> 16));
+            littleEndianByteStream.Write((byte) (val >> 24));
+        }
+
+        /// <exception cref="IOException"/>
+        public static void Uint64ToByteStreamLe(ulong val, Stream littleEndianByteStream)
         {
             var bytes = BitConverter.GetBytes(val);
             if (!BitConverter.IsLittleEndian)
             {
                 Array.Reverse(bytes);
             }
-            stream.Write(bytes);
+            littleEndianByteStream.Write(bytes);
         }
 
         /// <summary>
@@ -133,15 +133,16 @@ namespace BitCoinSharp
         /// </summary>
         public static byte[] DoubleDigest(byte[] input, int offset, int length)
         {
-            var algorithm = new SHA256Managed();
-            var first = algorithm.ComputeHash(input, offset, length);
-            return algorithm.ComputeHash(first);
+            var sha256Hasher = new SHA256Managed();
+            var first = sha256Hasher.ComputeHash(input, offset, length);
+            return sha256Hasher.ComputeHash(first);
         }
 
         /// <summary>
         /// Calculates SHA256(SHA256(byte range 1 + byte range 2)).
         /// </summary>
-        public static byte[] DoubleDigestTwoBuffers(byte[] input1, int offset1, int length1, byte[] input2, int offset2, int length2)
+        public static byte[] DoubleDigestTwoBuffers(byte[] input1, int offset1, int length1, byte[] input2, int offset2,
+            int length2)
         {
             var algorithm = new SHA256Managed();
             var buffer = new byte[length1 + length2];
@@ -156,15 +157,15 @@ namespace BitCoinSharp
         /// </summary>
         public static string BytesToHexString(byte[] bytes)
         {
-            var buf = new StringBuilder(bytes.Length*2);
+            var stringBuilder = new StringBuilder(bytes.Length * 2);
             foreach (var b in bytes)
             {
-                var s = b.ToString("x");
-                if (s.Length < 2)
-                    buf.Append('0');
-                buf.Append(s);
+                var byteString = b.ToString("x");
+                if (byteString.Length < 2)
+                    stringBuilder.Append('0');
+                stringBuilder.Append(byteString);
             }
-            return buf.ToString();
+            return stringBuilder.ToString();
         }
 
         /// <summary>
@@ -174,10 +175,10 @@ namespace BitCoinSharp
         {
             // We could use the XOR trick here but it's easier to understand if we don't. If we find this is really a
             // performance issue the matter can be revisited.
-            var buf = new byte[bytes.Length];
+            var reverseBytes = new byte[bytes.Length];
             for (var i = 0; i < bytes.Length; i++)
-                buf[i] = bytes[bytes.Length - 1 - i];
-            return buf;
+                reverseBytes[i] = bytes[bytes.Length - 1 - i];
+            return reverseBytes;
         }
 
         public static uint ReadUint32(byte[] bytes, int offset)
@@ -202,16 +203,16 @@ namespace BitCoinSharp
         }
 
         /// <summary>
-        /// Calculates RIPEMD160(SHA256(input)). This is used in Address calculations.
+        /// Calculates RIPEMD160(SHA256(input)). This is used in ipAddress calculations.
         /// </summary>
         public static byte[] Sha256Hash160(byte[] input)
         {
             var sha256 = new SHA256Managed().ComputeHash(input);
             var digest = new RipeMD160Digest();
             digest.BlockUpdate(sha256, 0, sha256.Length);
-            var @out = new byte[20];
-            digest.DoFinal(@out, 0);
-            return @out;
+            var outputByteArray = new byte[20];
+            digest.DoFinal(outputByteArray, 0);
+            return outputByteArray;
         }
 
         /// <summary>
@@ -222,9 +223,9 @@ namespace BitCoinSharp
             var negative = value < 0;
             if (negative)
                 value = -value;
-            var coins = value/(long) Coin;
-            var cents = value%(long) Coin;
-            return string.Format("{0}{1}.{2:00}", negative ? "-" : "", coins, cents/(long) Cent);
+            var coins = value / (long) Coin;
+            var cents = value % (long) Coin;
+            return string.Format("{0}{1}.{2:00}", negative ? "-" : "", coins, cents / (long) Cent);
         }
 
         /// <summary>
@@ -232,9 +233,9 @@ namespace BitCoinSharp
         /// </summary>
         public static string BitcoinValueToFriendlyString(ulong value)
         {
-            var coins = value/Coin;
-            var cents = value%Coin;
-            return string.Format("{0}.{1:00}", coins, cents/Cent);
+            var coins = value / Coin;
+            var cents = value % Coin;
+            return string.Format("{0}.{1:00}", coins, cents / Cent);
         }
 
         /// <summary>
@@ -245,9 +246,9 @@ namespace BitCoinSharp
         private static BigInteger DecodeMpi(byte[] mpi)
         {
             var length = ReadUint32Be(mpi, 0);
-            var buf = new byte[length];
-            Array.Copy(mpi, 4, buf, 0, (int) length);
-            return new BigInteger(1, buf);
+            var byteArray = new byte[length];
+            Array.Copy(mpi, 4, byteArray, 0, (int) length);
+            return new BigInteger(1, byteArray);
         }
 
         // The representation of nBits uses another home-brew encoding, as a way to represent a large

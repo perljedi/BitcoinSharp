@@ -33,13 +33,13 @@ namespace BitCoinSharp
     [Serializable]
     public class StoredBlock
     {
-        private readonly Block _header;
+        private readonly Block _blockHeader;
         private readonly BigInteger _chainWork;
         private readonly uint _height;
 
-        public StoredBlock(Block header, BigInteger chainWork, uint height)
+        public StoredBlock(Block blockHeader, BigInteger chainWork, uint height)
         {
-            _header = header;
+            _blockHeader = blockHeader;
             _chainWork = chainWork;
             _height = height;
         }
@@ -47,9 +47,9 @@ namespace BitCoinSharp
         /// <summary>
         /// The block header this object wraps. The referenced block object must not have any transactions in it.
         /// </summary>
-        public Block Header
+        public Block BlockHeader
         {
-            get { return _header; }
+            get { return _blockHeader; }
         }
 
         /// <summary>
@@ -82,13 +82,13 @@ namespace BitCoinSharp
         {
             if (!(other is StoredBlock)) return false;
             var o = (StoredBlock) other;
-            return o._header.Equals(_header) && o._chainWork.Equals(_chainWork) && o._height == _height;
+            return o._blockHeader.Equals(_blockHeader) && o._chainWork.Equals(_chainWork) && o._height == _height;
         }
 
         public override int GetHashCode()
         {
             // A better hashCode is possible, but this works for now.
-            return _header.GetHashCode() ^ _chainWork.GetHashCode() ^ (int) _height;
+            return _blockHeader.GetHashCode() ^ _chainWork.GetHashCode() ^ (int) _height;
         }
 
         /// <summary>
@@ -110,15 +110,15 @@ namespace BitCoinSharp
         /// </summary>
         /// <returns>The previous block in the chain or null if it was not found in the store.</returns>
         /// <exception cref="BlockStoreException"/>
-        public StoredBlock GetPrev(IBlockStore store)
+        public StoredBlock GetPrev(IBlockStore blockStore)
         {
-            return store.Get(Header.PrevBlockHash);
+            return blockStore.Get(BlockHeader.PreviousBlockHash);
         }
 
         public override string ToString()
         {
             return string.Format("Block {0} at height {1}: {2}",
-                                 Header.HashAsString, Height, Header);
+                                 BlockHeader.HashAsString, Height, BlockHeader);
         }
     }
 }

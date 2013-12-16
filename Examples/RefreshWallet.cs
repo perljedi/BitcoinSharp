@@ -46,8 +46,8 @@ namespace BitCoinSharp.Examples
                     (sender, e) =>
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Received tx " + e.Tx.HashAsString);
-                        Console.WriteLine(e.Tx.ToString());
+                        Console.WriteLine("Received tx " + e.Transaction.HashAsString);
+                        Console.WriteLine(e.Transaction.ToString());
                     };
 
                 // Now download and process the block chain.
