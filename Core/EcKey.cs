@@ -37,23 +37,22 @@ namespace BitCoinSharp
     [Serializable]
     public class EcKey
     {
-        private static readonly ECDomainParameters _ecParams;
+        private static readonly ECDomainParameters EcParameters;
 
-        private static readonly SecureRandom _secureRandom;
+        private static readonly SecureRandom SecureRandom;
 
         static EcKey()
         {
             // All clients must agree on the curve to use by agreement. BitCoin uses secp256k1.
             var @params = SecNamedCurves.GetByName("secp256k1");
-            _ecParams = new ECDomainParameters(@params.Curve, @params.G, @params.N, @params.H);
-            _secureRandom = new SecureRandom();
+            EcParameters = new ECDomainParameters(@params.Curve, @params.G, @params.N, @params.H);
+            SecureRandom = new SecureRandom();
         }
 
-        private readonly BigInteger _priv;
-        private readonly byte[] _pub;
+        private readonly BigInteger _privateKey;
+        private readonly byte[] _publicKey;
 
-        [NonSerialized] 
-        private byte[] _pubKeyHash;
+        [NonSerialized] private byte[] _publicKeyHash;
 
         /// <summary>
         /// Generates an entirely new keypair.
@@ -61,23 +60,23 @@ namespace BitCoinSharp
         public EcKey()
         {
             var generator = new ECKeyPairGenerator();
-            var keygenParams = new ECKeyGenerationParameters(_ecParams, _secureRandom);
-            generator.Init(keygenParams);
+            var keygenParameters = new ECKeyGenerationParameters(EcParameters, SecureRandom);
+            generator.Init(keygenParameters);
             var keypair = generator.GenerateKeyPair();
-            var privParams = (ECPrivateKeyParameters) keypair.Private;
-            var pubParams = (ECPublicKeyParameters) keypair.Public;
-            _priv = privParams.D;
+            var privateKeyParameters = (ECPrivateKeyParameters) keypair.Private;
+            var publicKeyParameters = (ECPublicKeyParameters) keypair.Public;
+            _privateKey = privateKeyParameters.D;
             // The public key is an encoded point on the elliptic curve. It has no meaning independent of the curve.
-            _pub = pubParams.Q.GetEncoded();
+            _publicKey = publicKeyParameters.Q.GetEncoded();
         }
 
         /// <summary>
         /// Construct an ECKey from an ASN.1 encoded private key. These are produced by OpenSSL and stored by the BitCoin
         /// reference implementation in its wallet.
         /// </summary>
-        public static EcKey FromAsn1(byte[] asn1PrivKey)
+        public static EcKey FromAsn1(byte[] asn1PrivateKey)
         {
-            return new EcKey(ExtractPrivateKeyFromAsn1(asn1PrivKey));
+            return new EcKey(ExtractPrivateKeyFromAsn1(asn1PrivateKey));
         }
 
         /// <summary>
@@ -86,9 +85,9 @@ namespace BitCoinSharp
         /// </summary>
         public byte[] ToAsn1()
         {
-            using (var baos = new MemoryStream(400))
+            using (var byteArrayOutputStream = new MemoryStream(400))
             {
-                using (var encoder = new Asn1OutputStream(baos))
+                using (var asn1OutputStreamEncoder = new Asn1OutputStream(byteArrayOutputStream))
                 {
                     // ASN1_SEQUENCE(EC_PRIVATEKEY) = {
                     //   ASN1_SIMPLE(EC_PRIVATEKEY, version, LONG),
@@ -96,14 +95,15 @@ namespace BitCoinSharp
                     //   ASN1_EXP_OPT(EC_PRIVATEKEY, parameters, ECPKPARAMETERS, 0),
                     //   ASN1_EXP_OPT(EC_PRIVATEKEY, publicKey, ASN1_BIT_STRING, 1)
                     // } ASN1_SEQUENCE_END(EC_PRIVATEKEY)
-                    var seq = new DerSequenceGenerator(encoder);
-                    seq.AddObject(new DerInteger(1)); // version
-                    seq.AddObject(new DerOctetString(_priv.ToByteArray()));
-                    seq.AddObject(new DerTaggedObject(0, SecNamedCurves.GetByName("secp256k1").ToAsn1Object()));
-                    seq.AddObject(new DerTaggedObject(1, new DerBitString(PubKey)));
-                    seq.Close();
+                    var sequenceGenerator = new DerSequenceGenerator(asn1OutputStreamEncoder);
+                    sequenceGenerator.AddObject(new DerInteger(1)); // version
+                    sequenceGenerator.AddObject(new DerOctetString(_privateKey.ToByteArray()));
+                    sequenceGenerator.AddObject(new DerTaggedObject(0,
+                        SecNamedCurves.GetByName("secp256k1").ToAsn1Object()));
+                    sequenceGenerator.AddObject(new DerTaggedObject(1, new DerBitString(PublicKey)));
+                    sequenceGenerator.Close();
                 }
-                return baos.ToArray();
+                return byteArrayOutputStream.ToArray();
             }
         }
 
@@ -111,42 +111,42 @@ namespace BitCoinSharp
         /// Creates an ECKey given only the private key. This works because EC public keys are derivable from their
         /// private keys by doing a multiply with the generator value.
         /// </summary>
-        public EcKey(BigInteger privKey)
+        public EcKey(BigInteger privateKey)
         {
-            _priv = privKey;
-            _pub = PublicKeyFromPrivate(privKey);
+            _privateKey = privateKey;
+            _publicKey = PublicKeyFromPrivate(privateKey);
         }
 
         /// <summary>
         /// Derive the public key by doing a point multiply of G * priv.
         /// </summary>
-        private static byte[] PublicKeyFromPrivate(BigInteger privKey)
+        private static byte[] PublicKeyFromPrivate(BigInteger privateKey)
         {
-            return _ecParams.G.Multiply(privKey).GetEncoded();
+            return EcParameters.G.Multiply(privateKey).GetEncoded();
         }
 
         /// <summary>
         /// Gets the hash160 form of the public key (as seen in addresses).
         /// </summary>
-        public byte[] PubKeyHash
+        public byte[] PublicKeyHash
         {
-            get { return _pubKeyHash ?? (_pubKeyHash = Utils.Sha256Hash160(_pub)); }
+            get { return _publicKeyHash ?? (_publicKeyHash = Utils.Sha256Hash160(_publicKey)); }
         }
 
         /// <summary>
         /// Gets the raw public key value. This appears in transaction scriptSigs. Note that this is <b>not</b> the same
         /// as the pubKeyHash/address.
         /// </summary>
-        public byte[] PubKey
+        public byte[] PublicKey
         {
-            get { return _pub; }
+            get { return _publicKey; }
         }
 
         public override string ToString()
         {
             var b = new StringBuilder();
-            b.Append("pub:").Append(Utils.BytesToHexString(_pub));
-            b.Append(" priv:").Append(Utils.BytesToHexString(_priv.ToByteArray()));
+            b.Append("pub:").Append(Utils.BytesToHexString(_publicKey));
+            b.Append(" priv:").Append(Utils.BytesToHexString(_privateKey.ToByteArray()));
             return b.ToString();
         }
 
@@ -156,7 +156,7 @@ namespace BitCoinSharp
         /// </summary>
         public Address ToAddress(NetworkParameters @params)
         {
-            var hash160 = Utils.Sha256Hash160(_pub);
+            var hash160 = Utils.Sha256Hash160(_publicKey);
             return new Address(@params, hash160);
         }
 
@@ -167,19 +167,19 @@ namespace BitCoinSharp
         public byte[] Sign(byte[] input)
         {
             var signer = new ECDsaSigner();
-            var privKey = new ECPrivateKeyParameters(_priv, _ecParams);
-            signer.Init(true, privKey);
-            var sigs = signer.GenerateSignature(input);
+            var privateKeyParameters = new ECPrivateKeyParameters(_privateKey, EcParameters);
+            signer.Init(true, privateKeyParameters);
+            var signatures = signer.GenerateSignature(input);
             // What we get back from the signer are the two components of a signature, r and s. To get a flat byte stream
             // of the type used by BitCoin we have to encode them using DER encoding, which is just a way to pack the two
             // components into a structure.
-            using (var bos = new MemoryStream())
+            using (var byteOutputStream = new MemoryStream())
             {
-                var seq = new DerSequenceGenerator(bos);
-                seq.AddObject(new DerInteger(sigs[0]));
-                seq.AddObject(new DerInteger(sigs[1]));
-                seq.Close();
-                return bos.ToArray();
+                var derSequenceGenerator = new DerSequenceGenerator(byteOutputStream);
+                derSequenceGenerator.AddObject(new DerInteger(signatures[0]));
+                derSequenceGenerator.AddObject(new DerInteger(signatures[1]));
+                derSequenceGenerator.Close();
+                return byteOutputStream.ToArray();
             }
         }
 
@@ -188,17 +188,17 @@ namespace BitCoinSharp
         /// </summary>
         /// <param name="data">Hash of the data to verify.</param>
         /// <param name="signature">ASN.1 encoded signature.</param>
-        /// <param name="pub">The public key bytes to use.</param>
-        public static bool Verify(byte[] data, byte[] signature, byte[] pub)
+        /// <param name="publicKeyBytes">The public key bytes to use.</param>
+        public static bool Verify(byte[] data, byte[] signature, byte[] publicKeyBytes)
         {
             var signer = new ECDsaSigner();
-            var @params = new ECPublicKeyParameters(_ecParams.Curve.DecodePoint(pub), _ecParams);
-            signer.Init(false, @params);
+            var publicKeyParameters = new ECPublicKeyParameters(EcParameters.Curve.DecodePoint(publicKeyBytes), EcParameters);
+            signer.Init(false, publicKeyParameters);
             DerInteger r;
             DerInteger s;
-            using (var decoder = new Asn1InputStream(signature))
+            using (var asn1InputStreamDecoder = new Asn1InputStream(signature))
             {
-                var seq = (DerSequence) decoder.ReadObject();
+                var seq = (DerSequence) asn1InputStreamDecoder.ReadObject();
                 r = (DerInteger) seq[0];
                 s = (DerInteger) seq[1];
             }
@@ -212,7 +212,7 @@ namespace BitCoinSharp
         /// <param name="signature">ASN.1 encoded signature.</param>
         public bool Verify(byte[] data, byte[] signature)
         {
-            return Verify(data, signature, _pub);
+            return Verify(data, signature, _publicKey);
         }
 
         private static BigInteger ExtractPrivateKeyFromAsn1(byte[] asn1PrivKey)
@@ -228,12 +228,12 @@ namespace BitCoinSharp
             // } ASN1_SEQUENCE_END(EC_PRIVATEKEY)
             //
             DerOctetString key;
-            using (var decoder = new Asn1InputStream(asn1PrivKey))
+            using (var asn1InputStreamDecoder = new Asn1InputStream(asn1PrivKey))
             {
-                var seq = (DerSequence) decoder.ReadObject();
-                Debug.Assert(seq.Count == 4, "Input does not appear to be an ASN.1 OpenSSL EC private key");
-                Debug.Assert(((DerInteger) seq[0]).Value.Equals(BigInteger.One), "Input is of wrong version");
-                key = (DerOctetString) seq[1];
+                var derSequence = (DerSequence) asn1InputStreamDecoder.ReadObject();
+                Debug.Assert(derSequence.Count == 4, "Input does not appear to be an ASN.1 OpenSSL EC private key");
+                Debug.Assert(((DerInteger) derSequence[0]).Value.Equals(BigInteger.One), "Input is of wrong version");
+                key = (DerOctetString) derSequence[1];
             }
             return new BigInteger(1, key.GetOctets());
         }
@@ -241,16 +241,16 @@ namespace BitCoinSharp
         /// <summary>
         /// Returns a 32 byte array containing the private key.
         /// </summary>
-        public byte[] GetPrivKeyBytes()
+        public byte[] GetPrivateKeyBytes()
         {
             // Getting the bytes out of a BigInteger gives us an extra zero byte on the end (for signedness)
             // or less than 32 bytes (leading zeros).  Coerce to 32 bytes in all cases.
             var bytes = new byte[32];
 
-            var privArray = _priv.ToByteArray();
-            var privStart = (privArray.Length == 33) ? 1 : 0;
-            var privLength = Math.Min(privArray.Length, 32);
-            Array.Copy(privArray, privStart, bytes, 32 - privLength, privLength);
+            var privateKeyByteArray = _privateKey.ToByteArray();
+            var privateKeyStartPoint = (privateKeyByteArray.Length == 33) ? 1 : 0;
+            var privateKeyLength = Math.Min(privateKeyByteArray.Length, 32);
+            Array.Copy(privateKeyByteArray, privateKeyStartPoint, bytes, 32 - privateKeyLength, privateKeyLength);
 
             return bytes;
         }
@@ -259,11 +259,11 @@ namespace BitCoinSharp
         /// Exports the private key in the form used by the Satoshi client "dumpprivkey" and "importprivkey" commands. Use
         /// the <see cref="DumpedPrivateKey.ToString"/> method to get the string.
         /// </summary>
-        /// <param name="params">The network this key is intended for use on.</param>
+        /// <param name="networkParameters">The network this key is intended for use on.</param>
         /// <returns>Private key bytes as a <see cref="DumpedPrivateKey"/>.</returns>
-        public DumpedPrivateKey GetPrivateKeyEncoded(NetworkParameters @params)
+        public DumpedPrivateKey GetPrivateKeyEncoded(NetworkParameters networkParameters)
         {
-            return new DumpedPrivateKey(@params, GetPrivKeyBytes());
+            return new DumpedPrivateKey(networkParameters, GetPrivateKeyBytes());
         }
     }
 }

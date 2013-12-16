@@ -28,8 +28,8 @@ namespace BitCoinSharp
         private readonly IList<Sha256Hash> _locator;
         private readonly Sha256Hash _stopHash;
 
-        public GetBlocksMessage(NetworkParameters @params, IList<Sha256Hash> locator, Sha256Hash stopHash)
-            : base(@params)
+        public GetBlocksMessage(NetworkParameters networkParameters, IList<Sha256Hash> locator, Sha256Hash stopHash)
+            : base(networkParameters)
         {
             _locator = locator;
             _stopHash = stopHash;
@@ -51,34 +51,34 @@ namespace BitCoinSharp
 
         public override string ToString()
         {
-            var b = new StringBuilder();
-            b.Append("getblocks: ");
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append("getblocks: ");
             foreach (var hash in _locator)
             {
-                b.Append(hash.ToString());
-                b.Append(" ");
+                stringBuilder.Append(hash);
+                stringBuilder.Append(" ");
             }
-            return b.ToString();
+            return stringBuilder.ToString();
         }
 
         public override byte[] BitcoinSerialize()
         {
-            using (var buf = new MemoryStream())
+            using (var outputMemoryStream = new MemoryStream())
             {
                 // Version, for some reason.
-                Utils.Uint32ToByteStreamLe(NetworkParameters.ProtocolVersion, buf);
+                Utils.Uint32ToByteStreamLe(NetworkParameters.ProtocolVersion, outputMemoryStream);
                 // Then a vector of block hashes. This is actually a "block locator", a set of block
                 // identifiers that spans the entire chain with exponentially increasing gaps between
                 // them, until we end up at the genesis block. See CBlockLocator::Set()
-                buf.Write(new VarInt((ulong) _locator.Count).Encode());
+                outputMemoryStream.Write(new VarInt((ulong) _locator.Count).Encode());
                 foreach (var hash in _locator)
                 {
                     // Have to reverse as wire format is little endian.
-                    buf.Write(Utils.ReverseBytes(hash.Bytes));
+                    outputMemoryStream.Write(Utils.ReverseBytes(hash.Bytes));
                 }
                 // Next, a block ID to stop at.
-                buf.Write(_stopHash.Bytes);
-                return buf.ToArray();
+                outputMemoryStream.Write(_stopHash.Bytes);
+                return outputMemoryStream.ToArray();
             }
         }
     }

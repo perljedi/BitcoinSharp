@@ -52,11 +52,11 @@ namespace BitCoinSharp
         /// <summary>
         /// Used only in creation of the genesis block.
         /// </summary>
-        internal TransactionInput(NetworkParameters @params, Transaction parentTransaction, byte[] scriptBytes)
-            : base(@params)
+        internal TransactionInput(NetworkParameters networkParameters, Transaction parentTransaction, byte[] scriptBytes)
+            : base(networkParameters)
         {
             ScriptBytes = scriptBytes;
-            Outpoint = new TransactionOutPoint(@params, -1, null);
+            Outpoint = new TransactionOutPoint(networkParameters, -1, null);
             _sequence = uint.MaxValue;
             ParentTransaction = parentTransaction;
         }
@@ -64,11 +64,12 @@ namespace BitCoinSharp
         /// <summary>
         /// Creates an UNSIGNED input that links to the given output
         /// </summary>
-        internal TransactionInput(NetworkParameters @params, Transaction parentTransaction, TransactionOutput output)
-            : base(@params)
+        internal TransactionInput(NetworkParameters networkParameters, Transaction parentTransaction,
+            TransactionOutput output)
+            : base(networkParameters)
         {
             var outputIndex = output.Index;
-            Outpoint = new TransactionOutPoint(@params, outputIndex, output.ParentTransaction);
+            Outpoint = new TransactionOutPoint(networkParameters, outputIndex, output.ParentTransaction);
             ScriptBytes = EmptyArray;
             _sequence = uint.MaxValue;
             ParentTransaction = parentTransaction;
@@ -78,8 +79,9 @@ namespace BitCoinSharp
         /// Deserializes an input message. This is usually part of a transaction message.
         /// </summary>
         /// <exception cref="ProtocolException"/>
-        public TransactionInput(NetworkParameters @params, Transaction parentTransaction, byte[] payload, int offset)
-            : base(@params, payload, offset)
+        public TransactionInput(NetworkParameters networkParameters, Transaction parentTransaction, byte[] payload,
+            int offset)
+            : base(networkParameters, payload, offset)
         {
             ParentTransaction = parentTransaction;
         }
@@ -87,7 +89,7 @@ namespace BitCoinSharp
         /// <exception cref="ProtocolException"/>
         protected override void Parse()
         {
-            Outpoint = new TransactionOutPoint(Params, Bytes, Cursor);
+            Outpoint = new TransactionOutPoint(NetworkParameters, Bytes, Cursor);
             Cursor += Outpoint.MessageSize;
             var scriptLen = (int) ReadVarInt();
             ScriptBytes = ReadBytes(scriptLen);
@@ -95,12 +97,12 @@ namespace BitCoinSharp
         }
 
         /// <exception cref="IOException"/>
-        public override void BitcoinSerializeToStream(Stream stream)
+        public override void BitcoinSerializeToStream(Stream outputStream)
         {
-            Outpoint.BitcoinSerializeToStream(stream);
-            stream.Write(new VarInt((ulong) ScriptBytes.Length).Encode());
-            stream.Write(ScriptBytes);
-            Utils.Uint32ToByteStreamLe(_sequence, stream);
+            Outpoint.BitcoinSerializeToStream(outputStream);
+            outputStream.Write(new VarInt((ulong) ScriptBytes.Length).Encode());
+            outputStream.Write(ScriptBytes);
+            Utils.Uint32ToByteStreamLe(_sequence, outputStream);
         }
 
         /// <summary>
@@ -124,7 +126,7 @@ namespace BitCoinSharp
                 if (_scriptSig == null)
                 {
                     Debug.Assert(ScriptBytes != null);
-                    _scriptSig = new Script(Params, ScriptBytes, 0, ScriptBytes.Length);
+                    _scriptSig = new Script(NetworkParameters, ScriptBytes, 0, ScriptBytes.Length);
                 }
                 return _scriptSig;
             }
@@ -152,7 +154,8 @@ namespace BitCoinSharp
             {
                 return "TxIn: COINBASE";
             }
-            return "TxIn from tx " + Outpoint + " (pubkey: " + Utils.BytesToHexString(ScriptSig.PubKey) + ") script:" + ScriptSig;
+            return "TxIn from tx " + Outpoint + " (pubkey: " + Utils.BytesToHexString(ScriptSig.PublicKey) + ") script:" +
+                   ScriptSig;
         }
 
         internal enum ConnectionResult
@@ -170,11 +173,11 @@ namespace BitCoinSharp
         /// <returns>The TransactionOutput or null if the transactions map doesn't contain the referenced tx.</returns>
         internal TransactionOutput GetConnectedOutput(IDictionary<Sha256Hash, Transaction> transactions)
         {
-            Transaction tx;
-            if (!transactions.TryGetValue(Outpoint.Hash, out tx))
+            Transaction transaction;
+            if (!transactions.TryGetValue(Outpoint.Hash, out transaction))
                 return null;
-            var @out = tx.Outputs[Outpoint.Index];
-            return @out;
+            var transactionOutput = transaction.TransactionOutputs[Outpoint.Index];
+            return transactionOutput;
         }
 
         /// <summary>
@@ -186,19 +189,19 @@ namespace BitCoinSharp
         /// <returns>True if connection took place, false if the referenced transaction was not in the list.</returns>
         internal ConnectionResult Connect(IDictionary<Sha256Hash, Transaction> transactions, bool disconnect)
         {
-            Transaction tx;
-            if (!transactions.TryGetValue(Outpoint.Hash, out tx))
+            Transaction transaction;
+            if (!transactions.TryGetValue(Outpoint.Hash, out transaction))
                 return ConnectionResult.NoSuchTx;
-            var @out = tx.Outputs[Outpoint.Index];
-            if (!@out.IsAvailableForSpending)
+            var transactionOutput = transaction.TransactionOutputs[Outpoint.Index];
+            if (!transactionOutput.IsAvailableForSpending)
             {
                 if (disconnect)
-                    @out.MarkAsUnspent();
+                    transactionOutput.MarkAsUnspent();
                 else
                     return ConnectionResult.AlreadySpent;
             }
-            Outpoint.FromTx = tx;
-            @out.MarkAsSpent(this);
+            Outpoint.FromTransaction = transaction;
+            transactionOutput.MarkAsSpent(this);
             return ConnectionResult.Success;
         }
 
@@ -208,9 +211,9 @@ namespace BitCoinSharp
         /// <returns>True if the disconnection took place, false if it was not connected.</returns>
         internal bool Disconnect()
         {
-            if (Outpoint.FromTx == null) return false;
-            Outpoint.FromTx.Outputs[Outpoint.Index].MarkAsUnspent();
-            Outpoint.FromTx = null;
+            if (Outpoint.FromTransaction == null) return false;
+            Outpoint.FromTransaction.TransactionOutputs[Outpoint.Index].MarkAsUnspent();
+            Outpoint.FromTransaction = null;
             return true;
         }
     }

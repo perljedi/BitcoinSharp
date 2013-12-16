@@ -22,13 +22,13 @@ namespace BitCoinSharp
     public class GetDataMessage : ListMessage
     {
         /// <exception cref="ProtocolException"/>
-        public GetDataMessage(NetworkParameters @params, byte[] payloadBytes)
-            : base(@params, payloadBytes)
+        public GetDataMessage(NetworkParameters networkParameters, byte[] payloadBytes)
+            : base(networkParameters, payloadBytes)
         {
         }
 
-        public GetDataMessage(NetworkParameters @params)
-            : base(@params)
+        public GetDataMessage(NetworkParameters networkParameters)
+            : base(networkParameters)
         {
         }
     }

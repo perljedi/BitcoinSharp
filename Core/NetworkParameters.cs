@@ -89,28 +89,33 @@ namespace BitCoinSharp
         /// </summary>
         public int TargetTimespan { get; private set; }
 
-        private static Block CreateGenesis(NetworkParameters n)
+        private static Block CreateGenesis(NetworkParameters networkParameters)
         {
-            var genesisBlock = new Block(n);
-            var t = new Transaction(n);
+            var genesisBlock = new Block(networkParameters);
+            var transaction = new Transaction(networkParameters);
             // A script containing the difficulty bits and the following message:
             //
             //   "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
-            var bytes = Hex.Decode("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73");
-            t.AddInput(new TransactionInput(n, t, bytes));
+            var bytes =
+                Hex.Decode(
+                    "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73");
+            transaction.AddInput(new TransactionInput(networkParameters, transaction, bytes));
             using (var scriptPubKeyBytes = new MemoryStream())
             {
-                Script.WriteBytes(scriptPubKeyBytes, Hex.Decode("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"));
+                Script.WriteBytes(scriptPubKeyBytes,
+                    Hex.Decode(
+                        "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"));
                 scriptPubKeyBytes.Write(Script.OpCheckSig);
-                t.AddOutput(new TransactionOutput(n, t, scriptPubKeyBytes.ToArray()));
+                transaction.AddOutput(new TransactionOutput(networkParameters, transaction, scriptPubKeyBytes.ToArray()));
             }
-            genesisBlock.AddTransaction(t);
+            genesisBlock.AddTransaction(transaction);
             return genesisBlock;
         }
 
-        private const int _targetTimespan = 14*24*60*60; // 2 weeks per difficulty cycle, on average.
-        private const int _targetSpacing = 10*60; // 10 minutes per block.
-        private const int _interval = _targetTimespan/_targetSpacing;
+        // TODO: Place these elsewhere?
+        private const int _targetTimespan = 14 * 24 * 60 * 60; // 2 weeks per difficulty cycle, on average.
+        private const int _targetSpacing = 10 * 60; // 10 minutes per block.
+        private const int _interval = _targetTimespan / _targetSpacing;
 
         /// <summary>
         /// Sets up the given NetworkParameters with testnet values.
@@ -119,7 +124,8 @@ namespace BitCoinSharp
         {
             // Genesis hash is 0000000224b1593e3ff16a0e3b61285bbc393a39f78c8aa48c456142671f7110
             // The proof of work limit has to start with 00, as otherwise the value will be interpreted as negative.
-            networkParameters.ProofOfWorkLimit = new BigInteger("0000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
+            networkParameters.ProofOfWorkLimit =
+                new BigInteger("0000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
             networkParameters.Port = 18333;
             networkParameters.PacketMagic = 0xfabfb5da;
             networkParameters.AddressHeader = 111;
@@ -129,10 +135,11 @@ namespace BitCoinSharp
             networkParameters.GenesisBlock = CreateGenesis(networkParameters);
             //TODO: Should this use SystemTime.UnixTime()?
             networkParameters.GenesisBlock.TimeSeconds = 1296688602;
-            networkParameters.GenesisBlock.DifficultyTarget = 0x1d07fff8;
+            networkParameters.GenesisBlock.TargetDifficulty = 0x1d07fff8;
             networkParameters.GenesisBlock.Nonce = 384568319;
             var genesisHash = networkParameters.GenesisBlock.HashAsString;
-            Debug.Assert(genesisHash.Equals("00000007199508e34a9ff81e6ec0c477a4cccff2a4767a8eee39c11db367b008"), genesisHash);
+            Debug.Assert(genesisHash.Equals("00000007199508e34a9ff81e6ec0c477a4cccff2a4767a8eee39c11db367b008"),
+                genesisHash);
             return networkParameters;
         }
 
@@ -141,8 +148,8 @@ namespace BitCoinSharp
         /// </summary>
         public static NetworkParameters TestNet()
         {
-            var n = new NetworkParameters();
-            return CreateTestNet(n);
+            var networkParameters = new NetworkParameters();
+            return CreateTestNet(networkParameters);
         }
 
         /// <summary>
@@ -152,7 +159,8 @@ namespace BitCoinSharp
         {
             var networkParameters = new NetworkParameters
             {
-                ProofOfWorkLimit = new BigInteger("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16),
+                ProofOfWorkLimit =
+                    new BigInteger("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16),
                 Port = 8333,
                 PacketMagic = 0xf9beb4d9,
                 AddressHeader = 0,
@@ -161,12 +169,13 @@ namespace BitCoinSharp
                 TargetTimespan = _targetTimespan
             };
             networkParameters.GenesisBlock = CreateGenesis(networkParameters);
-            networkParameters.GenesisBlock.DifficultyTarget = 0x1d00ffff;
+            networkParameters.GenesisBlock.TargetDifficulty = 0x1d00ffff;
             networkParameters.GenesisBlock.TimeSeconds = 1231006505;
             networkParameters.GenesisBlock.Nonce = 2083236893;
             var genesisHash = networkParameters.GenesisBlock.HashAsString;
             //TODO: If the genesis block must be created why don't we throw if it's invalid?
-            Debug.Assert(genesisHash.Equals("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), genesisHash);
+            Debug.Assert(genesisHash.Equals("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
+                genesisHash);
             return networkParameters;
         }
 
@@ -175,13 +184,14 @@ namespace BitCoinSharp
         /// </summary>
         public static NetworkParameters UnitTests()
         {
-            var n = new NetworkParameters();
-            n = CreateTestNet(n);
-            n.ProofOfWorkLimit = new BigInteger("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
-            n.GenesisBlock.DifficultyTarget = Block.EasiestDifficultyTarget;
-            n.Interval = 10;
-            n.TargetTimespan = 200000000; // 6 years. Just a very big number.
-            return n;
+            var networkParameters = new NetworkParameters();
+            networkParameters = CreateTestNet(networkParameters);
+            networkParameters.ProofOfWorkLimit =
+                new BigInteger("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
+            networkParameters.GenesisBlock.TargetDifficulty = Block.EasiestDifficultyTarget;
+            networkParameters.Interval = 10;
+            networkParameters.TargetTimespan = 200000000; // 6 years. Just a very big number.
+            return networkParameters;
         }
     }
 }

@@ -26,31 +26,32 @@ namespace BitCoinSharp
         }
 
         // BitCoin has its own varint format, known in the C++ source as "compact size".
-        public VarInt(byte[] buf, int offset)
+        public VarInt(byte[] byteArray, int offset)
         {
-            var first = buf[offset];
-            ulong val;
+            var first = byteArray[offset];
+            ulong ulongValue;
             if (first < 253)
             {
                 // 8 bits.
-                val = first;
+                ulongValue = first;
             }
             else if (first == 253)
             {
                 // 16 bits.
-                val = (ushort) (buf[offset + 1] | (buf[offset + 2] << 8));
+                ulongValue = (ushort) (byteArray[offset + 1] | (byteArray[offset + 2] << 8));
             }
             else if (first == 254)
             {
                 // 32 bits.
-                val = Utils.ReadUint32(buf, offset + 1);
+                ulongValue = Utils.ReadUint32(byteArray, offset + 1);
             }
             else
             {
                 // 64 bits.
-                val = Utils.ReadUint32(buf, offset + 1) | (((ulong) Utils.ReadUint32(buf, offset + 5)) << 32);
+                ulongValue = Utils.ReadUint32(byteArray, offset + 1) |
+                             (((ulong) Utils.ReadUint32(byteArray, offset + 5)) << 32);
             }
-            Value = val;
+            Value = ulongValue;
         }
 
         public int SizeInBytes
@@ -62,9 +63,7 @@ namespace BitCoinSharp
                     return 1;
                 if (Value <= ushort.MaxValue)
                     return 3; // 1 marker + 2 data bytes
-                if (Value <= uint.MaxValue)
-                    return 5; // 1 marker + 4 data bytes
-                return 9; // 1 marker + 8 data bytes
+                return Value <= uint.MaxValue ? 5 : 9;
             }
         }
 

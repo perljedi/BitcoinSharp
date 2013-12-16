@@ -34,7 +34,7 @@ namespace BitCoinSharp
     /// </remarks>
     public class Script
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof (Script));
+        private static readonly ILog Log = LogManager.GetLogger(typeof (Script));
 
         // Some constants used for decoding the scripts.
         public const int OpPushData1 = 76;
@@ -72,7 +72,7 @@ namespace BitCoinSharp
         /// </summary>
         public override string ToString()
         {
-            var buf = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             foreach (var chunk in _chunks)
             {
                 if (chunk.Length == 1)
@@ -97,37 +97,37 @@ namespace BitCoinSharp
                             opName = "?(" + opcode + ")";
                             break;
                     }
-                    buf.Append(opName);
-                    buf.Append(" ");
+                    stringBuilder.Append(opName);
+                    stringBuilder.Append(" ");
                 }
                 else
                 {
                     // Data chunk
-                    buf.Append("[");
-                    buf.Append(chunk.Length);
-                    buf.Append("]");
-                    buf.Append(Utils.BytesToHexString(chunk));
-                    buf.Append(" ");
+                    stringBuilder.Append("[");
+                    stringBuilder.Append(chunk.Length);
+                    stringBuilder.Append("]");
+                    stringBuilder.Append(Utils.BytesToHexString(chunk));
+                    stringBuilder.Append(" ");
                 }
             }
-            return buf.ToString();
+            return stringBuilder.ToString();
         }
 
         /// <exception cref="ScriptException"/>
-        private byte[] GetData(int len)
+        private byte[] GetData(int length)
         {
             try
             {
-                var buf = new byte[len];
-                Array.Copy(_program, _cursor, buf, 0, len);
-                _cursor += len;
-                return buf;
+                var bytes = new byte[length];
+                Array.Copy(_program, _cursor, bytes, 0, length);
+                _cursor += length;
+                return bytes;
             }
             catch (IndexOutOfRangeException e)
             {
                 // We want running out of data in the array to be treated as a recoverable script parsing exception,
                 // not something that abnormally terminates the app.
-                throw new ScriptException("Failed read of " + len + " bytes", e);
+                throw new ScriptException("Failed read of " + length + " bytes", e);
             }
         }
 
@@ -185,7 +185,7 @@ namespace BitCoinSharp
                 else if (opcode == OpPushData4)
                 {
                     // Read a uint32, then read that many bytes of data.
-                    _log.Error("PUSHDATA4: Unimplemented");
+                    Log.Error("PUSHDATA4: Unimplemented");
                 }
                 else
                 {
@@ -212,7 +212,7 @@ namespace BitCoinSharp
         /// This is useful for fetching the destination address of a transaction.
         /// </remarks>
         /// <exception cref="ScriptException"/>
-        public byte[] PubKeyHash
+        public byte[] PublicKeyHash
         {
             get
             {
@@ -238,7 +238,7 @@ namespace BitCoinSharp
         /// This is useful for fetching the source address of a transaction.
         /// </remarks>
         /// <exception cref="ScriptException"/>
-        public byte[] PubKey
+        public byte[] PublicKey
         {
             get
             {
@@ -263,7 +263,7 @@ namespace BitCoinSharp
         /// <exception cref="ScriptException"/>
         public Address FromAddress
         {
-            get { return new Address(_params, Utils.Sha256Hash160(PubKey)); }
+            get { return new Address(_params, Utils.Sha256Hash160(PublicKey)); }
         }
 
         /// <summary>
@@ -272,7 +272,7 @@ namespace BitCoinSharp
         /// <exception cref="ScriptException"/>
         public Address ToAddress
         {
-            get { return new Address(_params, PubKeyHash); }
+            get { return new Address(_params, PublicKeyHash); }
         }
 
         ////////////////////// Interface for writing scripts from scratch ////////////////////////////////
@@ -281,24 +281,24 @@ namespace BitCoinSharp
         /// Writes out the given byte buffer to the output stream with the correct opcode prefix
         /// </summary>
         /// <exception cref="IOException"/>
-        internal static void WriteBytes(Stream os, byte[] buf)
+        internal static void WriteBytes(Stream outputStream, byte[] byteArray)
         {
-            if (buf.Length < OpPushData1)
+            if (byteArray.Length < OpPushData1)
             {
-                os.Write((byte) buf.Length);
-                os.Write(buf);
+                outputStream.Write((byte) byteArray.Length);
+                outputStream.Write(byteArray);
             }
-            else if (buf.Length < 256)
+            else if (byteArray.Length < 256)
             {
-                os.Write(OpPushData1);
-                os.Write((byte) buf.Length);
-                os.Write(buf);
+                outputStream.Write(OpPushData1);
+                outputStream.Write((byte) byteArray.Length);
+                outputStream.Write(byteArray);
             }
-            else if (buf.Length < 65536)
+            else if (byteArray.Length < 65536)
             {
-                os.Write(OpPushData2);
-                os.Write((byte) buf.Length);
-                os.Write((byte) (buf.Length >> 8));
+                outputStream.Write(OpPushData2);
+                outputStream.Write((byte) byteArray.Length);
+                outputStream.Write((byte) (byteArray.Length >> 8));
             }
             else
             {
@@ -306,14 +306,14 @@ namespace BitCoinSharp
             }
         }
 
-        internal static byte[] CreateOutputScript(Address to)
+        internal static byte[] CreateOutputScript(Address toAddress)
         {
             using (var bits = new MemoryStream())
             {
                 // TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
                 bits.Write(OpDup);
                 bits.Write(OpHash160);
-                WriteBytes(bits, to.Hash160);
+                WriteBytes(bits, toAddress.Hash160);
                 bits.Write(OpEqualVerify);
                 bits.Write(OpCheckSig);
                 return bits.ToArray();
@@ -323,25 +323,25 @@ namespace BitCoinSharp
         /// <summary>
         /// Create a script that sends coins directly to the given public key (eg in a coinbase transaction).
         /// </summary>
-        internal static byte[] CreateOutputScript(byte[] pubkey)
+        internal static byte[] CreateOutputScript(byte[] publicKey)
         {
             // TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            using (var bits = new MemoryStream())
+            using (var outputStream = new MemoryStream())
             {
-                WriteBytes(bits, pubkey);
-                bits.Write(OpCheckSig);
-                return bits.ToArray();
+                WriteBytes(outputStream, publicKey);
+                outputStream.Write(OpCheckSig);
+                return outputStream.ToArray();
             }
         }
 
-        internal static byte[] CreateInputScript(byte[] signature, byte[] pubkey)
+        internal static byte[] CreateInputScript(byte[] signature, byte[] publicKey)
         {
             // TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            using (var bits = new MemoryStream())
+            using (var outputStream = new MemoryStream())
             {
-                WriteBytes(bits, signature);
-                WriteBytes(bits, pubkey);
-                return bits.ToArray();
+                WriteBytes(outputStream, signature);
+                WriteBytes(outputStream, publicKey);
+                return outputStream.ToArray();
             }
         }
     }

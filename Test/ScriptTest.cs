@@ -36,7 +36,7 @@ namespace BitCoinSharp.Test
             var sigProgBytes = Hex.Decode(_sigProg);
             var script = new Script(_params, sigProgBytes, 0, sigProgBytes.Length);
             // Test we can extract the from address.
-            var hash160 = Utils.Sha256Hash160(script.PubKey);
+            var hash160 = Utils.Sha256Hash160(script.PublicKey);
             var a = new Address(_params, hash160);
             Assert.AreEqual("mkFQohBpy2HDXrCwyMrYL5RtfrmeiuuPY2", a.ToString());
         }
@@ -47,7 +47,7 @@ namespace BitCoinSharp.Test
             // Check we can extract the to address
             var pubkeyBytes = Hex.Decode(_pubkeyProg);
             var pubkey = new Script(_params, pubkeyBytes, 0, pubkeyBytes.Length);
-            var toAddr = new Address(_params, pubkey.PubKeyHash);
+            var toAddr = new Address(_params, pubkey.PublicKeyHash);
             Assert.AreEqual("mkFQohBpy2HDXrCwyMrYL5RtfrmeiuuPY2", toAddr.ToString());
         }
 

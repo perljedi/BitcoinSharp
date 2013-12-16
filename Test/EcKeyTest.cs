@@ -82,7 +82,7 @@ namespace BitCoinSharp.Test
             const string privkey = "91axuYLa8xK796DnBXXsMbjuc8pDYxYgJyQMvFzrZ6UfXaGYuqL";
             var key = new DumpedPrivateKey(NetworkParameters.TestNet(), privkey).Key;
             Assert.AreEqual(privkey, key.GetPrivateKeyEncoded(NetworkParameters.TestNet()).ToString());
-            Assert.AreEqual(0, key.GetPrivKeyBytes()[0]);
+            Assert.AreEqual(0, key.GetPrivateKeyBytes()[0]);
         }
 
         [Test]
@@ -94,8 +94,8 @@ namespace BitCoinSharp.Test
                 var key = new EcKey();
                 var key1 = new DumpedPrivateKey(NetworkParameters.TestNet(),
                                                 key.GetPrivateKeyEncoded(NetworkParameters.TestNet()).ToString()).Key;
-                Assert.AreEqual(Utils.BytesToHexString(key.GetPrivKeyBytes()),
-                                Utils.BytesToHexString(key1.GetPrivKeyBytes()));
+                Assert.AreEqual(Utils.BytesToHexString(key.GetPrivateKeyBytes()),
+                                Utils.BytesToHexString(key1.GetPrivateKeyBytes()));
             }
         }
     }

@@ -227,8 +227,8 @@ namespace BitCoinSharp.Test
             _wallet.DeadTransaction +=
                 (sender, e) =>
                 {
-                    eventDead = e.DeadTx;
-                    eventReplacement = e.ReplacementTx;
+                    eventDead = e.DeadTransaction;
+                    eventReplacement = e.ReplacementTransaction;
                 };
 
             // Start with 50 coins.

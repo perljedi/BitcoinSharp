@@ -41,16 +41,16 @@ namespace BitCoinSharp
 
         // This is not part of BitCoin serialization. It's included in Java serialization.
         // It points to the connected transaction.
-        internal Transaction FromTx { get; set; }
+        internal Transaction FromTransaction { get; set; }
 
-        internal TransactionOutPoint(NetworkParameters @params, int index, Transaction fromTx)
-            : base(@params)
+        internal TransactionOutPoint(NetworkParameters networkParameters, int index, Transaction fromTransaction)
+            : base(networkParameters)
         {
             Index = index;
-            if (fromTx != null)
+            if (fromTransaction != null)
             {
-                Hash = fromTx.Hash;
-                FromTx = fromTx;
+                Hash = fromTransaction.Hash;
+                FromTransaction = fromTransaction;
             }
             else
             {
@@ -63,8 +63,8 @@ namespace BitCoinSharp
         /// Deserializes the message. This is usually part of a transaction message.
         /// </summary>
         /// <exception cref="ProtocolException"/>
-        public TransactionOutPoint(NetworkParameters @params, byte[] payload, int offset)
-            : base(@params, payload, offset)
+        public TransactionOutPoint(NetworkParameters networkParameters, byte[] payload, int offset)
+            : base(networkParameters, payload, offset)
         {
         }
 
@@ -77,10 +77,10 @@ namespace BitCoinSharp
         }
 
         /// <exception cref="IOException"/>
-        public override void BitcoinSerializeToStream(Stream stream)
+        public override void BitcoinSerializeToStream(Stream outputStream)
         {
-            stream.Write(Utils.ReverseBytes(Hash.Bytes));
-            Utils.Uint32ToByteStreamLe((uint) Index, stream);
+            outputStream.Write(Utils.ReverseBytes(Hash.Bytes));
+            Utils.Uint32ToByteStreamLe((uint) Index, outputStream);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace BitCoinSharp
         /// </summary>
         internal TransactionOutput ConnectedOutput
         {
-            get { return FromTx != null ? FromTx.Outputs[Index] : null; }
+            get { return FromTransaction != null ? FromTransaction.TransactionOutputs[Index] : null; }
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace BitCoinSharp
         /// <exception cref="ScriptException"/>
         internal byte[] ConnectedPubKeyHash
         {
-            get { return ConnectedOutput.ScriptPubKey.PubKeyHash; }
+            get { return ConnectedOutput.ScriptPublicKey.PublicKeyHash; }
         }
 
         public override string ToString()

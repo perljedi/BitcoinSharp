@@ -55,10 +55,10 @@ namespace BitCoinSharp
             if (blocksLeft < 0 || _originalBlocksLeft <= 0)
                 return;
 
-            var pct = 100.0 - (100.0*(blocksLeft/(double) _originalBlocksLeft));
+            var pct = 100.0 - (100.0 * (blocksLeft / (double) _originalBlocksLeft));
             if ((int) pct != _lastPercent)
             {
-                Progress(pct, UnixTime.FromUnixTime(block.TimeSeconds*1000));
+                Progress(pct, UnixTime.FromUnixTime(block.TimeSeconds * 1000));
                 _lastPercent = (int) pct;
             }
         }
@@ -70,7 +70,7 @@ namespace BitCoinSharp
         /// <param name="date">The date of the last block downloaded.</param>
         protected void Progress(double pct, DateTime date)
         {
-            Console.WriteLine(string.Format("Chain download {0}% done, block date {1}", (int) pct, date));
+            Console.WriteLine("Chain download {0}% done, block date {1}", (int) pct, date);
         }
 
         /// <summary>
@@ -79,8 +79,8 @@ namespace BitCoinSharp
         /// <param name="blocks">The number of blocks to download, estimated.</param>
         protected void StartDownload(int blocks)
         {
-            Console.WriteLine("Downloading block chain of size " + blocks + ". " +
-                              (blocks > 1000 ? "This may take a while." : ""));
+            Console.WriteLine("Downloading block chain of size {0}.{1}", blocks,
+                (blocks > 1000 ? " This may take a while." : string.Empty));
         }
 
         /// <summary>

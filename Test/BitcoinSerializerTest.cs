@@ -62,7 +62,7 @@ namespace BitCoinSharp.Test
                 Assert.AreEqual(1, a.Addresses.Count);
                 var pa = a.Addresses[0];
                 Assert.AreEqual(8333, pa.Port);
-                Assert.AreEqual("10.0.0.1", pa.Addr.ToString());
+                Assert.AreEqual("10.0.0.1", pa.IpAddress.ToString());
             }
         }
     }

@@ -32,10 +32,10 @@ namespace BitCoinSharp
     /// </remarks>
     public class Peer
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof (Peer));
+        private static readonly ILog Log = LogManager.GetLogger(typeof (Peer));
 
-        private NetworkConnection _conn;
-        private readonly NetworkParameters _params;
+        private NetworkConnection _connection;
+        private readonly NetworkParameters _networkParameters;
         // Whether the peer loop is supposed to be running or not. Set to false during shutdown so the peer loop
         // knows to quit when the socket goes away.
         private bool _running;
@@ -48,17 +48,17 @@ namespace BitCoinSharp
 
         private readonly uint _bestHeight;
 
-        private readonly PeerAddress _address;
+        private readonly PeerAddress _peerAddress;
 
         /// <summary>
         /// Construct a peer that handles the given network connection and reads/writes from the given block chain. Note that
         /// communication won't occur until you call Connect().
         /// </summary>
         /// <param name="bestHeight">Our current best chain height, to facilitate downloading.</param>
-        public Peer(NetworkParameters @params, PeerAddress address, uint bestHeight, BlockChain blockChain)
+        public Peer(NetworkParameters networkParameters, PeerAddress peerAddress, uint bestHeight, BlockChain blockChain)
         {
-            _params = @params;
-            _address = address;
+            _networkParameters = networkParameters;
+            _peerAddress = peerAddress;
             _bestHeight = bestHeight;
             _blockChain = blockChain;
             _pendingGetBlockFutures = new List<GetDataFuture<Block>>();
@@ -68,8 +68,8 @@ namespace BitCoinSharp
         /// Construct a peer that handles the given network connection and reads/writes from the given block chain. Note that
         /// communication won't occur until you call connect().
         /// </summary>
-        public Peer(NetworkParameters @params, PeerAddress address, BlockChain blockChain)
-            : this(@params, address, 0, blockChain)
+        public Peer(NetworkParameters networkParameters, PeerAddress peerAddress, BlockChain blockChain)
+            : this(networkParameters, peerAddress, 0, blockChain)
         {
         }
 
@@ -88,7 +88,7 @@ namespace BitCoinSharp
 
         public override string ToString()
         {
-            return "Peer(" + _address.Addr + ":" + _address.Port + ")";
+            return "Peer(" + _peerAddress.IpAddress + ":" + _peerAddress.Port + ")";
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace BitCoinSharp
             {
                 try
                 {
-                    _conn = new NetworkConnection(_address, _params, _bestHeight, 60000);
+                    _connection = new NetworkConnection(_peerAddress, _networkParameters, _bestHeight, 60000);
                 }
                 catch (IOException ex)
                 {
@@ -117,7 +117,7 @@ namespace BitCoinSharp
         // For testing
         internal NetworkConnection Connection
         {
-            set { _conn = value; }
+            set { _connection = value; }
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace BitCoinSharp
         public void Run()
         {
             // This should be called in the network loop thread for this peer
-            if (_conn == null)
+            if (_connection == null)
                 throw new Exception("please call connect() first");
 
             _running = true;
@@ -139,25 +139,30 @@ namespace BitCoinSharp
             {
                 while (true)
                 {
-                    var m = _conn.ReadMessage();
-                    if (m is InventoryMessage)
+                    var m = _connection.ReadMessage();
+                    var inv = m as InventoryMessage;
+                    if (inv != null)
                     {
-                        ProcessInv((InventoryMessage) m);
-                    }
-                    else if (m is Block)
-                    {
-                        ProcessBlock((Block) m);
-                    }
-                    else if (m is AddressMessage)
-                    {
-                        // We don't care about addresses of the network right now. But in future,
-                        // we should save them in the wallet so we don't put too much load on the seed nodes and can
-                        // properly explore the network.
+                        ProcessInv(inv);
                     }
                     else
                     {
-                        // TODO: Handle the other messages we can receive.
-                        _log.WarnFormat("Received unhandled message: {0}", m);
+                        var block = m as Block;
+                        if (block != null)
+                        {
+                            ProcessBlock(block);
+                        }
+                        else if (m is AddressMessage)
+                        {
+                            // We don't care about addresses of the network right now. But in future,
+                            // we should save them in the wallet so we don't put too much load on the seed nodes and can
+                            // properly explore the network.
+                        }
+                        else
+                        {
+                            // TODO: Handle the other messages we can receive.
+                            Log.WarnFormat("Received unhandled message: {0}", m);
+                        }
                     }
                 }
             }
@@ -166,7 +171,7 @@ namespace BitCoinSharp
                 if (!_running)
                 {
                     // This exception was expected because we are tearing down the socket as part of quitting.
-                    _log.Info("Shutting down peer loop");
+                    Log.Info("Shutting down peer loop");
                 }
                 else
                 {
@@ -182,7 +187,7 @@ namespace BitCoinSharp
             catch (Exception e)
             {
                 Disconnect();
-                _log.Error("unexpected exception in peer loop", e);
+                Log.Error("unexpected exception in peer loop", e);
                 throw;
             }
 
@@ -201,7 +206,7 @@ namespace BitCoinSharp
                     for (var i = 0; i < _pendingGetBlockFutures.Count; i++)
                     {
                         var f = _pendingGetBlockFutures[i];
-                        if (f.Item.Hash.Equals(m.Hash))
+                        if (f.InventoryItem.Hash.Equals(m.Hash))
                         {
                             // Yes, it was. So pass it through the future.
                             f.SetResult(m);
@@ -236,12 +241,12 @@ namespace BitCoinSharp
             catch (VerificationException e)
             {
                 // We don't want verification failures to kill the thread.
-                _log.Warn("Block verification failed", e);
+                Log.Warn("Block verification failed", e);
             }
             catch (ScriptException e)
             {
                 // We don't want script failures to kill the thread.
-                _log.Warn("Script exception", e);
+                Log.Warn("Script exception", e);
             }
         }
 
@@ -267,7 +272,7 @@ namespace BitCoinSharp
                 BlockChainDownload(topHash);
                 return;
             }
-            var getdata = new GetDataMessage(_params);
+            var getdata = new GetDataMessage(_networkParameters);
             var dirty = false;
             foreach (var item in items)
             {
@@ -280,7 +285,7 @@ namespace BitCoinSharp
             if (!dirty)
                 return;
             // This will cause us to receive a bunch of block messages.
-            _conn.WriteMessage(getdata);
+            _connection.WriteMessage(getdata);
         }
 
         /// <summary>
@@ -293,9 +298,9 @@ namespace BitCoinSharp
         /// <exception cref="IOException"/>
         public IAsyncResult BeginGetBlock(Sha256Hash blockHash, AsyncCallback callback, object state)
         {
-            var getdata = new GetDataMessage(_params);
+            var getData = new GetDataMessage(_networkParameters);
             var inventoryItem = new InventoryItem(InventoryItem.ItemType.Block, blockHash);
-            getdata.AddItem(inventoryItem);
+            getData.AddItem(inventoryItem);
             var future = new GetDataFuture<Block>(inventoryItem, callback, state);
             // Add to the list of things we're waiting for. It's important this come before the network send to avoid
             // race conditions.
@@ -303,7 +308,7 @@ namespace BitCoinSharp
             {
                 _pendingGetBlockFutures.Add(future);
             }
-            _conn.WriteMessage(getdata);
+            _connection.WriteMessage(getData);
             return future;
         }
 
@@ -316,19 +321,19 @@ namespace BitCoinSharp
         // decide whether to wait forever, wait for a short while or check later after doing other work.
         private class GetDataFuture<T> : IAsyncResult
         {
-            private readonly InventoryItem _item;
+            private readonly InventoryItem _inventoryItem;
             private readonly AsyncCallback _callback;
             private readonly object _state;
-          //  private readonly CountDownLatch _latch;
+            //  private readonly CountDownLatch _latch;
             private WaitHandle _waitHandle;
             private T _result;
 
-            internal GetDataFuture(InventoryItem item, AsyncCallback callback, object state)
+            internal GetDataFuture(InventoryItem inventoryItem, AsyncCallback callback, object state)
             {
-                _item = item;
+                _inventoryItem = inventoryItem;
                 _callback = callback;
                 _state = state;
-              //  _latch = new CountDownLatch(1);
+                //  _latch = new CountDownLatch(1);
             }
 
             public bool IsCompleted
@@ -362,9 +367,9 @@ namespace BitCoinSharp
                 return _result;
             }
 
-            internal InventoryItem Item
+            internal InventoryItem InventoryItem
             {
-                get { return _item; }
+                get { return _inventoryItem; }
             }
 
             /// <summary>
@@ -412,12 +417,13 @@ namespace BitCoinSharp
         /// a <see cref="Wallet"/>. After the broadcast completes, confirm the send using the wallet confirmSend() method.
         /// </summary>
         /// <exception cref="IOException"/>
-        internal void BroadcastTransaction(Transaction tx)
+        internal void BroadcastTransaction(Transaction transaction)
         {
-            _conn.WriteMessage(tx);
+            _connection.WriteMessage(transaction);
         }
 
         /// <exception cref="IOException"/>
+        // TODO: Figure out a better name for toHash
         private void BlockChainDownload(Sha256Hash toHash)
         {
             // This may run in ANY thread.
@@ -447,18 +453,18 @@ namespace BitCoinSharp
             //
             // So this is a complicated process but it has the advantage that we can download a chain of enormous length
             // in a relatively stateless manner and with constant/bounded memory usage.
-            _log.InfoFormat("blockChainDownload({0})", toHash);
+            Log.InfoFormat("blockChainDownload({0})", toHash);
 
             // TODO: Block locators should be abstracted out rather than special cased here.
             var blockLocator = new LinkedList<Sha256Hash>();
             // We don't do the exponential thinning here, so if we get onto a fork of the chain we will end up
             // re-downloading the whole thing again.
-            blockLocator.AddLast(_params.GenesisBlock.Hash);
-            var topBlock = _blockChain.ChainHead.Header;
-            if (!topBlock.Equals(_params.GenesisBlock))
+            blockLocator.AddLast(_networkParameters.GenesisBlock.Hash);
+            var topBlock = _blockChain.ChainHead.BlockHeader;
+            if (!topBlock.Equals(_networkParameters.GenesisBlock))
                 blockLocator.AddFirst(topBlock.Hash);
-            var message = new GetBlocksMessage(_params, blockLocator.ToList(), toHash);
-            _conn.WriteMessage(message);
+            var message = new GetBlocksMessage(_networkParameters, blockLocator.ToList(), toHash);
+            _connection.WriteMessage(message);
         }
 
         /// <summary>
@@ -485,7 +491,7 @@ namespace BitCoinSharp
         private int GetPeerBlocksToGet()
         {
             // Chain will overflow signed int blocks in ~41,000 years.
-            var chainHeight = _conn.VersionMessage.BestHeight;
+            var chainHeight = _connection.VersionMessage.BestHeight;
             if (chainHeight <= 0)
             {
                 // This should not happen because we shouldn't have given the user a Peer that is to another client-mode
@@ -507,8 +513,8 @@ namespace BitCoinSharp
                 try
                 {
                     // This is the correct way to stop an IO bound loop
-                    if (_conn != null)
-                        _conn.Shutdown();
+                    if (_connection != null)
+                        _connection.Shutdown();
                 }
                 catch (IOException)
                 {

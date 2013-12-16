@@ -34,14 +34,14 @@ namespace BitCoinSharp
     /// </remarks>
     public class NetworkConnection : IDisposable
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof (NetworkConnection));
+        private static readonly ILog Log = LogManager.GetLogger(typeof (NetworkConnection));
 
         private Socket _socket;
-        private Stream _out;
-        private Stream _in;
+        private Stream _outputStream;
+        private Stream _inputStream;
         // The IP address to which we are connecting.
         private readonly IPAddress _remoteIp;
-        private readonly NetworkParameters _params;
+        private readonly NetworkParameters _networkParameters;
         private readonly VersionMessage _versionMessage;
 
         private readonly BitcoinSerializer _serializer;
@@ -55,32 +55,33 @@ namespace BitCoinSharp
         /// is complete a functioning network channel is set up and running.
         /// </summary>
         /// <param name="peerAddress">IP address to connect to. IPv6 is not currently supported by BitCoin. If port is not positive the default port from params is used.</param>
-        /// <param name="params">Defines which network to connect to and details of the protocol.</param>
+        /// <param name="networkParameters">Defines which network to connect to and details of the protocol.</param>
         /// <param name="bestHeight">How many blocks are in our best chain</param>
         /// <param name="connectTimeout">Timeout in milliseconds when initially connecting to peer</param>
         /// <exception cref="IOException">If there is a network related failure.</exception>
         /// <exception cref="ProtocolException">If the version negotiation failed.</exception>
-        public NetworkConnection(PeerAddress peerAddress, NetworkParameters @params, uint bestHeight, int connectTimeout)
+        public NetworkConnection(PeerAddress peerAddress, NetworkParameters networkParameters, uint bestHeight,
+            int connectTimeout)
         {
-            _params = @params;
-            _remoteIp = peerAddress.Addr;
+            _networkParameters = networkParameters;
+            _remoteIp = peerAddress.IpAddress;
 
-            var port = (peerAddress.Port > 0) ? peerAddress.Port : @params.Port;
+            var port = (peerAddress.Port > 0) ? peerAddress.Port : networkParameters.Port;
 
             var address = new IPEndPoint(_remoteIp, port);
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _socket.Connect(address);
             _socket.SendTimeout = _socket.ReceiveTimeout = connectTimeout;
 
-            _out = new NetworkStream(_socket, FileAccess.Write);
-            _in = new NetworkStream(_socket, FileAccess.Read);
+            _outputStream = new NetworkStream(_socket, FileAccess.Write);
+            _inputStream = new NetworkStream(_socket, FileAccess.Read);
 
             // the version message never uses check-summing. Update check-summing property after version is read.
-            _serializer = new BitcoinSerializer(@params, false);
+            _serializer = new BitcoinSerializer(networkParameters, false);
 
             // Announce ourselves. This has to come first to connect to clients beyond v0.30.20.2 which wait to hear
             // from us until they send their version message back.
-            WriteMessage(new VersionMessage(@params, bestHeight));
+            WriteMessage(new VersionMessage(networkParameters, bestHeight));
             // When connecting, the remote peer sends us a version message with various bits of
             // useful data in it. We need to know the peer protocol version before we can talk to it.
             _versionMessage = (VersionMessage) ReadMessage();
@@ -91,12 +92,12 @@ namespace BitCoinSharp
             ReadMessage();
             // Switch to the new protocol version.
             var peerVersion = _versionMessage.ClientVersion;
-            _log.InfoFormat("Connected to peer: version={0}, subVer='{1}', services=0x{2:X}, time={3}, blocks={4}",
-                            peerVersion,
-                            _versionMessage.SubVer,
-                            _versionMessage.LocalServices,
-                            UnixTime.FromUnixTime(_versionMessage.Time),
-                            _versionMessage.BestHeight
+            Log.InfoFormat("Connected to peer: version={0}, subVer='{1}', services=0x{2:X}, time={3}, blocks={4}",
+                peerVersion,
+                _versionMessage.SubVersion,
+                _versionMessage.LocalServices,
+                UnixTime.FromUnixTime(_versionMessage.Time),
+                _versionMessage.BestHeight
                 );
             // BitCoinSharp is a client mode implementation. That means there's not much point in us talking to other client
             // mode nodes because we can't download the data from them we need to find/verify transactions.
@@ -120,8 +121,9 @@ namespace BitCoinSharp
 
         /// <exception cref="IOException"/>
         /// <exception cref="ProtocolException"/>
-        public NetworkConnection(IPAddress inetAddress, NetworkParameters @params, uint bestHeight, int connectTimeout)
-            : this(new PeerAddress(inetAddress), @params, bestHeight, connectTimeout)
+        public NetworkConnection(IPAddress inetAddress, NetworkParameters networkParameters, uint bestHeight,
+            int connectTimeout)
+            : this(new PeerAddress(inetAddress), networkParameters, bestHeight, connectTimeout)
         {
         }
 
@@ -147,7 +149,8 @@ namespace BitCoinSharp
 
         public override string ToString()
         {
-            return "[" + _remoteIp + "]:" + _params.Port + " (" + (_socket.Connected ? "connected" : "disconnected") + ")";
+            return "[" + _remoteIp + "]:" + _networkParameters.Port + " (" +
+                   (_socket.Connected ? "connected" : "disconnected") + ")";
         }
 
         /// <summary>
@@ -158,7 +161,7 @@ namespace BitCoinSharp
         /// <exception cref="IOException"/>
         public virtual Message ReadMessage()
         {
-            return _serializer.Deserialize(_in);
+            return _serializer.Deserialize(_inputStream);
         }
 
         /// <summary>
@@ -169,9 +172,9 @@ namespace BitCoinSharp
         /// <exception cref="IOException"/>
         public virtual void WriteMessage(Message message)
         {
-            lock (_out)
+            lock (_outputStream)
             {
-                _serializer.Serialize(message, _out);
+                _serializer.Serialize(message, _outputStream);
             }
         }
 
@@ -187,15 +190,15 @@ namespace BitCoinSharp
 
         public void Dispose()
         {
-            if (_in != null)
+            if (_inputStream != null)
             {
-                _in.Dispose();
-                _in = null;
+                _inputStream.Dispose();
+                _inputStream = null;
             }
-            if (_out != null)
+            if (_outputStream != null)
             {
-                _out.Dispose();
-                _out = null;
+                _outputStream.Dispose();
+                _outputStream = null;
             }
             if (_socket != null)
             {

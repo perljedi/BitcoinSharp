@@ -24,7 +24,7 @@ namespace BitCoinSharp.Test
             Logger.Debug(keyPair.GetPrivateKeyEncoded(networkParameters));
 
             //public key. this is not the address.
-            Logger.Debug(keyPair.PubKey);
+            Logger.Debug(keyPair.PublicKey);
 
 
             //create an address

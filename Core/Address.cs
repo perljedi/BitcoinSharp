@@ -19,54 +19,55 @@ using System;
 namespace BitCoinSharp
 {
     /// <summary>
-    /// A BitCoin address is fundamentally derived from an elliptic curve public key and a set of network parameters.
+    ///     A BitCoin address is fundamentally derived from an elliptic curve public key and a set of network parameters.
     /// </summary>
     /// <remarks>
-    /// It has several possible representations:<p/>
-    /// <ol>
-    ///   <li>The raw public key bytes themselves.</li>
-    ///   <li>RIPEMD160 hash of the public key bytes.</li>
-    ///   <li>A base58 encoded "human form" that includes a version and check code, to guard against typos.</li>
-    /// </ol><p/>
-    /// One may question whether the base58 form is really an improvement over the hash160 form, given
-    /// they are both very unfriendly for typists. More useful representations might include QR codes
-    /// and identicons.<p/>
-    /// Note that an address is specific to a network because the first byte is a discriminator value.
+    ///     It has several possible representations:<p />
+    ///     <ol>
+    ///         <li>The raw public key bytes themselves.</li>
+    ///         <li>RIPEMD160 hash of the public key bytes.</li>
+    ///         <li>A base58 encoded "human form" that includes a version and check code, to guard against typos.</li>
+    ///     </ol>
+    ///     <p />
+    ///     One may question whether the base58 form is really an improvement over the hash160 form, given
+    ///     they are both very unfriendly for typists. More useful representations might include QR codes
+    ///     and identicons.<p />
+    ///     Note that an address is specific to a network because the first byte is a discriminator value.
     /// </remarks>
     public class Address : VersionedChecksummedBytes
     {
         /// <summary>
-        /// Construct an address from parameters and the hash160 form.
+        ///     Construct an address from parameters and the hash160 form.
         /// </summary>
         /// <remarks>
-        /// Example:<p/>
-        /// <pre>new Address(NetworkParameters.prodNet(), Hex.decode("4a22c3c4cbb31e4d03b15550636762bda0baf85a"));</pre>
+        ///     Example:<p />
+        ///     <pre>new ipAddress(NetworkParameters.prodNet(), Hex.decode("4a22c3c4cbb31e4d03b15550636762bda0baf85a"));</pre>
         /// </remarks>
-        public Address(NetworkParameters @params, byte[] hash160)
-            : base(@params.AddressHeader, hash160)
+        public Address(NetworkParameters networkParameters, byte[] hash160)
+            : base(networkParameters.AddressHeader, hash160)
         {
             if (hash160.Length != 20) // 160 = 8 * 20
                 throw new ArgumentException("Addresses are 160-bit hashes, so you must provide 20 bytes", "hash160");
         }
 
         /// <summary>
-        /// Construct an address from parameters and the standard "human readable" form.
+        ///     Construct an address from parameters and the standard "human readable" form.
         /// </summary>
         /// <remarks>
-        /// Example:<p/>
-        /// <pre>new Address(NetworkParameters.prodNet(), "17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL");</pre>
+        ///     Example:<p />
+        ///     <pre>new ipAddress(NetworkParameters.prodNet(), "17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL");</pre>
         /// </remarks>
-        /// <exception cref="AddressFormatException"/>
-        public Address(NetworkParameters @params, string address)
+        /// <exception cref="AddressFormatException" />
+        public Address(NetworkParameters networkParameters, string address)
             : base(address)
         {
-            if (Version != @params.AddressHeader)
+            if (Version != networkParameters.AddressHeader)
                 throw new AddressFormatException("Mismatched version number, trying to cross networks? " + Version +
-                                                 " vs " + @params.AddressHeader);
+                                                 " vs " + networkParameters.AddressHeader);
         }
 
         /// <summary>
-        /// The (big endian) 20 byte hash that is the core of a BitCoin address.
+        ///     The (big endian) 20 byte hash that is the core of a BitCoin address.
         /// </summary>
         public byte[] Hash160
         {

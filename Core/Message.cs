@@ -67,7 +67,7 @@ namespace BitCoinSharp
         }
 
         // This will be saved by subclasses that implement Serializable.
-        protected NetworkParameters Params { get; private set; }
+        protected NetworkParameters NetworkParameters { get; private set; }
 
         /// <summary>
         /// This exists for the Java serialization framework to use only.
@@ -76,17 +76,18 @@ namespace BitCoinSharp
         {
         }
 
-        internal Message(NetworkParameters @params)
+        internal Message(NetworkParameters networkParameters)
         {
-            Params = @params;
+            NetworkParameters = networkParameters;
         }
 
         /// <exception cref="ProtocolException"/>
-        internal Message(NetworkParameters @params, byte[] msg, int offset, uint protocolVersion = NetworkParameters.ProtocolVersion)
+        internal Message(NetworkParameters networkParameters, byte[] byteMessage, int offset,
+            uint protocolVersion = NetworkParameters.ProtocolVersion)
         {
             ProtocolVersion = protocolVersion;
-            Params = @params;
-            Bytes = msg;
+            NetworkParameters = networkParameters;
+            Bytes = byteMessage;
             Cursor = Offset = offset;
             Parse();
 #if SELF_CHECK
@@ -94,7 +95,7 @@ namespace BitCoinSharp
             if (GetType() != typeof (VersionMessage))
             {
                 var msgbytes = new byte[Cursor - offset];
-                Array.Copy(msg, offset, msgbytes, 0, Cursor - offset);
+                Array.Copy(byteMessage, offset, msgbytes, 0, Cursor - offset);
                 var reserialized = BitcoinSerialize();
                 if (!reserialized.SequenceEqual(msgbytes))
                     throw new Exception("Serialization is wrong: " + Environment.NewLine +
@@ -125,7 +126,7 @@ namespace BitCoinSharp
         /// Serializes this message to the provided stream. If you just want the raw bytes use bitcoinSerialize().
         /// </summary>
         /// <exception cref="IOException"/>
-        public virtual void BitcoinSerializeToStream(Stream stream)
+        public virtual void BitcoinSerializeToStream(Stream outputStream)
         {
         }
 
@@ -179,13 +180,13 @@ namespace BitCoinSharp
             return b;
         }
 
-        internal string ReadStr()
+        internal string ReadString()
         {
             var varInt = new VarInt(Bytes, Cursor);
             if (varInt.Value == 0)
             {
                 Cursor += 1;
-                return "";
+                return string.Empty;
             }
             var characters = new byte[varInt.Value];
             Array.Copy(Bytes, Cursor, characters, 0, characters.Length);

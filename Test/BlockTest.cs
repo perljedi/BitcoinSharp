@@ -73,7 +73,7 @@ namespace BitCoinSharp.Test
             }
             // Blocks contain their own difficulty target. The BlockChain verification mechanism is what stops real blocks
             // from containing artificially weak difficulties.
-            block.DifficultyTarget = Block.EasiestDifficultyTarget;
+            block.TargetDifficulty = Block.EasiestDifficultyTarget;
             // Now it should pass.
             block.Verify();
             // Break the nonce again at the lower difficulty level so we can try solving for it.

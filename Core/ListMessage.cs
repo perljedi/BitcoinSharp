@@ -26,41 +26,37 @@ namespace BitCoinSharp
     public abstract class ListMessage : Message
     {
         // For some reason the compiler complains if this is inside InventoryItem
-        private IList<InventoryItem> _items;
 
-        private const ulong _maxInventoryItems = 50000;
+        private const ulong MaxInventoryItems = 50000;
 
         /// <exception cref="ProtocolException"/>
-        protected ListMessage(NetworkParameters @params, byte[] bytes)
-            : base(@params, bytes, 0)
+        protected ListMessage(NetworkParameters networkParameters, byte[] bytes)
+            : base(networkParameters, bytes, 0)
         {
         }
 
-        protected ListMessage(NetworkParameters @params)
-            : base(@params)
+        protected ListMessage(NetworkParameters networkParameters)
+            : base(networkParameters)
         {
-            _items = new List<InventoryItem>();
+            Items = new List<InventoryItem>();
         }
 
-        public IList<InventoryItem> Items
-        {
-            get { return _items; }
-        }
+        public IList<InventoryItem> Items { get; private set; }
 
         public void AddItem(InventoryItem item)
         {
-            _items.Add(item);
+            Items.Add(item);
         }
 
         /// <exception cref="ProtocolException"/>
         protected override void Parse()
         {
             // An inv is vector<CInv> where CInv is int+hash. The int is either 1 or 2 for tx or block.
-            var arrayLen = ReadVarInt();
-            if (arrayLen > _maxInventoryItems)
-                throw new ProtocolException("Too many items in INV message: " + arrayLen);
-            _items = new List<InventoryItem>((int) arrayLen);
-            for (var i = 0UL; i < arrayLen; i++)
+            var arrayLength = ReadVarInt();
+            if (arrayLength > MaxInventoryItems)
+                throw new ProtocolException("Too many items in INV message: " + arrayLength);
+            Items = new List<InventoryItem>((int) arrayLength);
+            for (var i = 0UL; i < arrayLength; i++)
             {
                 if (Cursor + 4 + 32 > Bytes.Length)
                 {
@@ -84,21 +80,21 @@ namespace BitCoinSharp
                         throw new ProtocolException("Unknown CInv type: " + typeCode);
                 }
                 var item = new InventoryItem(type, ReadHash());
-                _items.Add(item);
+                Items.Add(item);
             }
             Bytes = null;
         }
 
         /// <exception cref="IOException"/>
-        public override void BitcoinSerializeToStream(Stream stream)
+        public override void BitcoinSerializeToStream(Stream outputStream)
         {
-            stream.Write(new VarInt((ulong) _items.Count).Encode());
-            foreach (var i in _items)
+            outputStream.Write(new VarInt((ulong) Items.Count).Encode());
+            foreach (var inventoryItem in Items)
             {
                 // Write out the type code.
-                Utils.Uint32ToByteStreamLe((uint) i.Type, stream);
+                Utils.Uint32ToByteStreamLe((uint) inventoryItem.Type, outputStream);
                 // And now the hash.
-                stream.Write(Utils.ReverseBytes(i.Hash.Bytes));
+                outputStream.Write(Utils.ReverseBytes(inventoryItem.Hash.Bytes));
             }
         }
     }

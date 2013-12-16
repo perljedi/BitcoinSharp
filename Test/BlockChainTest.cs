@@ -143,10 +143,10 @@ namespace BitCoinSharp.Test
             Assert.IsTrue(_chain.Add(b1));
             // Unconnected but stored. The head of the chain is still b1.
             Assert.IsFalse(_chain.Add(b3));
-            Assert.AreEqual(_chain.ChainHead.Header, b1.CloneAsHeader());
+            Assert.AreEqual(_chain.ChainHead.BlockHeader, b1.CloneAsHeader());
             // Add in the middle block.
             Assert.IsTrue(_chain.Add(b2));
-            Assert.AreEqual(_chain.ChainHead.Header, b3.CloneAsHeader());
+            Assert.AreEqual(_chain.ChainHead.BlockHeader, b3.CloneAsHeader());
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace BitCoinSharp.Test
             // Create a new block with the right difficulty target given our blistering speed relative to the huge amount
             // of time it's supposed to take (set in the unit test network parameters).
             var b = prev.CreateNextBlock(_coinbaseTo);
-            b.DifficultyTarget = 0x201fFFFF;
+            b.TargetDifficulty = 0x201fFFFF;
             b.Solve();
             Assert.IsTrue(_chain.Add(b));
         }
@@ -199,11 +199,11 @@ namespace BitCoinSharp.Test
             // Nonce was just some number that made the hash < difficulty limit set below, it can be anything.
             bad.Nonce = 140548933;
             bad.TimeSeconds = 1279242649;
-            bad.PrevBlockHash = b2.Hash;
+            bad.PreviousBlockHash = b2.Hash;
             // We're going to make this block so easy 50% of solutions will pass, and check it gets rejected for having a
             // bad difficulty target. Unfortunately the encoding mechanism means we cannot make one that accepts all
             // solutions.
-            bad.DifficultyTarget = Block.EasiestDifficultyTarget;
+            bad.TargetDifficulty = Block.EasiestDifficultyTarget;
             try
             {
                 _testNetChain.Add(bad);
@@ -213,7 +213,7 @@ namespace BitCoinSharp.Test
             }
             catch (VerificationException e)
             {
-                Assert.IsTrue(e.Message.IndexOf("Difficulty target is bad") >= 0, e.Message);
+                Assert.IsTrue(e.Message.IndexOf("Target difficulty is bad") >= 0, e.Message);
             }
 
             // Accept any level of difficulty now.
@@ -239,7 +239,7 @@ namespace BitCoinSharp.Test
             b2.MerkleRoot = new Sha256Hash(Hex.Decode("addc858a17e21e68350f968ccd384d6439b64aafa6c193c8b9dd66320470838b"));
             b2.Nonce = 2642058077;
             b2.TimeSeconds = 1296734343;
-            b2.PrevBlockHash = new Sha256Hash(Hex.Decode("000000033cc282bc1fa9dcae7a533263fd7fe66490f550d80076433340831604"));
+            b2.PreviousBlockHash = new Sha256Hash(Hex.Decode("000000033cc282bc1fa9dcae7a533263fd7fe66490f550d80076433340831604"));
             Assert.AreEqual("000000037b21cac5d30fc6fda2581cf7b2612908aed2abbcc429c45b0557a15f", b2.HashAsString);
             b2.VerifyHeader();
             return b2;
@@ -251,7 +251,7 @@ namespace BitCoinSharp.Test
             b1.MerkleRoot = new Sha256Hash(Hex.Decode("0e8e58ecdacaa7b3c6304a35ae4ffff964816d2b80b62b58558866ce4e648c10"));
             b1.Nonce = 236038445;
             b1.TimeSeconds = 1296734340;
-            b1.PrevBlockHash = new Sha256Hash(Hex.Decode("00000007199508e34a9ff81e6ec0c477a4cccff2a4767a8eee39c11db367b008"));
+            b1.PreviousBlockHash = new Sha256Hash(Hex.Decode("00000007199508e34a9ff81e6ec0c477a4cccff2a4767a8eee39c11db367b008"));
             Assert.AreEqual("000000033cc282bc1fa9dcae7a533263fd7fe66490f550d80076433340831604", b1.HashAsString);
             b1.VerifyHeader();
             return b1;

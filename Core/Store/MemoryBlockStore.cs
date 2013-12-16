@@ -41,7 +41,7 @@ namespace BitCoinSharp.Store
         {
             lock (this)
             {
-                var hash = block.Header.Hash;
+                var hash = block.BlockHeader.Hash;
                 _blockMap[hash] = block;
             }
         }
