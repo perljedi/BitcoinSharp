@@ -40,7 +40,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\BitCoinSharp.Core.csproj">
+    <ProjectReference Include="..\Source\BitCoinSharp.Core\BitCoinSharp.Core.csproj">
       <Project>{82B20619-3469-4DB6-8D18-628B64842499}</Project>
       <Name>BitCoinSharp.Core</Name>
     </ProjectReference>
