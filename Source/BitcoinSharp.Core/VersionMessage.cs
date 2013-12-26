@@ -85,7 +85,7 @@ namespace BitCoinSharp
             // is kind of tricky anyway, so we just put nonsense here for now.
             MyAddress = new PeerAddress(IPAddress.Loopback, networkParameters.Port, 0);
             TheirAddress = new PeerAddress(IPAddress.Loopback, networkParameters.Port, 0);
-            SubVersion = "BitCoinSharp 0.3-SNAPSHOT";
+            SubVersion = "/BitCoinSharp 0.3-SNAPSHOT/";
             BestHeight = newBestHeight;
         }
 
@@ -114,11 +114,26 @@ namespace BitCoinSharp
         {
             Utils.Uint32ToByteStreamLe(ClientVersion, outputStream);
             Utils.Uint64ToByteStreamLe(LocalServices, outputStream);
+            //todo: what are we doing here?
+            Utils.Uint64ToByteStreamLe(LocalServices >> 32, outputStream);
             Utils.Uint64ToByteStreamLe(Time, outputStream);
-            // My address.
-            MyAddress.BitcoinSerializeToStream(outputStream);
-            // Their address.
-            TheirAddress.BitcoinSerializeToStream(outputStream);
+            //todo: what are we doing here?
+            Utils.Uint64ToByteStreamLe(Time >> 32, outputStream);
+
+            try
+            {
+                // My address.
+                MyAddress.BitcoinSerializeToStream(outputStream);
+                // Their address.
+                TheirAddress.BitcoinSerializeToStream(outputStream);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            
             // Next up is the "local host nonce", this is to detect the case of connecting
             // back to yourself. We don't care about this as we won't be accepting inbound
             // connections.
@@ -129,6 +144,7 @@ namespace BitCoinSharp
             outputStream.Write(subVersionBytes);
             // Size of known block chain.
             Utils.Uint32ToByteStreamLe(BestHeight, outputStream);
+            outputStream.Write(false ? 1 : 0);
         }
 
         /// <summary>
@@ -138,6 +154,23 @@ namespace BitCoinSharp
         public bool HasBlockChain()
         {
             return (LocalServices & NodeNetwork) == NodeNetwork;
+        }
+
+
+
+        public override string ToString()
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append("\n");
+            stringBuilder.Append("client version: ").Append(ClientVersion).Append("\n");
+            stringBuilder.Append("local services: ").Append(LocalServices).Append("\n");
+            stringBuilder.Append("time:           ").Append(Time).Append("\n");
+            stringBuilder.Append("my addr:        ").Append(MyAddress).Append("\n");
+            stringBuilder.Append("their addr:     ").Append(TheirAddress).Append("\n");
+            stringBuilder.Append("sub version:    ").Append(SubVersion).Append("\n");
+            stringBuilder.Append("best height:    ").Append(BestHeight).Append("\n");
+            stringBuilder.Append("delay tx relay: ").Append("not set.").Append("\n");
+            return stringBuilder.ToString();
         }
     }
 }

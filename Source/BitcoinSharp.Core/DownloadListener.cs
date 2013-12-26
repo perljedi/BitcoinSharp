@@ -36,7 +36,7 @@ namespace BitCoinSharp
     {
         private int _originalBlocksLeft = -1;
         private int _lastPercent;
-        private readonly Semaphore _done = new Semaphore(0, 0);
+        private readonly Semaphore _done = new Semaphore(0, 1);
 
         public override void OnChainDownloadStarted(Peer peer, int blocksLeft)
         {
@@ -55,11 +55,11 @@ namespace BitCoinSharp
             if (blocksLeft < 0 || _originalBlocksLeft <= 0)
                 return;
 
-            var pct = 100.0 - (100.0 * (blocksLeft / (double) _originalBlocksLeft));
-            if ((int) pct != _lastPercent)
+            var pct = 100.0 - (100.0 * (blocksLeft / (double)_originalBlocksLeft));
+            if ((int)pct != _lastPercent)
             {
                 Progress(pct, UnixTime.FromUnixTime(block.TimeSeconds * 1000));
-                _lastPercent = (int) pct;
+                _lastPercent = (int)pct;
             }
         }
 
@@ -70,7 +70,7 @@ namespace BitCoinSharp
         /// <param name="date">The date of the last block downloaded.</param>
         protected void Progress(double pct, DateTime date)
         {
-            Console.WriteLine("Chain download {0}% done, block date {1}", (int) pct, date);
+            Console.WriteLine("Chain download {0}% done, block date {1}", (int)pct, date);
         }
 
         /// <summary>

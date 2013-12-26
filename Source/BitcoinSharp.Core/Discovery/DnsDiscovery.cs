@@ -40,9 +40,11 @@ namespace BitCoinSharp.Discovery
         public static readonly string[] DefaultHosts =
             new[]
             {
-                "dnsseed.bluematt.me", // Auto generated
-                "bitseed.xf2.org", // Static
-                "bitseed.bitcoin.org.uk" // Static
+                "seed.bitcoin.sipa.be",
+                "dnsseed.bluematt.me",
+                "dnsseed.bitcoin.dashjr.org",
+                "bitseed.xf2.org"
+                //"testnet-seed.bitcoin.petertodd.org"
             };
 
         /// <summary>

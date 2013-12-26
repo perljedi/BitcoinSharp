@@ -101,7 +101,13 @@ namespace BitCoinSharp
             {
                 try
                 {
-                    _connection = new NetworkConnection(_peerAddress, _networkParameters, _bestHeight, 60000);
+                    Log.DebugFormat("Creating connection to peer: {0} on network: {1} at blockchain height: {2}", _peerAddress, _networkParameters, _bestHeight);
+                    _connection = new NetworkConnection(_peerAddress, _networkParameters, _bestHeight, 2500);
+                    Log.Info("=========================================================");
+                    Log.Info("=========================================================");
+                    Log.Info("WE HAVE CONNECTION!");
+                    Log.Info("=========================================================");
+                    Log.Info("=========================================================");
                 }
                 catch (IOException ex)
                 {

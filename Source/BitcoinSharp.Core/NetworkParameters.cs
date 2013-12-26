@@ -36,7 +36,10 @@ namespace BitCoinSharp
         /// <summary>
         /// The protocol version this library implements. A value of 31800 means 0.3.18.00.
         /// </summary>
-        public const uint ProtocolVersion = 31800;
+        //public const uint ProtocolVersion = 31800;
+        //TODO: move this someplace common.
+        public const uint ProtocolVersion = 70001;
+        
 
         // TODO: Seed nodes and checkpoint values should be here as well.
 
@@ -124,10 +127,10 @@ namespace BitCoinSharp
         {
             // Genesis hash is 0000000224b1593e3ff16a0e3b61285bbc393a39f78c8aa48c456142671f7110
             // The proof of work limit has to start with 00, as otherwise the value will be interpreted as negative.
-            networkParameters.ProofOfWorkLimit =
-                new BigInteger("0000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
+            networkParameters.ProofOfWorkLimit = new BigInteger("0000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
             networkParameters.Port = 18333;
-            networkParameters.PacketMagic = 0xfabfb5da;
+            //networkParameters.PacketMagic = 0xfabfb5da;
+            networkParameters.PacketMagic = 0x0b110907;
             networkParameters.AddressHeader = 111;
             networkParameters.DumpedPrivateKeyHeader = 239;
             networkParameters.Interval = _interval;
@@ -138,8 +141,7 @@ namespace BitCoinSharp
             networkParameters.GenesisBlock.TargetDifficulty = 0x1d07fff8;
             networkParameters.GenesisBlock.Nonce = 384568319;
             var genesisHash = networkParameters.GenesisBlock.HashAsString;
-            Debug.Assert(genesisHash.Equals("00000007199508e34a9ff81e6ec0c477a4cccff2a4767a8eee39c11db367b008"),
-                genesisHash);
+            Debug.Assert(genesisHash.Equals("00000007199508e34a9ff81e6ec0c477a4cccff2a4767a8eee39c11db367b008"),genesisHash);
             return networkParameters;
         }
 
@@ -159,14 +161,14 @@ namespace BitCoinSharp
         {
             var networkParameters = new NetworkParameters
             {
-                ProofOfWorkLimit =
-                    new BigInteger("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16),
+                ProofOfWorkLimit = new BigInteger("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16),
                 Port = 8333,
                 PacketMagic = 0xf9beb4d9,
                 AddressHeader = 0,
                 DumpedPrivateKeyHeader = 128,
                 Interval = _interval,
-                TargetTimespan = _targetTimespan
+                TargetTimespan = _targetTimespan,
+                
             };
             networkParameters.GenesisBlock = CreateGenesis(networkParameters);
             networkParameters.GenesisBlock.TargetDifficulty = 0x1d00ffff;

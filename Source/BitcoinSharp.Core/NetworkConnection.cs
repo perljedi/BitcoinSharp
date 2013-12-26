@@ -61,7 +61,7 @@ namespace BitCoinSharp
         /// <exception cref="IOException">If there is a network related failure.</exception>
         /// <exception cref="ProtocolException">If the version negotiation failed.</exception>
         public NetworkConnection(PeerAddress peerAddress, NetworkParameters networkParameters, uint bestHeight,
-            int connectTimeout)
+            int connectTimeout = 60000)
         {
             _networkParameters = networkParameters;
             _remoteIp = peerAddress.IpAddress;
@@ -70,8 +70,11 @@ namespace BitCoinSharp
 
             var address = new IPEndPoint(_remoteIp, port);
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+
             _socket.Connect(address);
             _socket.SendTimeout = _socket.ReceiveTimeout = connectTimeout;
+
 
             _outputStream = new NetworkStream(_socket, FileAccess.Write);
             _inputStream = new NetworkStream(_socket, FileAccess.Read);
@@ -81,10 +84,16 @@ namespace BitCoinSharp
 
             // Announce ourselves. This has to come first to connect to clients beyond v0.30.20.2 which wait to hear
             // from us until they send their version message back.
-            WriteMessage(new VersionMessage(networkParameters, bestHeight));
+            var versionMessage = new VersionMessage(networkParameters, bestHeight);
+            //Log.DebugFormat("Version Message: {0}", versionMessage);
+            WriteMessage(versionMessage);
+            //Log.Debug("Sent version message. Now we should read the ack from the peer.");
+
             // When connecting, the remote peer sends us a version message with various bits of
             // useful data in it. We need to know the peer protocol version before we can talk to it.
             _versionMessage = (VersionMessage) ReadMessage();
+            //Log.Debug("read message of type version.");
+            Log.Debug(_versionMessage);
             // Now it's our turn ...
             // Send an ACK message stating we accept the peers protocol version.
             WriteMessage(new VersionAck());

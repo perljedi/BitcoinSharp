@@ -94,9 +94,9 @@ namespace BitCoinSharp
             // NULL terminating the string here.
             for (var i = 0; i < name.Length && i < CommandLength; i++)
             {
-                header[4 + i] = (byte) name[i];
+                header[4 + i] = (byte) (name[i] + 0xFF);
             }
-
+            
             var payload = message.BitcoinSerialize();
 
             Utils.Uint32ToByteArrayLe((uint) payload.Length, header, 4 + CommandLength);
@@ -111,8 +111,9 @@ namespace BitCoinSharp
             outputStream.Write(payload);
 
             if (Log.IsDebugEnabled)
-                Log.DebugFormat("Sending {0} message: {1}", name,
-                    Utils.BytesToHexString(header) + Utils.BytesToHexString(payload));
+            {
+                //Log.DebugFormat("Sending {0} message: {1}", name, Utils.BytesToHexString(header) + Utils.BytesToHexString(payload));
+            }
         }
 
         /// <summary>
@@ -122,6 +123,8 @@ namespace BitCoinSharp
         /// <exception cref="IOException" />
         public Message Deserialize(Stream inputStream)
         {
+
+            Log.DebugFormat("Deserialize Response");
             // A BitCoin protocol message has the following format.
             //
             //   - 4 byte magic number: 0xfabfb5da for the testnet or
@@ -212,7 +215,7 @@ namespace BitCoinSharp
                 }
             }
 
-            if (Log.IsDebugEnabled)
+            //if (Log.IsDebugEnabled)
             {
                 Log.DebugFormat("Received {0} byte '{1}' message: {2}",
                     size,
@@ -236,6 +239,7 @@ namespace BitCoinSharp
         /// <exception cref="ProtocolException" />
         private Message MakeMessage(string command, byte[] payloadBytes)
         {
+            Log.DebugFormat("command: {0} payload: some bytes.", command);
             // We use an if ladder rather than reflection because reflection can be slow on some platforms.
             if (command.Equals("version"))
             {
@@ -286,7 +290,7 @@ namespace BitCoinSharp
                 }
                 // We're looking for a run of bytes that is the same as the packet magic but we want to ignore partial
                 // magics that aren't complete. So we keep track of where we're up to with magicCursor.
-                var expectedByte = (byte) (_networkParameters.PacketMagic >> magicCursor * 8);
+                var expectedByte = (byte)(0xFF & _networkParameters.PacketMagic >> magicCursor * 8);
                 if (aByte == expectedByte)
                 {
                     magicCursor--;

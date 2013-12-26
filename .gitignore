@@ -24,6 +24,9 @@ build/
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
+#log4net test logs
+*_test_logs*
+
 *_i.c
 *_p.c
 *.ilk

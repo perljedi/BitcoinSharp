@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using log4net.Config;
 
 namespace BitCoinSharp.Examples
 {
@@ -8,6 +9,8 @@ namespace BitCoinSharp.Examples
     {
         public static void Main(string[] args)
         {
+            XmlConfigurator.Configure();
+
             if (args == null || args.Length == 0)
             {
                 Console.WriteLine("BitCoinSharp.Examples <name> <args>");
