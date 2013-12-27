@@ -18,10 +18,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using BitCoinSharp.IO;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.IO;
 using log4net;
 
-namespace BitCoinSharp
+namespace BitCoinSharp.Core
 {
     /// <summary>
     ///     Methods to serialize and de-serialize messages to the BitCoin network format as defined in the BitCoin protocol
@@ -37,25 +39,32 @@ namespace BitCoinSharp
     /// </remarks>
     public class BitcoinSerializer
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof (BitcoinSerializer));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(BitcoinSerializer));
         private const int CommandLength = 12;
 
         private readonly NetworkParameters _networkParameters;
-        private bool _usesChecksumming;
 
         private static readonly IDictionary<Type, string> Names = new Dictionary<Type, string>();
 
         static BitcoinSerializer()
         {
-            Names.Add(typeof (VersionMessage), "version");
-            Names.Add(typeof (InventoryMessage), "inv");
-            Names.Add(typeof (Block), "block");
-            Names.Add(typeof (GetDataMessage), "getdata");
-            Names.Add(typeof (Transaction), "tx");
-            Names.Add(typeof (AddressMessage), "addr");
-            Names.Add(typeof (Ping), "ping");
-            Names.Add(typeof (VersionAck), "verack");
-            Names.Add(typeof (GetBlocksMessage), "getblocks");
+            Names.Add(typeof(VersionMessage), "version");
+            Names.Add(typeof(InventoryMessage), "inv");
+            Names.Add(typeof(Block), "block");
+            Names.Add(typeof(GetDataMessage), "getdata");
+            Names.Add(typeof(Transaction), "tx");
+            Names.Add(typeof(AddressMessage), "addr");
+            Names.Add(typeof(Ping), "ping");
+            //names.put(Pong.class, "pong");
+            Names.Add(typeof(VersionAck), "verack");
+            Names.Add(typeof(GetBlocksMessage), "getblocks");
+            //names.put(GetHeadersMessage.class, "getheaders");
+            //names.put(GetAddrMessage.class, "getaddr");
+            //names.put(HeadersMessage.class, "headers");
+            //names.put(BloomFilter.class, "filterload");
+            //names.put(FilteredBlock.class, "merkleblock");
+            //names.put(NotFoundMessage.class, "notfound");
+            //names.put(MemoryPoolMessage.class, "mempool");
         }
 
         /// <summary>
@@ -63,16 +72,11 @@ namespace BitCoinSharp
         /// </summary>
         /// <param name="networkParameters">MetworkParams used to create Messages instances and determining packetMagic</param>
         /// <param name="usesChecksumming">Set to true if checksums should be included and expected in headers</param>
-        public BitcoinSerializer(NetworkParameters networkParameters, bool usesChecksumming)
+        public BitcoinSerializer(NetworkParameters networkParameters)
         {
             _networkParameters = networkParameters;
-            _usesChecksumming = usesChecksumming;
         }
 
-        public void UseChecksumming(bool usesChecksumming)
-        {
-            _usesChecksumming = usesChecksumming;
-        }
 
         /// <summary>
         ///     Writes message to to the output stream.
@@ -85,8 +89,7 @@ namespace BitCoinSharp
             {
                 throw new Exception("BitcoinSerializer doesn't currently know how to serialize " + message.GetType());
             }
-
-            var header = new byte[4 + CommandLength + 4 + (_usesChecksumming ? 4 : 0)];
+            var header = new byte[4 + CommandLength + 4 + 4];
 
             Utils.Uint32ToByteArrayBe(_networkParameters.PacketMagic, header, 0);
 
@@ -94,25 +97,22 @@ namespace BitCoinSharp
             // NULL terminating the string here.
             for (var i = 0; i < name.Length && i < CommandLength; i++)
             {
-                header[4 + i] = (byte) (name[i] + 0xFF);
+                header[4 + i] = (byte)(name[i]);
             }
-            
+
             var payload = message.BitcoinSerialize();
 
-            Utils.Uint32ToByteArrayLe((uint) payload.Length, header, 4 + CommandLength);
+            Utils.Uint32ToByteArrayLe((uint)payload.Length, header, 4 + CommandLength);
 
-            if (_usesChecksumming)
-            {
-                var hash = Utils.DoubleDigest(payload);
-                Array.Copy(hash, 0, header, 4 + CommandLength + 4, 4);
-            }
+            var hash = Utils.DoubleDigest(payload);
+            Array.Copy(hash, 0, header, 4 + CommandLength + 4, 4);
 
             outputStream.Write(header);
             outputStream.Write(payload);
 
             if (Log.IsDebugEnabled)
             {
-                //Log.DebugFormat("Sending {0} message: {1}", name, Utils.BytesToHexString(header) + Utils.BytesToHexString(payload));
+                Log.DebugFormat("Sending {0} message: {1}", name, Utils.BytesToHexString(header) + Utils.BytesToHexString(payload));
             }
         }
 
@@ -141,7 +141,7 @@ namespace BitCoinSharp
             // sometimes it sends us stuff that isn't part of any message.
             SeekPastMagicBytes(inputStream);
             // Now read in the header.
-            var header = new byte[CommandLength + 4 + (_usesChecksumming ? 4 : 0)];
+            var header = new byte[CommandLength + 4 + 4];
             var readCursor = 0;
             while (readCursor < header.Length)
             {
@@ -183,7 +183,7 @@ namespace BitCoinSharp
 
             // Old clients don't send the checksum.
             var checksum = new byte[4];
-            if (_usesChecksumming)
+            // if (_usesChecksumming)
             {
                 // Note that the size read above includes the checksum bytes.
                 Array.Copy(header, cursor, checksum, 0, 4);
@@ -194,7 +194,7 @@ namespace BitCoinSharp
             var payloadBytes = new byte[size];
             while (readCursor < payloadBytes.Length - 1)
             {
-                var bytesRead = inputStream.Read(payloadBytes, readCursor, (int) (size - readCursor));
+                var bytesRead = inputStream.Read(payloadBytes, readCursor, (int)(size - readCursor));
                 if (bytesRead == -1)
                 {
                     throw new IOException("Socket is disconnected");
@@ -203,7 +203,7 @@ namespace BitCoinSharp
             }
 
             // Verify the checksum.
-            if (_usesChecksumming)
+            //if (_usesChecksumming)
             {
                 var hash = Utils.DoubleDigest(payloadBytes);
                 if (checksum[0] != hash[0] || checksum[1] != hash[1] ||
@@ -272,6 +272,10 @@ namespace BitCoinSharp
             if (command.Equals("verack"))
             {
                 return new VersionAck(_networkParameters, payloadBytes);
+            }
+            if (command.Equals("headers"))
+            {
+                return new HeadersMessage(_networkParameters, payloadBytes);
             }
             throw new ProtocolException("No support for deserializing message with name " + command);
         }

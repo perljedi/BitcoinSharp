@@ -1,5 +1,5 @@
 ﻿using System;
-using BitCoinSharp.Common;
+using BitCoinSharp.Core.Common;
 using NUnit.Framework;
 
 namespace BitCoinSharp.Tests.Unit.Infrastructure

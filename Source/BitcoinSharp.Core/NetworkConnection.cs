@@ -18,7 +18,11 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using BitCoinSharp.Common;
+using System.Threading;
+using BitCoinSharp.Core;
+using BitCoinSharp.Core.Common;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Messages;
 using log4net;
 
 namespace BitCoinSharp
@@ -80,7 +84,7 @@ namespace BitCoinSharp
             _inputStream = new NetworkStream(_socket, FileAccess.Read);
 
             // the version message never uses check-summing. Update check-summing property after version is read.
-            _serializer = new BitcoinSerializer(networkParameters, false);
+            _serializer = new BitcoinSerializer(networkParameters);
 
             // Announce ourselves. This has to come first to connect to clients beyond v0.30.20.2 which wait to hear
             // from us until they send their version message back.
@@ -88,10 +92,16 @@ namespace BitCoinSharp
             //Log.DebugFormat("Version Message: {0}", versionMessage);
             WriteMessage(versionMessage);
             //Log.Debug("Sent version message. Now we should read the ack from the peer.");
-
+            
+            VersionMessage versionMessageFromPeer;
+            while ((versionMessage = ReadMessage() as VersionMessage)==null)
+            {
+                
+            }
+            Log.Info("WE HAVE A VERSION MESSAGE!");
             // When connecting, the remote peer sends us a version message with various bits of
             // useful data in it. We need to know the peer protocol version before we can talk to it.
-            _versionMessage = (VersionMessage) ReadMessage();
+            _versionMessage = (VersionMessage) versionMessage;
             //Log.Debug("read message of type version.");
             Log.Debug(_versionMessage);
             // Now it's our turn ...
@@ -123,8 +133,6 @@ namespace BitCoinSharp
                 }
                 throw new ProtocolException("Peer does not have a copy of the block chain.");
             }
-            // newer clients use check-summing
-            _serializer.UseChecksumming(peerVersion >= 209);
             // Handshake is done!
         }
 

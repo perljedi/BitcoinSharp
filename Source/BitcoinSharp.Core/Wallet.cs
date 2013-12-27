@@ -21,9 +21,12 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Model;
 using log4net;
 
-namespace BitCoinSharp
+namespace BitCoinSharp.Core
 {
     /// <summary>
     /// A Wallet stores keys and a record of transactions that have not yet been spent. Thus, it is capable of

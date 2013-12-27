@@ -17,8 +17,9 @@
 using System;
 using System.IO;
 using System.Net;
-using BitCoinSharp.Discovery;
-using BitCoinSharp.Store;
+using BitCoinSharp.Core;
+using BitCoinSharp.Core.Discovery;
+using BitCoinSharp.Core.Store;
 
 namespace BitCoinSharp.Examples
 {

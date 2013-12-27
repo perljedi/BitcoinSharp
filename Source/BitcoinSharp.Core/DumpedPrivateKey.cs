@@ -15,9 +15,11 @@
  */
 
 using System;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Model;
 using Org.BouncyCastle.Math;
 
-namespace BitCoinSharp
+namespace BitCoinSharp.Core
 {
     /// <summary>
     /// Parses and generates private keys in the form used by the BitCoin "dumpprivkey" command. This is the private key

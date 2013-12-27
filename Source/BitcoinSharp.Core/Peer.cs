@@ -20,9 +20,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Model;
 using log4net;
 
-namespace BitCoinSharp
+namespace BitCoinSharp.Core
 {
     /// <summary>
     /// A Peer handles the high level communication with a BitCoin node.
@@ -102,7 +105,7 @@ namespace BitCoinSharp
                 try
                 {
                     Log.DebugFormat("Creating connection to peer: {0} on network: {1} at blockchain height: {2}", _peerAddress, _networkParameters, _bestHeight);
-                    _connection = new NetworkConnection(_peerAddress, _networkParameters, _bestHeight, 2500);
+                    _connection = new NetworkConnection(_peerAddress, _networkParameters, _bestHeight);
                     Log.Info("=========================================================");
                     Log.Info("=========================================================");
                     Log.Info("WE HAVE CONNECTION!");

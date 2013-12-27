@@ -15,8 +15,10 @@
  */
 
 using System;
-using BitCoinSharp.Common;
-using BitCoinSharp.Store;
+using BitCoinSharp.Core;
+using BitCoinSharp.Core.Common;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Store;
 using NUnit.Framework;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities.Encoders;

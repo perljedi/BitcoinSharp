@@ -17,11 +17,12 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using BitCoinSharp.IO;
+using BitCoinSharp.Core.Messages;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities.Encoders;
+using BitCoinSharp.Core.IO;
 
-namespace BitCoinSharp
+namespace BitCoinSharp.Core
 {
     /// <summary>
     /// NetworkParameters contains the data needed for working with an instantiation of a BitCoin chain.
@@ -97,17 +98,12 @@ namespace BitCoinSharp
             var genesisBlock = new Block(networkParameters);
             var transaction = new Transaction(networkParameters);
             // A script containing the difficulty bits and the following message:
-            //
             //   "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
-            var bytes =
-                Hex.Decode(
-                    "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73");
+            var bytes = Hex.Decode("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73");
             transaction.AddInput(new TransactionInput(networkParameters, transaction, bytes));
             using (var scriptPubKeyBytes = new MemoryStream())
             {
-                Script.WriteBytes(scriptPubKeyBytes,
-                    Hex.Decode(
-                        "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"));
+                Script.WriteBytes(scriptPubKeyBytes,Hex.Decode("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"));
                 scriptPubKeyBytes.Write(Script.OpCheckSig);
                 transaction.AddOutput(new TransactionOutput(networkParameters, transaction, scriptPubKeyBytes.ToArray()));
             }
@@ -129,7 +125,6 @@ namespace BitCoinSharp
             // The proof of work limit has to start with 00, as otherwise the value will be interpreted as negative.
             networkParameters.ProofOfWorkLimit = new BigInteger("0000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
             networkParameters.Port = 18333;
-            //networkParameters.PacketMagic = 0xfabfb5da;
             networkParameters.PacketMagic = 0x0b110907;
             networkParameters.AddressHeader = 111;
             networkParameters.DumpedPrivateKeyHeader = 239;

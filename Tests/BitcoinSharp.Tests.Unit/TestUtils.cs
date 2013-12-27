@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-using BitCoinSharp.Store;
+using BitCoinSharp.Core;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Store;
 
 namespace BitCoinSharp.Tests.Unit
 {

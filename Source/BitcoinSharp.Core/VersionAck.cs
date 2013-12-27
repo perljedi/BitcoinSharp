@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-namespace BitCoinSharp
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Model;
+
+namespace BitCoinSharp.Core
 {
     /// <summary>
     /// The verack message, sent by a client accepting the version message they received from their peer.

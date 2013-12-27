@@ -19,9 +19,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Model;
 using log4net;
 
-namespace BitCoinSharp.Discovery
+namespace BitCoinSharp.Core.Discovery
 {
     /// <summary>
     /// IrcDiscovery provides a way to find network peers by joining a pre-agreed rendevouz point on the LFnet IRC network.

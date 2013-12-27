@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using BitCoinSharp.Core;
+using FluentAssertions;
 using log4net;
 using NUnit.Framework;
 using Org.BouncyCastle.Math;

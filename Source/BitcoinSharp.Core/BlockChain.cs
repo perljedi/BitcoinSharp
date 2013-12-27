@@ -18,11 +18,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using BitCoinSharp.Store;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Store;
 using log4net;
 using Org.BouncyCastle.Math;
 
-namespace BitCoinSharp
+namespace BitCoinSharp.Core
 {
     /// <summary>
     ///     A BlockChain holds a series of <see cref="Block" /> objects, links them together, and knows how to verify that the

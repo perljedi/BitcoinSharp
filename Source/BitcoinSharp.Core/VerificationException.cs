@@ -16,7 +16,7 @@
 
 using System;
 
-namespace BitCoinSharp
+namespace BitCoinSharp.Core
 {
     [Serializable]
     public class VerificationException : Exception

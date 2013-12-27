@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-using BitCoinSharp.Discovery;
+using BitCoinSharp.Core.Discovery;
 using NUnit.Framework;
 
 namespace BitCoinSharp.Tests.Unit.Discovery

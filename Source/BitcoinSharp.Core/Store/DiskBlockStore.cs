@@ -18,10 +18,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using BitCoinSharp.IO;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.IO;
 using log4net;
 
-namespace BitCoinSharp.Store
+
+namespace BitCoinSharp.Core.Store
 {
     /// <summary>
     /// Stores the block chain to disk but still holds it in memory. This is intended for desktop apps and tests.
@@ -99,7 +102,7 @@ namespace BitCoinSharp.Store
             using (var input = file.OpenRead())
             {
                 // Read a version byte.
-                var version = input.Read();
+                var version = StreamExtensions.Read(input);
                 if (version == -1)
                 {
                     // No such file or the file was empty.
@@ -111,7 +114,7 @@ namespace BitCoinSharp.Store
                 }
                 // Chain head pointer is the first thing in the file.
                 var chainHeadHash = new byte[32];
-                if (input.Read(chainHeadHash) < chainHeadHash.Length)
+                if (StreamExtensions.Read(input, chainHeadHash) < chainHeadHash.Length)
                     throw new BlockStoreException("Truncated block store: cannot read chain head hash");
                 _chainHead = new Sha256Hash(chainHeadHash);
                 _log.InfoFormat("Read chain head from disk: {0}", _chainHead);
@@ -123,7 +126,7 @@ namespace BitCoinSharp.Store
                     while (true)
                     {
                         // Read a block from disk.
-                        if (input.Read(headerBytes) < 80)
+                        if (StreamExtensions.Read(input, headerBytes) < 80)
                         {
                             // End of file.
                             break;

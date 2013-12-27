@@ -17,6 +17,9 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using BitCoinSharp.Core;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Model;
 using NUnit.Framework;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities.Encoders;

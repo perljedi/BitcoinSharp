@@ -23,11 +23,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using BitCoinSharp.Discovery;
-using BitCoinSharp.Store;
+using BitCoinSharp.Core.Discovery;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Store;
 using log4net;
 
-namespace BitCoinSharp
+namespace BitCoinSharp.Core
 {
     /// <summary>
     ///     Maintain a number of connections to peers.

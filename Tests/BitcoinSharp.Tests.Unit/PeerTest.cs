@@ -17,7 +17,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using BitCoinSharp.Store;
+using BitCoinSharp.Core;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Store;
 using BitCoinSharp.Tests.Unit.Moq;
 using Moq;
 using NUnit.Framework;

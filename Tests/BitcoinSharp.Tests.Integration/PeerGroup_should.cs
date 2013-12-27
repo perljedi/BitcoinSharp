@@ -1,24 +1,24 @@
 ﻿using System;
-using System.Net;
-using BitCoinSharp;
-using BitCoinSharp.Discovery;
-using BitCoinSharp.Store;
+using BitCoinSharp.Core;
+using BitCoinSharp.Core.Discovery;
+using BitCoinSharp.Core.Store;
 using NUnit.Framework;
 
 namespace BitcoinSharp.Tests.Integration
 {
     public class PeerGroup_should
     {
-        readonly NetworkParameters _networkParameters = NetworkParameters.ProdNet();
+        readonly NetworkParameters _networkParameters = NetworkParameters.TestNet();
 
         [SetUp]
         public void SetUp()
         {
         }
 
-        [Test]
+        [Test, Ignore]
         public void connect_to_other_peers()
         {
+            
             //Arrange
             var wallet = new Wallet(_networkParameters);
            
@@ -27,8 +27,8 @@ namespace BitcoinSharp.Tests.Integration
                 var chain = new BlockChain(_networkParameters, wallet, blockStore);
 
                 var peerGroup = new PeerGroup(blockStore, _networkParameters, chain);
-                
-                //peerGroup.AddAddress(new PeerAddress(new IPAddress(new byte[]{ 192, 168, 1, 136 }), 18333));
+
+                //peerGroup.AddAddress(new PeerAddress(IPAddress.Loopback));
                 peerGroup.AddPeerDiscovery(new DnsDiscovery(_networkParameters));
                 Console.WriteLine("AddAddress");
                 peerGroup.Start();

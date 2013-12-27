@@ -17,9 +17,11 @@
 using System;
 using System.Linq;
 using System.Text;
+using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Model;
 using Org.BouncyCastle.Math;
 
-namespace BitCoinSharp
+namespace BitCoinSharp.Core
 {
     /// <summary>
     ///     A custom form of base58 is used to encode BitCoin addresses. Note that this is not the same base58 as used by

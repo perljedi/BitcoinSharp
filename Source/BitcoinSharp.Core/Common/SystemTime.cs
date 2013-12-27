@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BitCoinSharp.Common
+namespace BitCoinSharp.Core.Common
 {
     public static class SystemTime
     {

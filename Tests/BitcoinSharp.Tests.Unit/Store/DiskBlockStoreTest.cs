@@ -16,7 +16,8 @@
 
 using System;
 using System.IO;
-using BitCoinSharp.Store;
+using BitCoinSharp.Core;
+using BitCoinSharp.Core.Store;
 using NUnit.Framework;
 
 namespace BitCoinSharp.Tests.Unit.Store
