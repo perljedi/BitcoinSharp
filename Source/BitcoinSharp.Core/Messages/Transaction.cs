@@ -20,8 +20,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.Hashing;
+using BitCoinSharp.Core.Common.ValueTypes;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
+using BitCoinSharp.Core.PersistableMessages;
 
 namespace BitCoinSharp.Core.Messages
 {
@@ -36,7 +40,7 @@ namespace BitCoinSharp.Core.Messages
     /// or UI purposes.
     /// </remarks>
     [Serializable]
-    public class Transaction : Message
+    public class Transaction : AbstractMessage
     {
         // These are serialized in both BitCoin and java serialization.
         private uint _version;

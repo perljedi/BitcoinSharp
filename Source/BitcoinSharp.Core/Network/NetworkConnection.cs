@@ -18,14 +18,12 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Common;
+using BitCoinSharp.Core.Common.DatesAndTimes;
 using BitCoinSharp.Core.Exceptions;
 using BitCoinSharp.Core.Messages;
 using log4net;
 
-namespace BitCoinSharp
+namespace BitCoinSharp.Core.Network
 {
     /// <summary>
     /// A NetworkConnection handles talking to a remote BitCoin peer at a low level. It understands how to read and write
@@ -106,7 +104,7 @@ namespace BitCoinSharp
             Log.Debug(_versionMessage);
             // Now it's our turn ...
             // Send an ACK message stating we accept the peers protocol version.
-            WriteMessage(new VersionAck());
+            WriteMessage(new VersionAckMessage());
             // And get one back ...
             ReadMessage();
             // Switch to the new protocol version.
@@ -176,7 +174,7 @@ namespace BitCoinSharp
         /// <returns>An instance of a Message subclass</returns>
         /// <exception cref="ProtocolException">If the message is badly formatted, failed checksum or there was a TCP failure.</exception>
         /// <exception cref="IOException"/>
-        public virtual Message ReadMessage()
+        public virtual AbstractMessage ReadMessage()
         {
             return _serializer.Deserialize(_inputStream);
         }
@@ -187,7 +185,7 @@ namespace BitCoinSharp
         /// the actual writing will be serialized.
         /// </summary>
         /// <exception cref="IOException"/>
-        public virtual void WriteMessage(Message message)
+        public virtual void WriteMessage(AbstractMessage message)
         {
             lock (_outputStream)
             {

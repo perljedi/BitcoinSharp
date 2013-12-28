@@ -16,7 +16,7 @@
 
 using System;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Core
 {

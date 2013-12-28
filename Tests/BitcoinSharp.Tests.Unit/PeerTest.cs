@@ -18,9 +18,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using BitCoinSharp.Core;
+using BitCoinSharp.Core.Common.Hashing;
 using BitCoinSharp.Core.Exceptions;
 using BitCoinSharp.Core.Messages;
 using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Network;
 using BitCoinSharp.Core.Store;
 using BitCoinSharp.Tests.Unit.Moq;
 using Moq;
@@ -160,7 +162,7 @@ namespace BitCoinSharp.Tests.Unit
             var b2 = TestUtils.MakeSolvedTestBlock(_unitTestParams, prev);
             var b3 = TestUtils.MakeSolvedTestBlock(_unitTestParams, b2);
 
-            _control.Setup(x => x.WriteMessage(It.IsAny<Message>())).Verifiable();
+            _control.Setup(x => x.WriteMessage(It.IsAny<AbstractMessage>())).Verifiable();
 
             var inv = new InventoryMessage(_unitTestParams);
             var item = new InventoryItem(InventoryItem.ItemType.Block, b3.Hash);
@@ -264,7 +266,7 @@ namespace BitCoinSharp.Tests.Unit
         private Capture<GetBlocksMessage> CaptureGetBlocksMessage()
         {
             var message = new Capture<GetBlocksMessage>();
-            _control.Setup(x => x.WriteMessage(It.IsAny<GetBlocksMessage>())).Callback<Message>(arg => message.Value = (GetBlocksMessage) arg).Verifiable();
+            _control.Setup(x => x.WriteMessage(It.IsAny<GetBlocksMessage>())).Callback<AbstractMessage>(arg => message.Value = (GetBlocksMessage) arg).Verifiable();
             return message;
         }
 
@@ -272,7 +274,7 @@ namespace BitCoinSharp.Tests.Unit
         private Capture<GetDataMessage> CaptureGetDataMessage()
         {
             var message = new Capture<GetDataMessage>();
-            _control.Setup(x => x.WriteMessage(It.IsAny<GetDataMessage>())).Callback<Message>(arg => message.Value = (GetDataMessage) arg).Verifiable();
+            _control.Setup(x => x.WriteMessage(It.IsAny<GetDataMessage>())).Callback<AbstractMessage>(arg => message.Value = (GetDataMessage) arg).Verifiable();
             return message;
         }
 
@@ -287,7 +289,7 @@ namespace BitCoinSharp.Tests.Unit
             _control.Verify();
         }
 
-        private Message ReadFinalMessage()
+        private AbstractMessage ReadFinalMessage()
         {
             _peer.Disconnect();
             throw new IOException("done");

@@ -20,7 +20,7 @@ using System.Linq;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace BitCoinSharp.Core
+namespace BitCoinSharp.Core.Common.Hashing
 {
     /// <summary>
     /// A Sha256Hash just wraps a byte[] so that equals and hashcode work correctly, allowing it to be used as keys in a

@@ -19,8 +19,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using BitCoinSharp.Core.Common.Encoding;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Model;
 using log4net;
 
 namespace BitCoinSharp.Core.Discovery

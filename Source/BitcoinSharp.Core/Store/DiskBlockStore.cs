@@ -18,9 +18,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.Hashing;
 using BitCoinSharp.Core.Exceptions;
 using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
+using BitCoinSharp.Core.PersistableMessages;
 using log4net;
 
 

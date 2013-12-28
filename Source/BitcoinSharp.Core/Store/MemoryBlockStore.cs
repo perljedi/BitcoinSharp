@@ -15,6 +15,9 @@
  */
 
 using System.Collections.Generic;
+using BitCoinSharp.Core.Common.Hashing;
+using BitCoinSharp.Core.Network;
+using BitCoinSharp.Core.PersistableMessages;
 
 namespace BitCoinSharp.Core.Store
 {

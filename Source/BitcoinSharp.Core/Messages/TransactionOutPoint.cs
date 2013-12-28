@@ -17,8 +17,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.Hashing;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Core.Messages
 {
@@ -28,7 +30,7 @@ namespace BitCoinSharp.Core.Messages
     /// This message is a reference or pointer to an output of a different transaction.
     /// </summary>
     [Serializable]
-    public class TransactionOutPoint : Message
+    public class TransactionOutPoint : AbstractMessage
     {
         /// <summary>
         /// Hash of the transaction to which we refer.

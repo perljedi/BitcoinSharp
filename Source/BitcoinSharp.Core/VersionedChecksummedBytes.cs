@@ -17,8 +17,8 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using BitCoinSharp.Core.Common.Encoding;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Model;
 
 namespace BitCoinSharp.Core
 {

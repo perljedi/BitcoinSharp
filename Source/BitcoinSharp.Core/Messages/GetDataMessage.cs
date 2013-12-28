@@ -15,6 +15,7 @@
  */
 
 using System;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Core.Messages
 {

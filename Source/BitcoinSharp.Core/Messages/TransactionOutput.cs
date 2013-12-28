@@ -17,8 +17,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.ValueTypes;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
 using log4net;
 
 namespace BitCoinSharp.Core.Messages
@@ -28,7 +30,7 @@ namespace BitCoinSharp.Core.Messages
     /// of the Transaction message.
     /// </summary>
     [Serializable]
-    public class TransactionOutput : Message
+    public class TransactionOutput : AbstractMessage
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof (TransactionOutput));
 

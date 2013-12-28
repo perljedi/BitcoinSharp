@@ -17,8 +17,8 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using BitCoinSharp.Core;
 using BitCoinSharp.Core.Discovery;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Examples
 {

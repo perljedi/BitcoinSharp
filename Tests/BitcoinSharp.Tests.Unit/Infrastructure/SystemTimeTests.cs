@@ -1,5 +1,5 @@
 ﻿using System;
-using BitCoinSharp.Core.Common;
+using BitCoinSharp.Core.Common.DatesAndTimes;
 using NUnit.Framework;
 
 namespace BitCoinSharp.Tests.Unit.Infrastructure

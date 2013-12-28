@@ -17,12 +17,12 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using BitCoinSharp.Core.Common.ExtensionMethods;
 using BitCoinSharp.Core.Messages;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities.Encoders;
-using BitCoinSharp.Core.IO;
 
-namespace BitCoinSharp.Core
+namespace BitCoinSharp.Core.Network
 {
     /// <summary>
     /// NetworkParameters contains the data needed for working with an instantiation of a BitCoin chain.

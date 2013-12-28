@@ -1,4 +1,5 @@
 ﻿using BitCoinSharp.Core;
+using BitCoinSharp.Core.Network;
 using FluentAssertions;
 using log4net;
 using NUnit.Framework;

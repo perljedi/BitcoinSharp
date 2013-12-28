@@ -16,7 +16,7 @@
 
 using System;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Network;
 using Org.BouncyCastle.Math;
 
 namespace BitCoinSharp.Core
