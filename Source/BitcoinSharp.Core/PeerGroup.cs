@@ -260,7 +260,7 @@ namespace BitCoinSharp.Core
             try
             {
                 var peer = new Peer(_networkParameters, address, _blockStore.GetChainHead().Height, _blockChain);
-                Task.Factory.StartNew(async 
+                Task.Factory.StartNew( 
                     () =>
                     {
                         while (true)
