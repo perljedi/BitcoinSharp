@@ -17,12 +17,12 @@
 using System;
 using System.IO;
 using System.Text;
-using BitCoinSharp.Core.Common.Hashing;
-using BitCoinSharp.Core.Common.ValueTypes;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Common.Hashing;
+using BitcoinSharp.Core.Common.ValueTypes;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Network;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     /// <summary>
     /// A Message is a data structure that can be serialized/deserialized using both the BitCoin proprietary serialization

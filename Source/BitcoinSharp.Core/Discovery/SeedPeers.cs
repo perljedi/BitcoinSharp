@@ -16,9 +16,9 @@
 
 using System.Collections.Generic;
 using System.Net;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Network;
 
-namespace BitCoinSharp.Core.Discovery
+namespace BitcoinSharp.Core.Discovery
 {
     /// <summary>
     /// SeedPeers stores a pre-determined list of Bitcoin node addresses. These nodes are selected based on being

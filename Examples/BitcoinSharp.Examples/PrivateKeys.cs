@@ -17,13 +17,13 @@
 using System;
 using System.Net;
 using System.Threading;
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Common.Encoding;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.Store;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Common.Encoding;
+using BitcoinSharp.Core.Messages;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Store;
 
-namespace BitCoinSharp.Examples
+namespace BitcoinSharp.Examples
 {
     /// <summary>
     /// This example shows how to solve the challenge Hal posted here:<p/>

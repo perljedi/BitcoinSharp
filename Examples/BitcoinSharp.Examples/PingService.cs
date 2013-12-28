@@ -18,12 +18,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.Store;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Messages;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Store;
 
-namespace BitCoinSharp.Examples
+namespace BitcoinSharp.Examples
 {
     /// <summary>
     /// PingService demonstrates basic usage of the library. It sits on the network and when it receives coins, simply
@@ -36,7 +36,7 @@ namespace BitCoinSharp.Examples
     ///   <li>Start your bitcoin client in test mode <code>bitcoin -testnet</code>. This will create a new sub-directory called testnet and should not interfere with normal wallets or operations.</li>
     ///   <li>(Optional) Choose a fresh address</li>
     ///   <li>(Optional) Visit the TestNet faucet (https://testnet.freebitcoins.appspot.com/) to load your client with test coins</li>
-    ///   <li>Run <code>BitCoinSharp.Examples PingService -testnet</code></li>
+    ///   <li>Run <code>BitcoinSharp.Examples PingService -testnet</code></li>
     ///   <li>Wait for the block chain to download</li>
     ///   <li>Send some coins from your bitcoin client to the address provided in the PingService console</li>
     ///   <li>Leave it running until you get the coins back again</li>

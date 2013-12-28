@@ -16,9 +16,9 @@
 
 using System;
 using System.IO;
-using BitCoinSharp.Core;
+using BitcoinSharp.Core;
 
-namespace BitCoinSharp.Examples
+namespace BitcoinSharp.Examples
 {
     /// <summary>
     /// DumpWallet loads a serialized wallet and prints information about what it contains.

@@ -15,10 +15,10 @@
  */
 
 using System;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Network;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     [Serializable]
     public class UnknownMessage : AbstractMessage
@@ -37,7 +37,7 @@ namespace BitCoinSharp.Core.Messages
             return "Unknown message [" + _name + "]: " + (Bytes == null ? "" : Utils.BytesToHexString(Bytes));
         }
 
-        /// <exception cref="BitCoinSharp.ProtocolException"/>
+        /// <exception cref="BitcoinSharp.ProtocolException"/>
         protected override void Parse()
         {
         }

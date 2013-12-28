@@ -17,10 +17,10 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using BitCoinSharp.Core.Common.Encoding;
-using BitCoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Common.Encoding;
+using BitcoinSharp.Core.Exceptions;
 
-namespace BitCoinSharp.Core
+namespace BitcoinSharp.Core
 {
     /// <summary>
     /// In BitCoin the following format is often used to represent some type of key:<p/>

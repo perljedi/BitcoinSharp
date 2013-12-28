@@ -16,7 +16,7 @@
 
 using System;
 
-namespace BitCoinSharp.Core.Exceptions
+namespace BitcoinSharp.Core.Exceptions
 {
     /// <summary>
     /// Thrown when a problem occurs in communicating with a peer, and we should

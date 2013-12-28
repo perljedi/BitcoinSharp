@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-using BitCoinSharp.Core.Messages;
+using BitcoinSharp.Core.Messages;
 
-namespace BitCoinSharp.Core.Network
+namespace BitcoinSharp.Core.Network
 {
     /// <summary>
     ///     Convenience abstract class for implementing a PeerEventListener.

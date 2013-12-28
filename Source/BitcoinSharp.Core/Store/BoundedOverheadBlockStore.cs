@@ -16,18 +16,18 @@
 
 using System.Diagnostics;
 using System.IO;
-using BitCoinSharp.Core.Common.Collections;
-using BitCoinSharp.Core.Common.ExtensionMethods;
-using BitCoinSharp.Core.Common.Hashing;
-using BitCoinSharp.Core.Common.StreamInterop;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Common.Collections;
+using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Common.Hashing;
+using BitcoinSharp.Core.Common.StreamInterop;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Messages;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.PersistableMessages;
 using log4net;
 using Org.BouncyCastle.Math;
 
-namespace BitCoinSharp.Core.Store
+namespace BitcoinSharp.Core.Store
 {
     /// <summary>
     /// Stores the block chain to disk.
