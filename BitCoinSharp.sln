@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitCoinSharp.Core", "Source\BitCoinSharp.Core\BitCoinSharp.Core.csproj", "{82B20619-3469-4DB6-8D18-628B64842499}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitCoinSharp.Examples", "Examples\BitCoinSharp.Examples.csproj", "{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitCoinSharp.Examples", "Examples\BitCoinSharp.Examples\BitCoinSharp.Examples.csproj", "{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitCoinSharp.Tests.Unit", "Tests\BitCoinSharp.Tests.Unit\BitCoinSharp.Tests.Unit.csproj", "{1F699CA0-3353-488F-BA48-26D82B287F2D}"
 EndProject
