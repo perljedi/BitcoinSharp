@@ -20,14 +20,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BitCoinSharp.Core.Common.ExtensionMethods;
-using BitCoinSharp.Core.Common.Hashing;
-using BitCoinSharp.Core.Common.ValueTypes;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Common.Hashing;
+using BitcoinSharp.Core.Common.ValueTypes;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.PersistableMessages;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     /// <summary>
     /// A transaction represents the movement of coins from some addresses to some other addresses. It can also represent

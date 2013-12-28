@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using log4net.Config;
 
-namespace BitCoinSharp.Examples
+namespace BitcoinSharp.Examples
 {
     public static class Program
     {
@@ -13,7 +13,7 @@ namespace BitCoinSharp.Examples
 
             if (args == null || args.Length == 0)
             {
-                Console.WriteLine("BitCoinSharp.Examples <name> <args>");
+                Console.WriteLine("BitcoinSharp.Examples <name> <args>");
                 return;
             }
 

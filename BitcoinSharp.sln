@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitCoinSharp.Core", "Source\BitCoinSharp.Core\BitCoinSharp.Core.csproj", "{82B20619-3469-4DB6-8D18-628B64842499}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Core", "Source\BitcoinSharp.Core\BitcoinSharp.Core.csproj", "{82B20619-3469-4DB6-8D18-628B64842499}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitCoinSharp.Examples", "Examples\BitCoinSharp.Examples.csproj", "{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Examples", "Examples\BitcoinSharp.Examples.csproj", "{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitCoinSharp.Tests.Unit", "Tests\BitCoinSharp.Tests.Unit\BitCoinSharp.Tests.Unit.csproj", "{1F699CA0-3353-488F-BA48-26D82B287F2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Tests.Unit", "Tests\BitcoinSharp.Tests.Unit\BitcoinSharp.Tests.Unit.csproj", "{1F699CA0-3353-488F-BA48-26D82B287F2D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Tests.Integration", "Tests\BitcoinSharp.Tests.Integration\BitcoinSharp.Tests.Integration.csproj", "{6BC3F5AC-4340-4CB4-8AC6-7248D7398B47}"
 EndProject

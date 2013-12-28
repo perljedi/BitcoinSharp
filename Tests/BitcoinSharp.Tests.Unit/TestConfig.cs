@@ -1,7 +1,7 @@
 ﻿using log4net.Config;
 using NUnit.Framework;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     [SetUpFixture]
     public class TestConfig

@@ -17,7 +17,7 @@
 using System.Collections.Generic;
 using System.Net;
 
-namespace BitCoinSharp.Core.Discovery
+namespace BitcoinSharp.Core.Discovery
 {
     // TODO: Flesh out this interface a lot more.
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace BitCoinSharp.Core.Common.ValueTypes
+namespace BitcoinSharp.Core.Common.ValueTypes
 {
     public class VarInt
     {

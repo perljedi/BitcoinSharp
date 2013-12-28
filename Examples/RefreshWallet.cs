@@ -15,12 +15,12 @@
  */
 
 using System;
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Discovery;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.Store;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Discovery;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Store;
 
-namespace BitCoinSharp.Examples
+namespace BitcoinSharp.Examples
 {
     /// <summary>
     /// RefreshWallet loads a wallet, then processes the block chain to update the transaction pools within it.

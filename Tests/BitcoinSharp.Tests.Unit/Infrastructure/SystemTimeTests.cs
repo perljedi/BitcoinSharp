@@ -1,8 +1,8 @@
 ﻿using System;
-using BitCoinSharp.Core.Common.DatesAndTimes;
+using BitcoinSharp.Core.Common.DatesAndTimes;
 using NUnit.Framework;
 
-namespace BitCoinSharp.Tests.Unit.Infrastructure
+namespace BitcoinSharp.Tests.Unit.Infrastructure
 {
     public class SystemTimeTests
     {

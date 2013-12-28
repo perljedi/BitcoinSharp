@@ -15,14 +15,14 @@
  */
 
 using System;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Network;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     [Serializable]
     public class InventoryMessage : ListMessage
     {
-        /// <exception cref="BitCoinSharp.ProtocolException"/>
+        /// <exception cref="BitcoinSharp.ProtocolException"/>
         public InventoryMessage(NetworkParameters networkParameters, byte[] bytes)
             : base(networkParameters, bytes)
         {

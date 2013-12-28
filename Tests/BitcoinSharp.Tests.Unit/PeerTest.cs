@@ -17,18 +17,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Common.Hashing;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Model;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.Store;
-using BitCoinSharp.Tests.Unit.Moq;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Common.Hashing;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Messages;
+using BitcoinSharp.Core.Model;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Store;
+using BitcoinSharp.Tests.Unit.Moq;
 using Moq;
 using NUnit.Framework;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     [TestFixture]
     public class PeerTest

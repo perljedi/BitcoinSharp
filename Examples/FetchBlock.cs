@@ -17,13 +17,13 @@
 using System;
 using System.Net;
 using System.Threading;
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Common.Hashing;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.Store;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Common.Hashing;
+using BitcoinSharp.Core.Messages;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Store;
 
-namespace BitCoinSharp.Examples
+namespace BitcoinSharp.Examples
 {
     /// <summary>
     /// Downloads the block given a block hash from the localhost node and prints it out.

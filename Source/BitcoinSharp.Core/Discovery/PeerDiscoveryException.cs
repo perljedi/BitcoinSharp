@@ -16,7 +16,7 @@
 
 using System;
 
-namespace BitCoinSharp.Core.Discovery
+namespace BitcoinSharp.Core.Discovery
 {
     [Serializable]
     public class PeerDiscoveryException : Exception

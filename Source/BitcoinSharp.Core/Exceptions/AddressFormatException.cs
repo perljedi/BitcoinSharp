@@ -16,7 +16,7 @@
 
 using System;
 
-namespace BitCoinSharp.Core.Exceptions
+namespace BitcoinSharp.Core.Exceptions
 {
     [Serializable]
     public class AddressFormatException : Exception

@@ -20,11 +20,11 @@ using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Common.ExtensionMethods;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Math;
 
-namespace BitCoinSharp.Core
+namespace BitcoinSharp.Core
 {
     /// <summary>
     /// A collection of various utility methods that are helpful for working with the BitCoin protocol.

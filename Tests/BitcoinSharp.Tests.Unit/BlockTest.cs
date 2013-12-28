@@ -17,14 +17,14 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Messages;
+using BitcoinSharp.Core.Network;
 using NUnit.Framework;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     [TestFixture]
     public class BlockTest

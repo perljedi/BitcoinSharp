@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using BitCoinSharp.Core.Common.ExtensionMethods;
-using BitCoinSharp.Core.Common.ValueTypes;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Common.ValueTypes;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Network;
 using log4net;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     public class HeadersMessage : AbstractMessage
     {

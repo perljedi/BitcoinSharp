@@ -17,13 +17,13 @@
 using System;
 using System.IO;
 using System.Net;
-using BitCoinSharp.Core.Common.DatesAndTimes;
-using BitCoinSharp.Core.Common.ExtensionMethods;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Common.DatesAndTimes;
+using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Network;
 using Org.BouncyCastle.Math;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     /// <summary>
     /// A PeerAddress holds an IP ipAddress and port number representing the network location of
