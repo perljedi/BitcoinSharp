@@ -18,8 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.Hashing;
+using BitCoinSharp.Core.Common.ValueTypes;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Core.Messages
 {
@@ -30,7 +33,7 @@ namespace BitCoinSharp.Core.Messages
     /// to the outputs of another. The exceptions are coinbase transactions, which create new coins.
     /// </summary>
     [Serializable]
-    public class TransactionInput : Message
+    public class TransactionInput : AbstractMessage
     {
         public static readonly byte[] EmptyArray = new byte[0];
 

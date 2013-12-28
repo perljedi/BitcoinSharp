@@ -18,14 +18,16 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
-using BitCoinSharp.Core.Common;
+using BitCoinSharp.Core.Common.DatesAndTimes;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.ValueTypes;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Core.Messages
 {
     [Serializable]
-    public class VersionMessage : Message
+    public class VersionMessage : AbstractMessage
     {
         /// <summary>
         /// A services flag that denotes whether the peer has a copy of the block chain or not.

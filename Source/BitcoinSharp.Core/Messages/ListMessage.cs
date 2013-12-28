@@ -16,16 +16,18 @@
 
 using System.Collections.Generic;
 using System.IO;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.ValueTypes;
 using BitCoinSharp.Core.Exceptions;
 using BitCoinSharp.Core.Model;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Core.Messages
 {
     /// <summary>
     /// Abstract super class of classes with list based payload, i.e. InventoryMessage and GetDataMessage.
     /// </summary>
-    public abstract class ListMessage : Message
+    public abstract class ListMessage : AbstractMessage
     {
         // For some reason the compiler complains if this is inside InventoryItem
 

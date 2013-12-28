@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.ValueTypes;
 using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Network;
 using log4net;
-using BitCoinSharp.Core.IO;
 
 namespace BitCoinSharp.Core.Messages
 {
-    public class HeadersMessage : Message
+    public class HeadersMessage : AbstractMessage
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(HeadersMessage));
 

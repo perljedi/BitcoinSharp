@@ -37,7 +37,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace BitCoinSharp.Core.Common
+namespace BitCoinSharp.Core.Common.DatesAndTimes
 {
     /// <summary>
     /// Class for converting to and from Unix (POSIX) time. Unix time is the number of seconds

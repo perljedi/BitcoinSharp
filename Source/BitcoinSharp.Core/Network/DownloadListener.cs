@@ -16,10 +16,10 @@
 
 using System;
 using System.Threading;
-using BitCoinSharp.Core.Common;
+using BitCoinSharp.Core.Common.DatesAndTimes;
 using BitCoinSharp.Core.Messages;
 
-namespace BitCoinSharp.Core
+namespace BitCoinSharp.Core.Network
 {
     /// <summary>
     /// Listen to chain download events and print useful informational messages.

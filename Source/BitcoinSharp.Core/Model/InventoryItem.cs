@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+using BitCoinSharp.Core.Common.Hashing;
+
 namespace BitCoinSharp.Core.Model
 {
     public class InventoryItem

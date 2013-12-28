@@ -18,9 +18,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using BitCoinSharp.Core.Common.ExtensionMethods;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.IO;
-using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Network;
 using log4net;
 
 namespace BitCoinSharp.Core

@@ -18,7 +18,7 @@ using BitCoinSharp.Core.Exceptions;
 
 namespace BitCoinSharp.Core.Messages
 {
-    public class Ping : Message
+    public class Ping : AbstractMessage
     {
         /// <exception cref="ProtocolException"/>
         protected override void Parse()

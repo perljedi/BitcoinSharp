@@ -15,9 +15,8 @@
  */
 
 using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Model;
 
-namespace BitCoinSharp.Core
+namespace BitCoinSharp.Core.Network
 {
     /// <summary>
     /// Implementing a PeerEventListener allows you to learn when significant Peer communication

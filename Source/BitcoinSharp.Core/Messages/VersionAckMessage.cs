@@ -15,22 +15,21 @@
  */
 
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Network;
 
-namespace BitCoinSharp.Core
+namespace BitCoinSharp.Core.Messages
 {
     /// <summary>
     /// The verack message, sent by a client accepting the version message they received from their peer.
     /// </summary>
-    public class VersionAck : Message
+    public class VersionAckMessage : AbstractMessage
     {
-        public VersionAck()
+        public VersionAckMessage()
         {
         }
 
         // this is needed by the BitcoinSerializer
-        public VersionAck(NetworkParameters networkParameters, byte[] payload)
+        public VersionAckMessage(NetworkParameters networkParameters, byte[] payload)
         {
         }
 

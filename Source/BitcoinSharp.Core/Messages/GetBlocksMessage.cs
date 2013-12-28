@@ -18,12 +18,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.Hashing;
+using BitCoinSharp.Core.Common.ValueTypes;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Core.Messages
 {
     [Serializable]
-    public class GetBlocksMessage : Message
+    public class GetBlocksMessage : AbstractMessage
     {
         private readonly IList<Sha256Hash> _locator;
         private readonly Sha256Hash _stopHash;

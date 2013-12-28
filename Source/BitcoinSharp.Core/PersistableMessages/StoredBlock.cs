@@ -15,12 +15,12 @@
  */
 
 using System;
+using BitCoinSharp.Core.Exceptions;
 using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Model;
 using BitCoinSharp.Core.Store;
 using Org.BouncyCastle.Math;
 
-namespace BitCoinSharp.Core
+namespace BitCoinSharp.Core.PersistableMessages
 {
     /// <summary>
     /// Wraps a <see cref="Block"/> object with extra data that can be derived from the block chain but is slow or inconvenient to

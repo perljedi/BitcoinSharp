@@ -20,9 +20,9 @@ using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using BitCoinSharp.Core.Common.ExtensionMethods;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Math;
-using BitCoinSharp.Core.IO;
 
 namespace BitCoinSharp.Core
 {

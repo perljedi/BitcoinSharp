@@ -16,11 +16,12 @@
 
 using System;
 using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Core.Messages
 {
     [Serializable]
-    public class UnknownMessage : Message
+    public class UnknownMessage : AbstractMessage
     {
         private readonly string _name;
 

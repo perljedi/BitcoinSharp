@@ -17,6 +17,8 @@
 using System;
 using System.IO;
 using BitCoinSharp.Core;
+using BitCoinSharp.Core.Network;
+using BitCoinSharp.Core.PersistableMessages;
 using BitCoinSharp.Core.Store;
 using NUnit.Framework;
 

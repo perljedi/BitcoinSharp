@@ -18,13 +18,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.ValueTypes;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Core.Messages
 {
     [Serializable]
-    public class AddressMessage : Message
+    public class AddressMessage : AbstractMessage
     {
         private const ulong MaxAddresses = 1024;
 
