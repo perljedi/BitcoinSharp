@@ -15,6 +15,7 @@
  */
 
 using BitCoinSharp.Core;
+using BitCoinSharp.Core.Common.ValueTypes;
 using NUnit.Framework;
 
 namespace BitCoinSharp.Tests.Unit

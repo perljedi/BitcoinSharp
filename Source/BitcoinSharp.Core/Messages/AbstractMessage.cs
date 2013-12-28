@@ -17,7 +17,10 @@
 using System;
 using System.IO;
 using System.Text;
+using BitCoinSharp.Core.Common.Hashing;
+using BitCoinSharp.Core.Common.ValueTypes;
 using BitCoinSharp.Core.Exceptions;
+using BitCoinSharp.Core.Network;
 
 namespace BitCoinSharp.Core.Messages
 {
@@ -30,7 +33,7 @@ namespace BitCoinSharp.Core.Messages
     /// This class is not useful for library users. If you want to talk to the network see the <see cref="Peer"/> class.
     /// </remarks>
     [Serializable]
-    public abstract class Message
+    public abstract class AbstractMessage
     {
         public const uint MaxSize = 0x2000000;
 
@@ -80,17 +83,17 @@ namespace BitCoinSharp.Core.Messages
         /// <summary>
         /// This exists for the Java serialization framework to use only.
         /// </summary>
-        protected Message()
+        protected AbstractMessage()
         {
         }
 
-        internal Message(NetworkParameters networkParameters)
+        internal AbstractMessage(NetworkParameters networkParameters)
         {
             NetworkParameters = networkParameters;
         }
 
         /// <exception cref="ProtocolException"/>
-        internal Message(NetworkParameters networkParameters, byte[] byteMessage, int offset,
+        internal AbstractMessage(NetworkParameters networkParameters, byte[] byteMessage, int offset,
             uint protocolVersion = NetworkParameters.ProtocolVersion)
         {
             ProtocolVersion = protocolVersion;

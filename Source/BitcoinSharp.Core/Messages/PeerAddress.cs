@@ -17,9 +17,10 @@
 using System;
 using System.IO;
 using System.Net;
-using BitCoinSharp.Core.Common;
+using BitCoinSharp.Core.Common.DatesAndTimes;
+using BitCoinSharp.Core.Common.ExtensionMethods;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
 using Org.BouncyCastle.Math;
 
 namespace BitCoinSharp.Core.Messages
@@ -29,7 +30,7 @@ namespace BitCoinSharp.Core.Messages
     /// a peer in the BitCoin P2P network. It exists primarily for serialization purposes.
     /// </summary>
     [Serializable]
-    public class PeerAddress : Message
+    public class PeerAddress : AbstractMessage
     {
         internal IPAddress IpAddress { get; private set; }
         internal int Port { get; private set; }

@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using BitCoinSharp.Core.Network;
 using log4net;
 
 namespace BitCoinSharp.Core.Discovery

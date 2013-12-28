@@ -15,8 +15,8 @@
  */
 
 using System.Linq;
-using BitCoinSharp.Core;
 using BitCoinSharp.Core.Discovery;
+using BitCoinSharp.Core.Network;
 using NUnit.Framework;
 
 namespace BitCoinSharp.Tests.Unit.Discovery

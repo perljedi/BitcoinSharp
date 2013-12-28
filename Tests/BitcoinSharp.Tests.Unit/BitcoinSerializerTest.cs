@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using BitCoinSharp.Core;
 using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Network;
 using FluentAssertions;
 using NUnit.Framework;
 using Org.BouncyCastle.Utilities.Encoders;
@@ -120,7 +121,7 @@ namespace BitCoinSharp.Tests.Unit
             
             using (var memoryStream = new MemoryStream(Hex.Decode(ConstantVersionAck)))
             {
-                var message = bitcoinSerializer.Deserialize(memoryStream) as VersionAck;
+                var message = bitcoinSerializer.Deserialize(memoryStream) as VersionAckMessage;
                 message.Should().NotBeNull();
                 
 

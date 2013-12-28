@@ -17,6 +17,7 @@
 using System.Net;
 using BitCoinSharp.Core;
 using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Network;
 using NUnit.Framework;
 using Org.BouncyCastle.Utilities.Encoders;
 

@@ -16,7 +16,8 @@
 
 using BitCoinSharp.Core;
 using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Network;
+using BitCoinSharp.Core.PersistableMessages;
 using BitCoinSharp.Core.Store;
 
 namespace BitCoinSharp.Tests.Unit

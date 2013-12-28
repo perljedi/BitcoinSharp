@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-using System;
+using BitCoinSharp.Core.Messages;
 
-namespace BitCoinSharp.Core
+namespace BitCoinSharp.Core.Network
 {
-    [Serializable]
-    public class VerificationException : Exception
+    /// <summary>
+    ///     Convenience abstract class for implementing a PeerEventListener.
+    /// </summary>
+    /// <remarks>
+    ///     The default method implementations do nothing.
+    ///     @author miron@google.com (Miron Cuperman)
+    /// </remarks>
+    public class AbstractPeerEventListener : IPeerEventListener
     {
-        public VerificationException()
+        public virtual void OnBlocksDownloaded(Peer peer, Block block, int blocksLeft)
         {
         }
 
-        public VerificationException(string message)
-            : base(message)
+        public virtual void OnChainDownloadStarted(Peer peer, int blocksLeft)
         {
         }
     }

@@ -21,9 +21,11 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using BitCoinSharp.Core.Common.Hashing;
 using BitCoinSharp.Core.Exceptions;
 using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Network;
+using BitCoinSharp.Core.PersistableMessages;
 using log4net;
 
 namespace BitCoinSharp.Core

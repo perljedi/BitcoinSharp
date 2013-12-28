@@ -18,6 +18,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using BitCoinSharp.Core.Network;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Crypto.Generators;
@@ -52,7 +53,8 @@ namespace BitCoinSharp.Core
         private readonly BigInteger _privateKey;
         private readonly byte[] _publicKey;
 
-        [NonSerialized] private byte[] _publicKeyHash;
+        [NonSerialized] 
+        private byte[] _publicKeyHash;
 
         /// <summary>
         /// Generates an entirely new keypair.

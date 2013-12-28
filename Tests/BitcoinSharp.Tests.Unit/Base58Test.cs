@@ -16,9 +16,8 @@
 
 using System.Linq;
 using System.Text;
-using BitCoinSharp.Core;
+using BitCoinSharp.Core.Common.Encoding;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Model;
 using NUnit.Framework;
 using Org.BouncyCastle.Math;
 

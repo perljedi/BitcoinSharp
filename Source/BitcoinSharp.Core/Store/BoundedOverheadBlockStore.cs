@@ -16,11 +16,14 @@
 
 using System.Diagnostics;
 using System.IO;
-using BitCoinSharp.Core.Collections.Generic;
+using BitCoinSharp.Core.Common.Collections;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.Hashing;
+using BitCoinSharp.Core.Common.StreamInterop;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.IO;
 using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Model;
+using BitCoinSharp.Core.Network;
+using BitCoinSharp.Core.PersistableMessages;
 using log4net;
 using Org.BouncyCastle.Math;
 

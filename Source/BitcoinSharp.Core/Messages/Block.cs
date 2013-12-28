@@ -20,9 +20,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BitCoinSharp.Core.Common;
+using BitCoinSharp.Core.Common.DatesAndTimes;
+using BitCoinSharp.Core.Common.ExtensionMethods;
+using BitCoinSharp.Core.Common.Hashing;
+using BitCoinSharp.Core.Common.ValueTypes;
 using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
 using log4net;
 using Org.BouncyCastle.Math;
 
@@ -35,11 +38,10 @@ namespace BitCoinSharp.Core.Messages
     /// </summary>
     /// <remarks>
     ///     To get a block, you can either build one from the raw bytes you can get from another implementation,
-    ///     or request one specifically using <see cref="BitCoinSharp.BitCoinSharp.Peer.BeginGetBlock(BitCoinSharp.Shared.Sha256Hash,System.AsyncCallback,object) one from a downloaded
-    ///     <see cref="BlockChain" />.
+    ///     or request one specifically using <see cref="Peer.BeginGetBlock(BitCoinSharp.Shared.Sha256Hash,System.AsyncCallback,object) one from a downloaded <see cref="BlockChain" />.
     /// </remarks>
     [Serializable]
-    public class Block : Message
+    public class Block : AbstractMessage
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof (Block));
 

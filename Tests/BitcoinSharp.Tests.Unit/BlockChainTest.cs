@@ -16,8 +16,11 @@
 
 using System;
 using BitCoinSharp.Core;
-using BitCoinSharp.Core.Common;
+using BitCoinSharp.Core.Common.DatesAndTimes;
+using BitCoinSharp.Core.Common.Hashing;
+using BitCoinSharp.Core.Exceptions;
 using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Network;
 using BitCoinSharp.Core.Store;
 using NUnit.Framework;
 using Org.BouncyCastle.Math;

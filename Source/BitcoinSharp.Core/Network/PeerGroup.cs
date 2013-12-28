@@ -29,7 +29,7 @@ using BitCoinSharp.Core.Messages;
 using BitCoinSharp.Core.Store;
 using log4net;
 
-namespace BitCoinSharp.Core
+namespace BitCoinSharp.Core.Network
 {
     /// <summary>
     ///     Maintain a number of connections to peers.

@@ -20,6 +20,7 @@ using System.IO;
 using System.Net;
 using BitCoinSharp.Core;
 using BitCoinSharp.Core.Messages;
+using BitCoinSharp.Core.Network;
 using BitCoinSharp.Core.Store;
 
 namespace BitCoinSharp.Examples

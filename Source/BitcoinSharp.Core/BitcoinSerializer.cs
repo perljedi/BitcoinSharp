@@ -18,9 +18,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using BitCoinSharp.Core.Common.ExtensionMethods;
 using BitCoinSharp.Core.Exceptions;
 using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.IO;
+using BitCoinSharp.Core.Network;
 using log4net;
 
 namespace BitCoinSharp.Core
@@ -56,7 +57,7 @@ namespace BitCoinSharp.Core
             Names.Add(typeof(AddressMessage), "addr");
             Names.Add(typeof(Ping), "ping");
             //names.put(Pong.class, "pong");
-            Names.Add(typeof(VersionAck), "verack");
+            Names.Add(typeof(VersionAckMessage), "verack");
             Names.Add(typeof(GetBlocksMessage), "getblocks");
             //names.put(GetHeadersMessage.class, "getheaders");
             //names.put(GetAddrMessage.class, "getaddr");
@@ -82,7 +83,7 @@ namespace BitCoinSharp.Core
         ///     Writes message to to the output stream.
         /// </summary>
         /// <exception cref="IOException" />
-        public void Serialize(Message message, Stream outputStream)
+        public void Serialize(AbstractMessage message, Stream outputStream)
         {
             string name;
             if (!Names.TryGetValue(message.GetType(), out name))
@@ -121,7 +122,7 @@ namespace BitCoinSharp.Core
         /// </summary>
         /// <exception cref="ProtocolException" />
         /// <exception cref="IOException" />
-        public Message Deserialize(Stream inputStream)
+        public AbstractMessage Deserialize(Stream inputStream)
         {
 
             Log.DebugFormat("Deserialize Response");
@@ -178,7 +179,7 @@ namespace BitCoinSharp.Core
             var size = Utils.ReadUint32(header, cursor);
             cursor += 4;
 
-            if (size > Message.MaxSize)
+            if (size > AbstractMessage.MaxSize)
                 throw new ProtocolException("Message size too large: " + size);
 
             // Old clients don't send the checksum.
@@ -237,7 +238,7 @@ namespace BitCoinSharp.Core
         }
 
         /// <exception cref="ProtocolException" />
-        private Message MakeMessage(string command, byte[] payloadBytes)
+        private AbstractMessage MakeMessage(string command, byte[] payloadBytes)
         {
             Log.DebugFormat("command: {0} payload: some bytes.", command);
             // We use an if ladder rather than reflection because reflection can be slow on some platforms.
@@ -271,7 +272,7 @@ namespace BitCoinSharp.Core
             }
             if (command.Equals("verack"))
             {
-                return new VersionAck(_networkParameters, payloadBytes);
+                return new VersionAckMessage(_networkParameters, payloadBytes);
             }
             if (command.Equals("headers"))
             {
