@@ -7,8 +7,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1F699CA0-3353-488F-BA48-26D82B287F2D}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>BitCoinSharp.Tests.Unit</RootNamespace>
-    <AssemblyName>BitCoinSharp.Tests.Unit</AssemblyName>
+    <RootNamespace>BitcoinSharp.Tests.Unit</RootNamespace>
+    <AssemblyName>BitcoinSharp.Tests.Unit</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
@@ -55,9 +55,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\BitCoinSharp.Core\BitCoinSharp.Core.csproj">
+    <ProjectReference Include="..\..\Source\BitCoinSharp.Core\BitcoinSharp.Core.csproj">
       <Project>{82B20619-3469-4DB6-8D18-628B64842499}</Project>
-      <Name>BitCoinSharp.Core</Name>
+      <Name>BitcoinSharp.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

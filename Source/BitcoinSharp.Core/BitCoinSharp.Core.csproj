@@ -8,8 +8,8 @@
     <ProjectGuid>{82B20619-3469-4DB6-8D18-628B64842499}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BitCoinSharp.Core</RootNamespace>
-    <AssemblyName>BitCoinSharp.Core</AssemblyName>
+    <RootNamespace>BitcoinSharp.Core</RootNamespace>
+    <AssemblyName>BitcoinSharp.Core</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />

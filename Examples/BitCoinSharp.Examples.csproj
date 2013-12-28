@@ -7,8 +7,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>BitCoinSharp.Examples</RootNamespace>
-    <AssemblyName>BitCoinSharp.Examples</AssemblyName>
+    <RootNamespace>BitcoinSharp.Examples</RootNamespace>
+    <AssemblyName>BitcoinSharp.Examples</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
@@ -48,9 +48,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Source\BitCoinSharp.Core\BitCoinSharp.Core.csproj">
+    <ProjectReference Include="..\Source\BitCoinSharp.Core\BitcoinSharp.Core.csproj">
       <Project>{82B20619-3469-4DB6-8D18-628B64842499}</Project>
-      <Name>BitCoinSharp.Core</Name>
+      <Name>BitcoinSharp.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
