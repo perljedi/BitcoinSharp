@@ -18,12 +18,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using BitCoinSharp.Core.Common.ExtensionMethods;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Network;
 using log4net;
 
-namespace BitCoinSharp.Core
+namespace BitcoinSharp.Core
 {
     /// <summary>
     /// BitCoin transactions don't specify what they do directly. Instead <a href="https://en.bitcoin.it/wiki/Script">a small binary stack language</a>

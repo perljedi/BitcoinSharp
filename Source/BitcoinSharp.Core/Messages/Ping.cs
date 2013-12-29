@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-using BitCoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Exceptions;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     public class Ping : AbstractMessage
     {

@@ -15,14 +15,14 @@
  */
 
 using System;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Network;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     [Serializable]
     public class GetDataMessage : ListMessage
     {
-        /// <exception cref="BitCoinSharp.ProtocolException"/>
+        /// <exception cref="BitcoinSharp.ProtocolException"/>
         public GetDataMessage(NetworkParameters networkParameters, byte[] payloadBytes)
             : base(networkParameters, payloadBytes)
         {

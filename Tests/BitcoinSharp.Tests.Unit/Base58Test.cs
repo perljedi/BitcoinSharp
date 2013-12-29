@@ -16,12 +16,12 @@
 
 using System.Linq;
 using System.Text;
-using BitCoinSharp.Core.Common.Encoding;
-using BitCoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Common.Encoding;
+using BitcoinSharp.Core.Exceptions;
 using NUnit.Framework;
 using Org.BouncyCastle.Math;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     [TestFixture]
     public class Base58Test

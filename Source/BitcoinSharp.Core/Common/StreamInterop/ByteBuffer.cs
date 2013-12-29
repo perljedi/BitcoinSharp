@@ -22,7 +22,7 @@
 using System;
 using System.IO;
 
-namespace BitCoinSharp.Core.Common.StreamInterop
+namespace BitcoinSharp.Core.Common.StreamInterop
 {
     /// <summary>
     /// This type supports the Fluorine infrastructure and is not intended to be used directly from your code.

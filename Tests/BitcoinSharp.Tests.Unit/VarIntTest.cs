@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Common.ValueTypes;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Common.ValueTypes;
 using NUnit.Framework;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     [TestFixture]
     public class VarIntTest

@@ -17,10 +17,10 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Network;
 using log4net;
 
-namespace BitCoinSharp.Core.Discovery
+namespace BitcoinSharp.Core.Discovery
 {
     /// <summary>
     /// Supports peer discovery through DNS.

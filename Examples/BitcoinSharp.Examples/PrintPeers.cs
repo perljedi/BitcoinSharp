@@ -17,10 +17,10 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using BitCoinSharp.Core.Discovery;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Discovery;
+using BitcoinSharp.Core.Network;
 
-namespace BitCoinSharp.Examples
+namespace BitcoinSharp.Examples
 {
     /// <summary>
     /// Prints a list of IP addresses connected to the rendezvous point on the LFnet IRC channel.

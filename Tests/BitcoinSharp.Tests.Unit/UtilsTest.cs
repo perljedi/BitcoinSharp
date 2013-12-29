@@ -15,10 +15,10 @@
  */
 
 using System;
-using BitCoinSharp.Core;
+using BitcoinSharp.Core;
 using NUnit.Framework;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     [TestFixture]
     public class UtilsTest

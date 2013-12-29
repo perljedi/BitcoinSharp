@@ -15,18 +15,18 @@
  */
 
 using System;
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Common.DatesAndTimes;
-using BitCoinSharp.Core.Common.Hashing;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.Store;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Common.DatesAndTimes;
+using BitcoinSharp.Core.Common.Hashing;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Messages;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Store;
 using NUnit.Framework;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     [TestFixture]
     public class BlockChainTest

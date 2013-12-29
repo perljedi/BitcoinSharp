@@ -1,12 +1,12 @@
-﻿using BitCoinSharp.Core;
-using BitCoinSharp.Core.Network;
+﻿using BitcoinSharp.Core;
+using BitcoinSharp.Core.Network;
 using FluentAssertions;
 using log4net;
 using NUnit.Framework;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     public class PrivateKeyTests
     {

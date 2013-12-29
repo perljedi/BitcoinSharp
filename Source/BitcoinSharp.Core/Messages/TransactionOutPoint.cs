@@ -17,12 +17,12 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using BitCoinSharp.Core.Common.ExtensionMethods;
-using BitCoinSharp.Core.Common.Hashing;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Common.Hashing;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Network;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     // TODO: Fold this class into the TransactionInput class. It's not necessary.
 

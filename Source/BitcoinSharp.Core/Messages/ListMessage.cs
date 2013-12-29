@@ -16,13 +16,13 @@
 
 using System.Collections.Generic;
 using System.IO;
-using BitCoinSharp.Core.Common.ExtensionMethods;
-using BitCoinSharp.Core.Common.ValueTypes;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Model;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Common.ValueTypes;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Model;
+using BitcoinSharp.Core.Network;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     /// <summary>
     /// Abstract super class of classes with list based payload, i.e. InventoryMessage and GetDataMessage.
