@@ -18,7 +18,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Network;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Crypto.Generators;
@@ -27,7 +27,7 @@ using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 
-namespace BitCoinSharp.Core
+namespace BitcoinSharp.Core
 {
     /// <summary>
     /// Represents an elliptic curve keypair that we own and can use for signing transactions. Currently,

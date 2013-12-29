@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Network;
 using NUnit.Framework;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     [TestFixture]
     public class ScriptTest

@@ -18,13 +18,13 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
-using BitCoinSharp.Core.Common.DatesAndTimes;
-using BitCoinSharp.Core.Common.ExtensionMethods;
-using BitCoinSharp.Core.Common.ValueTypes;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Common.DatesAndTimes;
+using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Common.ValueTypes;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Network;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     [Serializable]
     public class VersionMessage : AbstractMessage

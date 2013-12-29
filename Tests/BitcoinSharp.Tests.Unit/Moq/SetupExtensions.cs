@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Moq.Language.Flow;
 
-namespace BitCoinSharp.Tests.Unit.Moq
+namespace BitcoinSharp.Tests.Unit.Moq
 {
     public static class SetupExtensions
     {

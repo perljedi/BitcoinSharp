@@ -18,16 +18,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using BitCoinSharp.Core.Common.ExtensionMethods;
-using BitCoinSharp.Core.Common.Hashing;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Common.Hashing;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Messages;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.PersistableMessages;
 using log4net;
 
 
-namespace BitCoinSharp.Core.Store
+namespace BitcoinSharp.Core.Store
 {
     /// <summary>
     /// Stores the block chain to disk but still holds it in memory. This is intended for desktop apps and tests.

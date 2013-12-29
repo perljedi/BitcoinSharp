@@ -20,13 +20,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using BitCoinSharp.Core.Common.Hashing;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Model;
+using BitcoinSharp.Core.Common.Hashing;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Messages;
+using BitcoinSharp.Core.Model;
 using log4net;
 
-namespace BitCoinSharp.Core.Network
+namespace BitcoinSharp.Core.Network
 {
     /// <summary>
     /// A Peer handles the high level communication with a BitCoin node.

@@ -15,10 +15,10 @@
  */
 
 using System;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Network;
 
-namespace BitCoinSharp.Core
+namespace BitcoinSharp.Core
 {
     /// <summary>
     ///     A BitCoin address is fundamentally derived from an elliptic curve public key and a set of network parameters.

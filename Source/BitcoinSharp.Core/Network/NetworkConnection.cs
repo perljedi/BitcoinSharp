@@ -18,12 +18,12 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using BitCoinSharp.Core.Common.DatesAndTimes;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Messages;
+using BitcoinSharp.Core.Common.DatesAndTimes;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Messages;
 using log4net;
 
-namespace BitCoinSharp.Core.Network
+namespace BitcoinSharp.Core.Network
 {
     /// <summary>
     /// A NetworkConnection handles talking to a remote BitCoin peer at a low level. It understands how to read and write
@@ -116,7 +116,7 @@ namespace BitCoinSharp.Core.Network
                 UnixTime.FromUnixTime(_versionMessage.Time),
                 _versionMessage.BestHeight
                 );
-            // BitCoinSharp is a client mode implementation. That means there's not much point in us talking to other client
+            // BitcoinSharp is a client mode implementation. That means there's not much point in us talking to other client
             // mode nodes because we can't download the data from them we need to find/verify transactions.
             if (!_versionMessage.HasBlockChain())
             {

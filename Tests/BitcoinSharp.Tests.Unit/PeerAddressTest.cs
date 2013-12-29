@@ -15,13 +15,13 @@
  */
 
 using System.Net;
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Messages;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Messages;
+using BitcoinSharp.Core.Network;
 using NUnit.Framework;
 using Org.BouncyCastle.Utilities.Encoders;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     [TestFixture]
     public class PeerAddressTest

@@ -20,16 +20,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BitCoinSharp.Core.Common.DatesAndTimes;
-using BitCoinSharp.Core.Common.ExtensionMethods;
-using BitCoinSharp.Core.Common.Hashing;
-using BitCoinSharp.Core.Common.ValueTypes;
-using BitCoinSharp.Core.Exceptions;
-using BitCoinSharp.Core.Network;
+using BitcoinSharp.Core.Common.DatesAndTimes;
+using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Core.Common.Hashing;
+using BitcoinSharp.Core.Common.ValueTypes;
+using BitcoinSharp.Core.Exceptions;
+using BitcoinSharp.Core.Network;
 using log4net;
 using Org.BouncyCastle.Math;
 
-namespace BitCoinSharp.Core.Messages
+namespace BitcoinSharp.Core.Messages
 {
     /// <summary>
     ///     A block is the foundation of the BitCoin system. It records a set of <see cref="Transaction" />s together with
@@ -38,7 +38,7 @@ namespace BitCoinSharp.Core.Messages
     /// </summary>
     /// <remarks>
     ///     To get a block, you can either build one from the raw bytes you can get from another implementation,
-    ///     or request one specifically using <see cref="Peer.BeginGetBlock(BitCoinSharp.Shared.Sha256Hash,System.AsyncCallback,object) one from a downloaded <see cref="BlockChain" />.
+    ///     or request one specifically using <see cref="Peer.BeginGetBlock(BitcoinSharp.Shared.Sha256Hash,System.AsyncCallback,object) one from a downloaded <see cref="BlockChain" />.
     /// </remarks>
     [Serializable]
     public class Block : AbstractMessage

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.Store;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Store;
 using NUnit.Framework;
 
-namespace BitCoinSharp.Tests.Unit
+namespace BitcoinSharp.Tests.Unit
 {
     [TestFixture]
     public class PeerGroupTest

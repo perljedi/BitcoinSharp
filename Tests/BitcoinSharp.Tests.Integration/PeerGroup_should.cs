@@ -1,8 +1,8 @@
 ﻿using System;
-using BitCoinSharp.Core;
-using BitCoinSharp.Core.Discovery;
-using BitCoinSharp.Core.Network;
-using BitCoinSharp.Core.Store;
+using BitcoinSharp.Core;
+using BitcoinSharp.Core.Discovery;
+using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Store;
 using NUnit.Framework;
 
 namespace BitcoinSharp.Tests.Integration
