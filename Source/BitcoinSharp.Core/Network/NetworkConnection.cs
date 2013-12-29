@@ -158,7 +158,10 @@ namespace BitCoinSharp.Core.Network
         /// <exception cref="IOException"/>
         public virtual void Shutdown()
         {
-            _socket.Disconnect(false);
+            if (_socket.Connected)
+            {
+                _socket.Disconnect(false);
+            }
             _socket.Close();
         }
 
