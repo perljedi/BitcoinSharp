@@ -334,8 +334,8 @@ namespace BitcoinSharp.Core.Network
             private readonly InventoryItem _inventoryItem;
             private readonly AsyncCallback _callback;
             private readonly object _state;
-            //  private readonly CountDownLatch _latch;
-            private WaitHandle _waitHandle;
+            
+            private readonly ManualResetEvent _waitHandle = new ManualResetEvent(false);
             private T _result;
 
             internal GetDataFuture(InventoryItem inventoryItem, AsyncCallback callback, object state)
@@ -343,7 +343,6 @@ namespace BitcoinSharp.Core.Network
                 _inventoryItem = inventoryItem;
                 _callback = callback;
                 _state = state;
-                //  _latch = new CountDownLatch(1);
             }
 
             public bool IsCompleted
@@ -355,8 +354,7 @@ namespace BitcoinSharp.Core.Network
             {
                 get
                 {
-                    //return _waitHandle ?? (_waitHandle = new LatchWaitHandle(_latch));
-                    return null;
+                    return _waitHandle;
                 }
             }
 
@@ -372,7 +370,7 @@ namespace BitcoinSharp.Core.Network
 
             internal T Get()
             {
-                //await _latch;
+                _waitHandle.WaitOne();
                 Debug.Assert(!Equals(_result, default(T)));
                 return _result;
             }
@@ -389,37 +387,13 @@ namespace BitcoinSharp.Core.Network
             {
                 // This should be called in the network loop thread for this peer
                 _result = result;
-                // Now release the thread that is waiting. We don't need to synchronize here as the latch establishes
-                // a memory barrier.
-                //_latch.CountDown();
+                
                 if (_callback != null)
-                    _callback(this);
-                if (_waitHandle != null)
                 {
-                    _waitHandle.Close();
-                    _waitHandle = null;
+                    _callback(this);
                 }
+                _waitHandle.Set();
             }
-
-            //private class LatchWaitHandle : WaitHandle
-            //{
-            //   // private readonly CountDownLatch _latch;
-
-            //    public LatchWaitHandle(CountDownLatch latch)
-            //    {
-            //        _latch = latch;
-            //    }
-
-            //    public override bool WaitOne(int millisecondsTimeout, bool exitContext)
-            //    {
-            //        return WaitOne(TimeSpan.FromMilliseconds(millisecondsTimeout));
-            //    }
-
-            //    public override bool WaitOne(TimeSpan timeout, bool exitContext)
-            //    {
-            //        return _latch.Await(timeout);
-            //    }
-            //}
         }
 
         /// <summary>
