@@ -53,7 +53,6 @@ namespace BitcoinSharp.Core.Store
         // We keep some recently found blocks in the blockCache. It can help to optimize some cases where we are
         // looking up blocks we recently stored or requested. When the cache gets too big older entries are deleted.
         private readonly OrderedDictionary _blockCache = new OrderedDictionary();
-//        private readonly OrderedDictionary<Sha256Hash, StoredBlock> _blockCache = new OrderedDictionary<Sha256Hash, StoredBlock>();
         // Use a separate cache to track get() misses. This is to efficiently handle the case of an unconnected block
         // during chain download. Each new block will do a get() on the unconnected block so if we haven't seen it yet we
         // must efficiently respond.
@@ -62,7 +61,6 @@ namespace BitcoinSharp.Core.Store
         // provide the removeEldestEntry control.
         private readonly StoredBlock _notFoundMarker = new StoredBlock(null, null, uint.MaxValue);
         private readonly OrderedDictionary _notFoundCache = new OrderedDictionary();
-//        private readonly OrderedDictionary<Sha256Hash, StoredBlock> _notFoundCache = new OrderedDictionary<Sha256Hash, StoredBlock>();
 
         private Sha256Hash _chainHead;
         private readonly NetworkParameters _params;
