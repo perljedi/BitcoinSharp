@@ -50,7 +50,6 @@
     <Compile Include="Address.cs" />
     <Compile Include="BitcoinSerializer.cs" />
     <Compile Include="BlockChain.cs" />
-    <Compile Include="Common\Collections\OrderedDictionary.cs" />
     <Compile Include="Common\DatesAndTimes\SystemTime.cs" />
     <Compile Include="Common\DatesAndTimes\UnixTime.cs" />
     <Compile Include="Common\Encoding\Base58.cs" />
