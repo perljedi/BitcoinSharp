@@ -20,6 +20,7 @@ using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using BitcoinSharp.Core.Common.ExtensionMethods;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Math;
@@ -75,7 +76,9 @@ namespace BitcoinSharp.Core
         /// <exception cref="ArithmeticException">If you try to specify fractional nanocoins.</exception>
         public static ulong ToNanoCoins(string coins)
         {
-            var value = decimal.Parse(coins, NumberStyles.Float) * Coin;
+            Console.WriteLine(coins);
+            Console.WriteLine(Thread.CurrentThread.CurrentCulture);
+            var value = decimal.Parse(coins, NumberStyles.Float, CultureInfo.InvariantCulture) * Coin;
             if (value != Math.Round(value))
             {
                 throw new ArithmeticException();

@@ -15,6 +15,8 @@
  */
 
 using System;
+using System.Globalization;
+using System.Threading;
 using BitcoinSharp.Core;
 using NUnit.Framework;
 
@@ -41,6 +43,25 @@ namespace BitcoinSharp.Tests.Unit
 
             // int version
             Assert.AreEqual(Utils.Cent, Utils.ToNanoCoins(0, 1));
+        }
+
+        [Test]
+        public void ToNanoCoins_NL()
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("nl-NL");
+            Assert.AreEqual(Utils.Cent, Utils.ToNanoCoins("0.01"));
+            Assert.AreEqual(Utils.Cent, Utils.ToNanoCoins("1E-2"));
+            Assert.AreEqual(Utils.Coin + Utils.Cent, Utils.ToNanoCoins("1.01"));
+            try
+            {
+                Utils.ToNanoCoins("2E-20");
+                Assert.Fail("should not have accepted fractional nanocoins");
+            }
+            catch (ArithmeticException)
+            {
+            }
+            Assert.AreEqual(Utils.Cent, Utils.ToNanoCoins(0, 1));
+            
         }
 
         [Test]
