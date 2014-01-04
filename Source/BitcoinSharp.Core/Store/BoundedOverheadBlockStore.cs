@@ -24,6 +24,7 @@ using BitcoinSharp.Core.Exceptions;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Shared.Interfaces;
 using log4net;
 using Org.BouncyCastle.Math;
 

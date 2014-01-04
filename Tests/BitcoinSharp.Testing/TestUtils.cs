@@ -18,6 +18,7 @@ using BitcoinSharp.Core;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Shared.Interfaces;
 using BitcoinSharp.Core.Store;
 
 namespace BitcoinSharp.Testing

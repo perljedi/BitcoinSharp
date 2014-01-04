@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using BitcoinSharp.Core.Common.Hashing;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Shared.Interfaces;
 
 namespace BitcoinSharp.Core.Store
 {

@@ -17,8 +17,9 @@
 using System;
 using BitcoinSharp.Core.Common.Hashing;
 using BitcoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Store;
 
-namespace BitcoinSharp.Core.Store
+namespace BitcoinSharp.Core.Shared.Interfaces
 {
     /// <summary>
     /// An implementor of BlockStore saves StoredBlock objects to disk. Different implementations store them in

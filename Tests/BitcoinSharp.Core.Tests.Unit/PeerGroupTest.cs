@@ -16,6 +16,7 @@
 
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Shared.Interfaces;
 using BitcoinSharp.Core.Store;
 using BitcoinSharp.Wallet;
 using NUnit.Framework;

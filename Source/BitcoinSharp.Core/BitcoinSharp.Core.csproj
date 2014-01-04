@@ -102,11 +102,11 @@
     <Compile Include="Shared\Enums\WalletPool.cs" />
     <Compile Include="Shared\Events\WalletCoinsReceivedEventArgs.cs" />
     <Compile Include="Shared\Events\WalletDeadTransactionEventArgs.cs" />
+    <Compile Include="Shared\Interfaces\IBlockStore.cs" />
     <Compile Include="Shared\Interfaces\IDefaultWallet.cs" />
     <Compile Include="Store\BlockStoreException.cs" />
     <Compile Include="Store\BoundedOverheadBlockStore.cs" />
     <Compile Include="Store\DiskBlockStore.cs" />
-    <Compile Include="Store\IBlockStore.cs" />
     <Compile Include="Store\MemoryBlockStore.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="VersionedChecksummedBytes.cs" />
