@@ -16,7 +16,7 @@
 
 using System;
 using System.IO;
-using BitcoinSharp.Core;
+using BitcoinSharp.Wallet;
 
 namespace BitcoinSharp.Examples
 {

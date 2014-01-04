@@ -17,7 +17,9 @@
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Shared.Enums;
 using BitcoinSharp.Core.Store;
+using BitcoinSharp.Wallet;
 using NUnit.Framework;
 
 namespace BitcoinSharp.Tests.Unit
@@ -149,7 +151,7 @@ namespace BitcoinSharp.Tests.Unit
             _chain.Add(b4);
             // b4 causes a re-org that should make our spend go inactive. Because the inputs are already spent our
             // available balance drops to zero again.
-            Assert.AreEqual(0UL, _defaultWallet.GetBalance(DefaultWallet.BalanceType.Available));
+            Assert.AreEqual(0UL, _defaultWallet.GetBalance(BalanceType.Available));
             // We estimate that it'll make it back into the block chain (we know we won't double spend).
             // assertEquals(Utils.toNanoCoins(40, 0), wallet.getBalance(Wallet.BalanceType.ESTIMATED));
         }
@@ -246,7 +248,7 @@ namespace BitcoinSharp.Tests.Unit
             var b2 = b1.CreateNextBlock(new EcKey().ToAddress(_unitTestParams));
             _chain.Add(b2);
             Assert.AreEqual(Utils.ToNanoCoins(0, 0), _defaultWallet.GetBalance());
-            Assert.AreEqual(Utils.ToNanoCoins(40, 0), _defaultWallet.GetBalance(DefaultWallet.BalanceType.Estimated));
+            Assert.AreEqual(Utils.ToNanoCoins(40, 0), _defaultWallet.GetBalance(BalanceType.Estimated));
 
             // Now we make a double spend become active after a re-org.
             // genesis -> b1 -> b2 [t1 pending]
@@ -271,7 +273,7 @@ namespace BitcoinSharp.Tests.Unit
             // genesis -> b1 -> b2 -> b5 -> b6 [t1 pending]
             //              \-> b3 [t2 inactive] -> b4
             Assert.AreEqual(Utils.ToNanoCoins(0, 0), _defaultWallet.GetBalance());
-            Assert.AreEqual(Utils.ToNanoCoins(40, 0), _defaultWallet.GetBalance(DefaultWallet.BalanceType.Estimated));
+            Assert.AreEqual(Utils.ToNanoCoins(40, 0), _defaultWallet.GetBalance(BalanceType.Estimated));
         }
     }
 }

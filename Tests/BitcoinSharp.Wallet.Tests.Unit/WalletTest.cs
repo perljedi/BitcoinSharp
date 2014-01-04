@@ -17,10 +17,13 @@
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Shared.Enums;
+using BitcoinSharp.Core.Shared.Interfaces;
 using BitcoinSharp.Core.Store;
+using BitcoinSharp.Testing;
 using NUnit.Framework;
 
-namespace BitcoinSharp.Tests.Unit
+namespace BitcoinSharp.Wallet.Tests.Unit
 {
     [TestFixture]
     public class WalletTest
@@ -28,7 +31,7 @@ namespace BitcoinSharp.Tests.Unit
         private static readonly NetworkParameters Params = NetworkParameters.UnitTests();
 
         private Address _myAddress;
-        private DefaultWallet _defaultWallet;
+        private IDefaultWallet _defaultWallet;
         private IBlockStore _blockStore;
 
         [SetUp]
@@ -56,14 +59,14 @@ namespace BitcoinSharp.Tests.Unit
 
             _defaultWallet.Receive(t1, null, BlockChain.NewBlockType.BestChain);
             Assert.AreEqual(v1, _defaultWallet.GetBalance());
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.Unspent));
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.All));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.Unspent));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.All));
 
             var k2 = new EcKey();
             var v2 = Utils.ToNanoCoins(0, 50);
             var t2 = _defaultWallet.CreateSend(k2.ToAddress(Params), v2);
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.Unspent));
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.All));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.Unspent));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.All));
 
             // Do some basic sanity checks.
             Assert.AreEqual(1, t2.TransactionInputs.Count);
@@ -72,9 +75,9 @@ namespace BitcoinSharp.Tests.Unit
             // We have NOT proven that the signature is correct!
 
             _defaultWallet.ConfirmSend(t2);
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.Pending));
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.Spent));
-            Assert.AreEqual(2, _defaultWallet.GetPoolSize(DefaultWallet.Pool.All));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.Pending));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.Spent));
+            Assert.AreEqual(2, _defaultWallet.GetPoolSize(WalletPool.All));
         }
 
         [Test]
@@ -86,14 +89,14 @@ namespace BitcoinSharp.Tests.Unit
 
             _defaultWallet.Receive(t1, null, BlockChain.NewBlockType.BestChain);
             Assert.AreEqual(v1, _defaultWallet.GetBalance());
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.Unspent));
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.All));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.Unspent));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.All));
 
             var v2 = Utils.ToNanoCoins(0, 50);
             var t2 = TestUtils.CreateFakeTx(Params, v2, _myAddress);
             _defaultWallet.Receive(t2, null, BlockChain.NewBlockType.SideChain);
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.Inactive));
-            Assert.AreEqual(2, _defaultWallet.GetPoolSize(DefaultWallet.Pool.All));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.Inactive));
+            Assert.AreEqual(2, _defaultWallet.GetPoolSize(WalletPool.All));
 
             Assert.AreEqual(v1, _defaultWallet.GetBalance());
         }
@@ -138,9 +141,9 @@ namespace BitcoinSharp.Tests.Unit
 
             // Available and estimated balances should not be the same. We don't check the exact available balance here
             // because it depends on the coin selection algorithm.
-            Assert.AreEqual(Utils.ToNanoCoins(4, 50), _defaultWallet.GetBalance(DefaultWallet.BalanceType.Estimated));
-            Assert.IsFalse(_defaultWallet.GetBalance(DefaultWallet.BalanceType.Available).Equals(
-                _defaultWallet.GetBalance(DefaultWallet.BalanceType.Estimated)));
+            Assert.AreEqual(Utils.ToNanoCoins(4, 50), _defaultWallet.GetBalance(BalanceType.Estimated));
+            Assert.IsFalse(_defaultWallet.GetBalance(BalanceType.Available).Equals(
+                _defaultWallet.GetBalance(BalanceType.Estimated)));
 
             // Now confirm the transaction by including it into a block.
             var b3 = TestUtils.CreateFakeBlock(Params, _blockStore, spend).StoredBlock;
@@ -148,7 +151,7 @@ namespace BitcoinSharp.Tests.Unit
 
             // Change is confirmed. We started with 5.50 so we should have 4.50 left.
             var v4 = Utils.ToNanoCoins(4, 50);
-            Assert.AreEqual(v4, _defaultWallet.GetBalance(DefaultWallet.BalanceType.Available));
+            Assert.AreEqual(v4, _defaultWallet.GetBalance(BalanceType.Available));
         }
 
         // Intuitively you'd expect to be able to create a transaction with identical inputs and outputs and get an
@@ -225,8 +228,8 @@ namespace BitcoinSharp.Tests.Unit
             _defaultWallet.Receive(inbound1, null, BlockChain.NewBlockType.BestChain);
             // Send half to some other guy. Sending only half then waiting for a confirm is important to ensure the tx is
             // in the unspent pool, not pending or spent.
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.Unspent));
-            Assert.AreEqual(1, _defaultWallet.GetPoolSize(DefaultWallet.Pool.All));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.Unspent));
+            Assert.AreEqual(1, _defaultWallet.GetPoolSize(WalletPool.All));
             var someOtherGuy = new EcKey().ToAddress(Params);
             var outbound1 = _defaultWallet.CreateSend(someOtherGuy, coinHalf);
             _defaultWallet.ConfirmSend(outbound1);

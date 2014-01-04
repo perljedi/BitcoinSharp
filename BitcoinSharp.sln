@@ -9,11 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Examples", "Ex
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Core.Tests.Unit", "Tests\BitcoinSharp.Core.Tests.Unit\BitcoinSharp.Core.Tests.Unit.csproj", "{1F699CA0-3353-488F-BA48-26D82B287F2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Core.Tests.Integration", "Tests\BitcoinSharp.Core.Tests.Integration\BitcoinSharp.Core.Tests.Integration.csproj", "{6BC3F5AC-4340-4CB4-8AC6-7248D7398B47}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Wallet.Tests.Unit", "Tests\BitcoinSharp.Wallet.Tests.Unit\BitcoinSharp.Wallet.Tests.Unit.csproj", "{575266F4-F7D0-4EF2-A2A4-3E2E20F51383}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Wallet", "Source\BitcoinSharp.Wallet\BitcoinSharp.Wallet.csproj", "{023C4D86-3604-4B71-9CD2-C9F4D4B6113C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Testing", "Tests\BitcoinSharp.Testing\BitcoinSharp.Testing.csproj", "{504C1830-F995-44B7-9890-E88C6EFF722B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +33,6 @@ Global
 		{1F699CA0-3353-488F-BA48-26D82B287F2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F699CA0-3353-488F-BA48-26D82B287F2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F699CA0-3353-488F-BA48-26D82B287F2D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6BC3F5AC-4340-4CB4-8AC6-7248D7398B47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BC3F5AC-4340-4CB4-8AC6-7248D7398B47}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6BC3F5AC-4340-4CB4-8AC6-7248D7398B47}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6BC3F5AC-4340-4CB4-8AC6-7248D7398B47}.Release|Any CPU.Build.0 = Release|Any CPU
 		{575266F4-F7D0-4EF2-A2A4-3E2E20F51383}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{575266F4-F7D0-4EF2-A2A4-3E2E20F51383}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{575266F4-F7D0-4EF2-A2A4-3E2E20F51383}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,6 +41,10 @@ Global
 		{023C4D86-3604-4B71-9CD2-C9F4D4B6113C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{023C4D86-3604-4B71-9CD2-C9F4D4B6113C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{023C4D86-3604-4B71-9CD2-C9F4D4B6113C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{504C1830-F995-44B7-9890-E88C6EFF722B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{504C1830-F995-44B7-9890-E88C6EFF722B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{504C1830-F995-44B7-9890-E88C6EFF722B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{504C1830-F995-44B7-9890-E88C6EFF722B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

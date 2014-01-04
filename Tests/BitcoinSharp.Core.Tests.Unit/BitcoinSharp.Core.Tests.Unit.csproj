@@ -75,10 +75,8 @@
     <Compile Include="Store\BoundedOverheadBlockStoreTest.cs" />
     <Compile Include="Store\DiskBlockStoreTest.cs" />
     <Compile Include="TestConfig.cs" />
-    <Compile Include="TestUtils.cs" />
     <Compile Include="UtilsTest.cs" />
     <Compile Include="VarIntTest.cs" />
-    <Compile Include="WalletTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -88,6 +86,14 @@
     <ProjectReference Include="..\..\Source\BitcoinSharp.Core\BitcoinSharp.Core.csproj">
       <Project>{82B20619-3469-4DB6-8D18-628B64842499}</Project>
       <Name>BitcoinSharp.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\BitcoinSharp.Wallet\BitcoinSharp.Wallet.csproj">
+      <Project>{023C4D86-3604-4B71-9CD2-C9F4D4B6113C}</Project>
+      <Name>BitcoinSharp.Wallet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BitcoinSharp.Testing\BitcoinSharp.Testing.csproj">
+      <Project>{504C1830-F995-44B7-9890-E88C6EFF722B}</Project>
+      <Name>BitcoinSharp.Testing</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

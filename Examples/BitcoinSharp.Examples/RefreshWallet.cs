@@ -19,6 +19,7 @@ using BitcoinSharp.Core;
 using BitcoinSharp.Core.Discovery;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.Store;
+using BitcoinSharp.Wallet;
 
 namespace BitcoinSharp.Examples
 {

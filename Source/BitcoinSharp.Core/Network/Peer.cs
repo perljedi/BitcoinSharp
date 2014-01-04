@@ -398,10 +398,10 @@ namespace BitcoinSharp.Core.Network
 
         /// <summary>
         /// Send the given Transaction, ie, make a payment with BitCoins. To create a transaction you can broadcast, use
-        /// a <see cref="DefaultWallet"/>. After the broadcast completes, confirm the send using the wallet confirmSend() method.
+        /// a <see cref="BitcoinSharp.Wallet.DefaultWallet"/>. After the broadcast completes, confirm the send using the wallet confirmSend() method.
         /// </summary>
         /// <exception cref="IOException"/>
-        internal void BroadcastTransaction(Transaction transaction)
+        public void BroadcastTransaction(Transaction transaction)
         {
             _connection.WriteMessage(transaction);
         }

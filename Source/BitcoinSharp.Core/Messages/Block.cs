@@ -250,7 +250,7 @@ namespace BitcoinSharp.Core.Messages
         /// <remarks>
         ///     This can loop forever if a solution cannot be found solely by incrementing nonce. It doesn't change extraNonce.
         /// </remarks>
-        internal void Solve()
+        public void Solve()
         {
             while (true)
             {
@@ -470,7 +470,7 @@ namespace BitcoinSharp.Core.Messages
         /// <summary>
         ///     Adds a transaction to this block.
         /// </summary>
-        internal void AddTransaction(Transaction transaction)
+        public void AddTransaction(Transaction transaction)
         {
             if (Transactions == null)
             {

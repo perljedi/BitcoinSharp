@@ -40,11 +40,11 @@ namespace BitcoinSharp.Core.Messages
         /// <summary>
         /// Which output of that transaction we are talking about.
         /// </summary>
-        internal int Index { get; private set; }
+        public int Index { get; private set; }
 
         // This is not part of BitCoin serialization. It's included in Java serialization.
         // It points to the connected transaction.
-        internal Transaction FromTransaction { get; set; }
+        public Transaction FromTransaction { get; set; }
 
         internal TransactionOutPoint(NetworkParameters networkParameters, int index, Transaction fromTransaction)
             : base(networkParameters)
@@ -90,7 +90,7 @@ namespace BitcoinSharp.Core.Messages
         /// If this transaction was created using the explicit constructor rather than deserialized,
         /// retrieves the connected output transaction. Asserts if there is no connected transaction.
         /// </summary>
-        internal TransactionOutput ConnectedOutput
+        public TransactionOutput ConnectedOutput
         {
             get { return FromTransaction != null ? FromTransaction.TransactionOutputs[Index] : null; }
         }

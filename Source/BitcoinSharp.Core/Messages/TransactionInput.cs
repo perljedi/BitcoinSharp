@@ -42,7 +42,7 @@ namespace BitcoinSharp.Core.Messages
         // TODO: Document this in more detail and build features that use it.
         private uint _sequence;
         // Data needed to connect to the output of the transaction we're gathering coins from.
-        internal TransactionOutPoint Outpoint { get; private set; }
+        public TransactionOutPoint Outpoint { get; private set; }
         // The "script bytes" might not actually be a script. In coinbase transactions where new coins are minted there
         // is no input transaction, so instead the scriptBytes contains some extra stuff (like a rollover nonce) that we
         // don't care about much. The bytes are turned into a Script object (cached below) on demand via a getter.
@@ -51,7 +51,7 @@ namespace BitcoinSharp.Core.Messages
         // coinbase.
         [NonSerialized] private Script _scriptSig;
         // A pointer to the transaction that owns this input.
-        internal Transaction ParentTransaction { get; private set; }
+        public Transaction ParentTransaction { get; private set; }
 
         /// <summary>
         /// Used only in creation of the genesis block.
@@ -162,7 +162,7 @@ namespace BitcoinSharp.Core.Messages
                    ScriptSig;
         }
 
-        internal enum ConnectionResult
+        public enum ConnectionResult
         {
             NoSuchTx,
             AlreadySpent,
@@ -175,7 +175,7 @@ namespace BitcoinSharp.Core.Messages
         /// Locates the referenced output from the given pool of transactions.
         /// </summary>
         /// <returns>The TransactionOutput or null if the transactions map doesn't contain the referenced tx.</returns>
-        internal TransactionOutput GetConnectedOutput(IDictionary<Sha256Hash, Transaction> transactions)
+        public TransactionOutput GetConnectedOutput(IDictionary<Sha256Hash, Transaction> transactions)
         {
             Transaction transaction;
             if (!transactions.TryGetValue(Outpoint.Hash, out transaction))
@@ -191,7 +191,7 @@ namespace BitcoinSharp.Core.Messages
         /// <param name="transactions">Map of txhash-&gt;transaction.</param>
         /// <param name="disconnect">Whether to abort if there's a pre-existing connection or not.</param>
         /// <returns>True if connection took place, false if the referenced transaction was not in the list.</returns>
-        internal ConnectionResult Connect(IDictionary<Sha256Hash, Transaction> transactions, bool disconnect)
+        public ConnectionResult Connect(IDictionary<Sha256Hash, Transaction> transactions, bool disconnect)
         {
             Transaction transaction;
             if (!transactions.TryGetValue(Outpoint.Hash, out transaction))

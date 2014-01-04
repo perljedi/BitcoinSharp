@@ -20,7 +20,7 @@ using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
 using BitcoinSharp.Core.Store;
 
-namespace BitcoinSharp.Tests.Unit
+namespace BitcoinSharp.Testing
 {
     public static class TestUtils
     {
@@ -61,13 +61,13 @@ namespace BitcoinSharp.Tests.Unit
             return pair;
         }
 
-        /// <exception cref="BlockStoreException"/>
+        /// <exception cref="BitcoinSharp.Core.Store.BlockStoreException"/>
         public static Block MakeTestBlock(NetworkParameters @params, IBlockStore blockStore)
         {
             return blockStore.GetChainHead().BlockHeader.CreateNextBlock(new EcKey().ToAddress(@params));
         }
 
-        /// <exception cref="BlockStoreException"/>
+        /// <exception cref="BitcoinSharp.Core.Store.BlockStoreException"/>
         public static Block MakeSolvedTestBlock(NetworkParameters @params, IBlockStore blockStore)
         {
             var b = blockStore.GetChainHead().BlockHeader.CreateNextBlock(new EcKey().ToAddress(@params));
@@ -75,7 +75,7 @@ namespace BitcoinSharp.Tests.Unit
             return b;
         }
 
-        /// <exception cref="BlockStoreException"/>
+        /// <exception cref="BitcoinSharp.Core.Store.BlockStoreException"/>
         public static Block MakeSolvedTestBlock(NetworkParameters @params, Block prev)
         {
             var b = prev.CreateNextBlock(new EcKey().ToAddress(@params));

@@ -21,14 +21,17 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using BitcoinSharp.Core;
 using BitcoinSharp.Core.Common.Hashing;
-using BitcoinSharp.Core.Exceptions;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Shared.Enums;
+using BitcoinSharp.Core.Shared.Events;
+using BitcoinSharp.Core.Shared.Interfaces;
 using log4net;
 
-namespace BitcoinSharp.Core
+namespace BitcoinSharp.Wallet
 {
     /// <summary>
     /// A Wallet stores keys and a record of transactions that have not yet been spent. Thus, it is capable of
@@ -40,7 +43,7 @@ namespace BitcoinSharp.Core
     /// serialization library.<p/>
     /// </remarks>
     [Serializable]
-    public class DefaultWallet
+    public class DefaultWallet : IDefaultWallet
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof (DefaultWallet));
 
@@ -86,7 +89,7 @@ namespace BitcoinSharp.Core
         /// spent for the purposes of calculating our balance but their outputs are not available for spending yet. This
         /// means after a spend, our balance can actually go down temporarily before going up again!
         /// </summary>
-        internal IDictionary<Sha256Hash, Transaction> Pending { get; private set; }
+        public IDictionary<Sha256Hash, Transaction> Pending { get; private set; }
 
         /// <summary>
         /// Map of txhash-&gt;Transactions where the Transaction has unspent outputs. These are transactions we can use
@@ -97,11 +100,11 @@ namespace BitcoinSharp.Core
         /// <remarks>
         /// Note: for now we will not allow spends of transactions that did not make it into the block chain. The code
         /// that handles this in BitCoin C++ is complicated. Satoshi's code will not allow you to spend unconfirmed coins,
-        /// however, it does seem to support dependency resolution entirely within the context of the memory pool so
+        /// however, it does seem to support dependency resolution entirely within the context of the memory WalletPool so
         /// theoretically you could spend zero-conf coins and all of them would be included together. To simplify we'll
         /// make people wait but it would be a good improvement to resolve this in future.
         /// </remarks>
-        internal IDictionary<Sha256Hash, Transaction> Unspent { get; private set; }
+        public IDictionary<Sha256Hash, Transaction> Unspent { get; private set; }
 
         /// <summary>
         /// Map of txhash-&gt;Transactions where the Transactions outputs are all fully spent. They are kept separately so
@@ -112,7 +115,7 @@ namespace BitcoinSharp.Core
         /// <remarks>
         /// Transactions only appear in this map if they are part of the best chain.
         /// </remarks>
-        internal IDictionary<Sha256Hash, Transaction> Spent { get; private set; }
+        public IDictionary<Sha256Hash, Transaction> Spent { get; private set; }
 
         /// <summary>
         /// An inactive transaction is one that is seen only in a block that is not a part of the best chain. We keep it
@@ -121,7 +124,7 @@ namespace BitcoinSharp.Core
         /// </summary>
         /// <remarks>
         /// Note that in the case where a transaction appears in both the best chain and a side chain as well, it is not
-        /// placed in this map. It's an error for a transaction to be in both the inactive pool and unspent/spent.
+        /// placed in this map. It's an error for a transaction to be in both the inactive WalletPool and unspent/spent.
         /// </remarks>
         private readonly IDictionary<Sha256Hash, Transaction> _inactive;
 
@@ -129,7 +132,7 @@ namespace BitcoinSharp.Core
         /// A dead transaction is one that's been overridden by a double spend. Such a transaction is pending except it
         /// will never confirm and so should be presented to the user in some unique way - flashing red for example. This
         /// should nearly never happen in normal usage. Dead transactions can be "resurrected" by re-orgs just like any
-        /// other. Dead transactions are not in the pending pool.
+        /// other. Dead transactions are not in the pending WalletPool.
         /// </summary>
         private readonly IDictionary<Sha256Hash, Transaction> _dead;
 
@@ -158,7 +161,7 @@ namespace BitcoinSharp.Core
         /// <summary>
         /// Uses Java serialization to save the wallet to the given file.
         /// </summary>
-        /// <exception cref="IOException"/>
+        /// <exception cref="System.IO.IOException"/>
         public void SaveToFile(FileInfo fileInfo)
         {
             lock (this)
@@ -173,7 +176,7 @@ namespace BitcoinSharp.Core
         /// <summary>
         /// Uses Java serialization to save the wallet to the given file stream.
         /// </summary>
-        /// <exception cref="IOException"/>
+        /// <exception cref="System.IO.IOException"/>
         public void SaveToFileStream(FileStream fileStream)
         {
             lock (this)
@@ -186,7 +189,7 @@ namespace BitcoinSharp.Core
         /// <summary>
         /// Returns a wallet deserialized from the given file.
         /// </summary>
-        /// <exception cref="IOException"/>
+        /// <exception cref="System.IO.IOException"/>
         public static DefaultWallet LoadFromFile(FileInfo fileInfo)
         {
             return LoadFromFileStream(fileInfo.OpenRead());
@@ -195,7 +198,7 @@ namespace BitcoinSharp.Core
         /// <summary>
         /// Returns a wallet deserialized from the given file input stream.
         /// </summary>
-        /// <exception cref="IOException"/>
+        /// <exception cref="System.IO.IOException"/>
         public static DefaultWallet LoadFromFileStream(FileStream fileStream)
         {
             var ois = new BinaryFormatter();
@@ -203,12 +206,12 @@ namespace BitcoinSharp.Core
         }
 
         /// <summary>
-        /// Called by the <see cref="BlockChain"/> when we receive a new block that sends coins to one of our addresses or
+        /// Called by the <see cref="BitcoinSharp.Core.BlockChain"/> when we receive a new block that sends coins to one of our addresses or
         /// spends coins from one of our addresses (note that a single transaction can do both).
         /// </summary>
         /// <remarks>
         /// This is necessary for the internal book-keeping Wallet does. When a transaction is received that sends us
-        /// coins it is added to a pool so we can use it later to create spends. When a transaction is received that
+        /// coins it is added to a WalletPool so we can use it later to create spends. When a transaction is received that
         /// consumes outputs they are marked as spent so they won't be used in future.<p/>
         /// A transaction that spends our own coins can be received either because a spend we created was accepted by the
         /// network and thus made it into a block, or because our keys are being shared between multiple instances and
@@ -219,9 +222,9 @@ namespace BitcoinSharp.Core
         /// inactive side chain. We must still record these transactions and the blocks they appear in because a future
         /// block might change which chain is best causing a reorganize. A re-org can totally change our balance!
         /// </remarks>
-        /// <exception cref="VerificationException"/>
-        /// <exception cref="ScriptException"/>
-        internal void Receive(Transaction transaction, StoredBlock storedBlock, BlockChain.NewBlockType blockType)
+        /// <exception cref="BitcoinSharp.Core.Exceptions.VerificationException"/>
+        /// <exception cref="BitcoinSharp.Core.Exceptions.ScriptException"/>
+        public void Receive(Transaction transaction, StoredBlock storedBlock, BlockChain.NewBlockType blockType)
         {
             lock (this)
             {
@@ -229,8 +232,8 @@ namespace BitcoinSharp.Core
             }
         }
 
-        /// <exception cref="VerificationException"/>
-        /// <exception cref="ScriptException"/>
+        /// <exception cref="BitcoinSharp.Core.Exceptions.VerificationException"/>
+        /// <exception cref="BitcoinSharp.Core.Exceptions.ScriptException"/>
         private void Receive(Transaction transaction, StoredBlock storedBlock, BlockChain.NewBlockType blockType,
             bool reorg)
         {
@@ -254,7 +257,7 @@ namespace BitcoinSharp.Core
                         Utils.BitcoinValueToFriendlyString(valueDifference), transaction.HashAsString);
                 }
 
-                // If this transaction is already in the wallet we may need to move it into a different pool. At the very
+                // If this transaction is already in the wallet we may need to move it into a different WalletPool. At the very
                 // least we need to ensure we're manipulating the canonical object rather than a duplicate.
                 Transaction walletTransaction;
                 if (Pending.TryGetValue(transactionHash, out walletTransaction))
@@ -290,7 +293,7 @@ namespace BitcoinSharp.Core
                     {
                         // The transaction was accepted on an inactive side chain, but not yet by the best chain.
                         Log.Info("  ->inactive");
-                        // It's OK for this to already be in the inactive pool because there can be multiple independent side
+                        // It's OK for this to already be in the inactive WalletPool because there can be multiple independent side
                         // chains in which it appears:
                         //
                         //     b1 --> b2
@@ -299,7 +302,7 @@ namespace BitcoinSharp.Core
                         if (_inactive.ContainsKey(walletTransaction.Hash))
                             Log.Info("Saw a transaction be incorporated into multiple independent side chains");
                         _inactive[walletTransaction.Hash] = walletTransaction;
-                        // Put it back into the pending pool, because 'pending' means 'waiting to be included in best chain'.
+                        // Put it back into the pending WalletPool, because 'pending' means 'waiting to be included in best chain'.
                         Pending[walletTransaction.Hash] = walletTransaction;
                     }
                 }
@@ -342,7 +345,7 @@ namespace BitcoinSharp.Core
         /// Handle when a transaction becomes newly active on the best chain, either due to receiving a new block or a
         /// re-org making inactive transactions active.
         /// </summary>
-        /// <exception cref="VerificationException"/>
+        /// <exception cref="BitcoinSharp.Core.Exceptions.VerificationException"/>
         private void ProcessTransactionFromBestChain(Transaction transaction)
         {
             // This TX may spend our existing outputs even though it was not pending. This can happen in unit
@@ -369,7 +372,7 @@ namespace BitcoinSharp.Core
         /// when we receive our own spends, we've already marked the outputs as spent previously (during tx creation) so
         /// there's no need to go through and do it again.
         /// </summary>
-        /// <exception cref="VerificationException"/>
+        /// <exception cref="BitcoinSharp.Core.Exceptions.VerificationException"/>
         private void UpdateForSpends(Transaction transaction)
         {
             // tx is on the best chain by this point.
@@ -487,7 +490,7 @@ namespace BitcoinSharp.Core
         /// <summary>
         /// Call this when we have successfully transmitted the send tx to the network, to update the wallet.
         /// </summary>
-        internal void ConfirmSend(Transaction transaction)
+        public void ConfirmSend(Transaction transaction)
         {
             lock (this)
             {
@@ -501,40 +504,31 @@ namespace BitcoinSharp.Core
                     connectedOutput.MarkAsSpent(transactionInput);
                     MaybeMoveTransactionToSpent(connectedParentTransaction, "spent tx");
                 }
-                // Add to the pending pool. It'll be moved out once we receive this transaction on the best chain.
+                // Add to the pending WalletPool. It'll be moved out once we receive this transaction on the best chain.
                 Pending[transaction.Hash] = transaction;
             }
         }
 
         // This is used only for unit testing, it's an internal API.
-        internal enum Pool
-        {
-            Unspent,
-            Spent,
-            Pending,
-            Inactive,
-            Dead,
-            All
-        }
 
-        internal int GetPoolSize(Pool pool)
+        public int GetPoolSize(WalletPool walletPool)
         {
-            switch (pool)
+            switch (walletPool)
             {
-                case Pool.Unspent:
+                case WalletPool.Unspent:
                     return Unspent.Count;
-                case Pool.Spent:
+                case WalletPool.Spent:
                     return Spent.Count;
-                case Pool.Pending:
+                case WalletPool.Pending:
                     return Pending.Count;
-                case Pool.Inactive:
+                case WalletPool.Inactive:
                     return _inactive.Count;
-                case Pool.Dead:
+                case WalletPool.Dead:
                     return _dead.Count;
-                case Pool.All:
+                case WalletPool.All:
                     return Unspent.Count + Spent.Count + Pending.Count + _inactive.Count + _dead.Count;
                 default:
-                    throw new ArgumentOutOfRangeException("pool");
+                    throw new ArgumentOutOfRangeException("walletPool");
             }
         }
 
@@ -547,7 +541,7 @@ namespace BitcoinSharp.Core
         /// Transaction objects which are equal. The wallet is not updated to track its pending status or to mark the
         /// coins as spent until confirmSend is called on the result.
         /// </remarks>
-        internal Transaction CreateSend(Address address, ulong nanocoins)
+        public Transaction CreateSend(Address address, ulong nanocoins)
         {
             lock (this)
             {
@@ -560,16 +554,16 @@ namespace BitcoinSharp.Core
         }
 
         /// <summary>
-        /// Sends coins to the given address, via the given <see cref="PeerGroup"/>.
+        /// Sends coins to the given address, via the given <see cref="BitcoinSharp.Core.Network.PeerGroup"/>.
         /// Change is returned to the first key in the wallet.
         /// </summary>
         /// <param name="peerGroup">The peer group to send via.</param>
         /// <param name="toAddress">Which address to send coins to.</param>
         /// <param name="nanocoins">How many nanocoins to send. You can use Utils.toNanoCoins() to calculate this.</param>
         /// <returns>
-        /// The <see cref="Transaction"/> that was created or null if there was insufficient balance to send the coins.
+        /// The <see cref="BitcoinSharp.Core.Messages.Transaction"/> that was created or null if there was insufficient balance to send the coins.
         /// </returns>
-        /// <exception cref="IOException">If there was a problem broadcasting the transaction.</exception>
+        /// <exception cref="System.IO.IOException">If there was a problem broadcasting the transaction.</exception>
         public Transaction SendCoins(PeerGroup peerGroup, Address toAddress, ulong nanocoins)
         {
             lock (this)
@@ -589,14 +583,14 @@ namespace BitcoinSharp.Core
         }
 
         /// <summary>
-        /// Sends coins to the given address, via the given <see cref="Peer"/>.
+        /// Sends coins to the given address, via the given <see cref="BitcoinSharp.Core.Network.Peer"/>.
         /// Change is returned to the first key in the wallet.
         /// </summary>
         /// <param name="peer">The peer to send via.</param>
         /// <param name="toAddress">Which address to send coins to.</param>
         /// <param name="nanocoins">How many nanocoins to send. You can use Utils.ToNanoCoins() to calculate this.</param>
-        /// <returns>The <see cref="Transaction"/> that was created or null if there was insufficient balance to send the coins.</returns>
-        /// <exception cref="IOException">If there was a problem broadcasting the transaction.</exception>
+        /// <returns>The <see cref="BitcoinSharp.Core.Messages.Transaction"/> that was created or null if there was insufficient balance to send the coins.</returns>
+        /// <exception cref="System.IO.IOException">If there was a problem broadcasting the transaction.</exception>
         public Transaction SendCoins(Peer peer, Address toAddress, ulong nanocoins)
         {
             lock (this)
@@ -626,9 +620,9 @@ namespace BitcoinSharp.Core
         /// our coins. This should be an address we own (is in the keychain).
         /// </param>
         /// <returns>
-        /// A new <see cref="Transaction"/> or null if we cannot afford this send.
+        /// A new <see cref="BitcoinSharp.Core.Messages.Transaction"/> or null if we cannot afford this send.
         /// </returns>
-        internal Transaction CreateSend(Address address, ulong nanocoins, Address changeAddress)
+        public Transaction CreateSend(Address address, ulong nanocoins, Address changeAddress)
         {
             lock (this)
             {
@@ -742,30 +736,7 @@ namespace BitcoinSharp.Core
             }
         }
 
-        /// <summary>
-        /// It's possible to calculate a wallets balance from multiple points of view. This enum selects which
-        /// getBalance() should use.
-        /// </summary>
-        /// <remarks>
-        /// Consider a real-world example: you buy a snack costing $5 but you only have a $10 bill. At the start you have
-        /// $10 viewed from every possible angle. After you order the snack you hand over your $10 bill. From the
-        /// perspective of your wallet you have zero dollars (AVAILABLE). But you know in a few seconds the shopkeeper
-        /// will give you back $5 change so most people in practice would say they have $5 (ESTIMATED).
-        /// </remarks>
-        public enum BalanceType
-        {
-            /// <summary>
-            /// Balance calculated assuming all pending transactions are in fact included into the best chain by miners.
-            /// This is the right balance to show in user interfaces.
-            /// </summary>
-            Estimated,
-
-            /// <summary>
-            /// Balance that can be safely used to create new spends. This is all confirmed unspent outputs minus the ones
-            /// spent by pending transactions, but not including the outputs of those pending transactions.
-            /// </summary>
-            Available
-        }
+       
 
         /// <summary>
         /// Returns the available balance of this wallet. See <see cref="BalanceType.Available"/> for details on what this
@@ -774,7 +745,7 @@ namespace BitcoinSharp.Core
         /// <remarks>
         /// Note: the estimated balance is usually the one you want to show to the end user - however attempting to
         /// actually spend these coins may result in temporary failure. This method returns how much you can safely
-        /// provide to <see cref="CreateSend(Address, ulong)"/>.
+        /// provide to <see cref="CreateSend(BitcoinSharp.Core.Address, ulong)"/>.
         /// </remarks>
         public ulong GetBalance()
         {
@@ -815,56 +786,56 @@ namespace BitcoinSharp.Core
             lock (this)
             {
                 var stringBuilder = new StringBuilder();
-                stringBuilder.AppendFormat("Wallet containing {0} BTC in:",
-                    Utils.BitcoinValueToFriendlyString(GetBalance()))
+                stringBuilder.AppendFormat((string) "Wallet containing {0} BTC in:",
+                    (object) Utils.BitcoinValueToFriendlyString(GetBalance()))
                     .AppendLine();
-                stringBuilder.AppendFormat("  {0} unspent transactions", Unspent.Count).AppendLine();
-                stringBuilder.AppendFormat("  {0} spent transactions", Spent.Count).AppendLine();
-                stringBuilder.AppendFormat("  {0} pending transactions", Pending.Count).AppendLine();
-                stringBuilder.AppendFormat("  {0} inactive transactions", _inactive.Count).AppendLine();
-                stringBuilder.AppendFormat("  {0} dead transactions", _dead.Count).AppendLine();
+                stringBuilder.AppendFormat((string) "  {0} unspent transactions", (object) Unspent.Count).AppendLine();
+                stringBuilder.AppendFormat((string) "  {0} spent transactions", (object) Spent.Count).AppendLine();
+                stringBuilder.AppendFormat((string) "  {0} pending transactions", (object) Pending.Count).AppendLine();
+                stringBuilder.AppendFormat((string) "  {0} inactive transactions", (object) _inactive.Count).AppendLine();
+                stringBuilder.AppendFormat((string) "  {0} dead transactions", (object) _dead.Count).AppendLine();
                 // Do the keys.
                 stringBuilder.AppendLine().AppendLine("Keys:");
                 foreach (var key in Keychain)
                 {
                     stringBuilder.Append("  addr:");
-                    stringBuilder.Append(key.ToAddress(_networkParameters));
+                    stringBuilder.Append((object) key.ToAddress(_networkParameters));
                     stringBuilder.Append(" ");
-                    stringBuilder.Append(key);
+                    stringBuilder.Append((object) key);
                     stringBuilder.AppendLine();
                 }
                 // Print the transactions themselves
                 if (Unspent.Count > 0)
                 {
                     stringBuilder.AppendLine().AppendLine("UNSPENT:");
-                    foreach (var tx in Unspent.Values) stringBuilder.Append(tx);
+                    foreach (var tx in Unspent.Values) stringBuilder.Append((object) tx);
                 }
                 if (Spent.Count > 0)
                 {
                     stringBuilder.AppendLine().AppendLine("SPENT:");
-                    foreach (var tx in Spent.Values) stringBuilder.Append(tx);
+                    foreach (var tx in Spent.Values) stringBuilder.Append((object) tx);
                 }
                 if (Pending.Count > 0)
                 {
                     stringBuilder.AppendLine().AppendLine("PENDING:");
-                    foreach (var tx in Pending.Values) stringBuilder.Append(tx);
+                    foreach (var tx in Pending.Values) stringBuilder.Append((object) tx);
                 }
                 if (_inactive.Count > 0)
                 {
                     stringBuilder.AppendLine().AppendLine("INACTIVE:");
-                    foreach (var tx in _inactive.Values) stringBuilder.Append(tx);
+                    foreach (var tx in _inactive.Values) stringBuilder.Append((object) tx);
                 }
                 if (_dead.Count > 0)
                 {
                     stringBuilder.AppendLine().AppendLine("DEAD:");
-                    foreach (var tx in _dead.Values) stringBuilder.Append(tx);
+                    foreach (var tx in _dead.Values) stringBuilder.Append((object) tx);
                 }
                 return stringBuilder.ToString();
             }
         }
 
         /// <summary>
-        /// Called by the <see cref="BlockChain"/> when the best chain (representing total work done) has changed. In this case,
+        /// Called by the <see cref="BitcoinSharp.Core.BlockChain"/> when the best chain (representing total work done) has changed. In this case,
         /// we need to go through our transactions and find out if any have become invalid. It's possible for our balance
         /// to go down in this case: money we thought we had can suddenly vanish if the rest of the network agrees it
         /// should be so.
@@ -872,8 +843,8 @@ namespace BitcoinSharp.Core
         /// <remarks>
         /// The oldBlocks/newBlocks lists are ordered height-wise from top first to bottom last.
         /// </remarks>
-        /// <exception cref="VerificationException"/>
-        internal void Reorganize(IList<StoredBlock> oldStoredBlocks, IList<StoredBlock> newStoredBlocks)
+        /// <exception cref="BitcoinSharp.Core.Exceptions.VerificationException"/>
+        public void Reorganize(IList<StoredBlock> oldStoredBlocks, IList<StoredBlock> newStoredBlocks)
         {
             lock (this)
             {
@@ -1029,9 +1000,9 @@ namespace BitcoinSharp.Core
 
                 // Find the transactions that didn't make it into the new chain yet. For each input, try to connect it to the
                 // transactions that are in {spent,unspent,pending}. Check the status of each input. For inactive
-                // transactions that only send us money, we put them into the inactive pool where they sit around waiting for
+                // transactions that only send us money, we put them into the inactive WalletPool where they sit around waiting for
                 // another re-org or re-inclusion into the main chain. For inactive transactions where we spent money we must
-                // put them back into the pending pool if we can reconnect them, so we don't create a double spend whilst the
+                // put them back into the pending WalletPool if we can reconnect them, so we don't create a double spend whilst the
                 // network heals itself.
                 IDictionary<Sha256Hash, Transaction> pool = new Dictionary<Sha256Hash, Transaction>();
                 foreach (var pair in Unspent.Concat(Spent).Concat(Pending))
@@ -1145,71 +1116,6 @@ namespace BitcoinSharp.Core
         public ICollection<Transaction> PendingTransactions
         {
             get { return Pending.Values; }
-        }
-    }
-
-    /// <summary>
-    /// This is called on a Peer thread when a block is received that sends some coins to you. Note that this will
-    /// also be called when downloading the block chain as the wallet balance catches up so if you don't want that
-    /// register the event listener after the chain is downloaded. It's safe to use methods of wallet during the
-    /// execution of this callback.
-    /// </summary>
-    public class WalletCoinsReceivedEventArgs : EventArgs
-    {
-        /// <summary>
-        /// The transaction which sent us the coins.
-        /// </summary>
-        public Transaction Transaction { get; private set; }
-
-        /// <summary>
-        /// Balance before the coins were received.
-        /// </summary>
-        public ulong PreviousBalance { get; private set; }
-
-        /// <summary>
-        /// Current balance of the wallet.
-        /// </summary>
-        public ulong NewBalance { get; private set; }
-
-        /// <param name="transaction">The transaction which sent us the coins.</param>
-        /// <param name="previousBalance">Balance before the coins were received.</param>
-        /// <param name="newBalance">Current balance of the wallet.</param>
-        public WalletCoinsReceivedEventArgs(Transaction transaction, ulong previousBalance, ulong newBalance)
-        {
-            Transaction = transaction;
-            PreviousBalance = previousBalance;
-            NewBalance = newBalance;
-        }
-    }
-
-    /// <summary>
-    /// This is called on a Peer thread when a transaction becomes <i>dead</i>. A dead transaction is one that has
-    /// been overridden by a double spend from the network and so will never confirm no matter how long you wait.
-    /// </summary>
-    /// <remarks>
-    /// A dead transaction can occur if somebody is attacking the network, or by accident if keys are being shared.
-    /// You can use this event handler to inform the user of the situation. A dead spend will show up in the BitCoin
-    /// C++ client of the recipient as 0/unconfirmed forever, so if it was used to purchase something,
-    /// the user needs to know their goods will never arrive.
-    /// </remarks>
-    public class WalletDeadTransactionEventArgs : EventArgs
-    {
-        /// <summary>
-        /// The transaction that is newly dead.
-        /// </summary>
-        public Transaction DeadTransaction { get; private set; }
-
-        /// <summary>
-        /// The transaction that killed it.
-        /// </summary>
-        public Transaction ReplacementTransaction { get; private set; }
-
-        /// <param name="deadTransaction">The transaction that is newly dead.</param>
-        /// <param name="replacementTransaction">The transaction that killed it.</param>
-        public WalletDeadTransactionEventArgs(Transaction deadTransaction, Transaction replacementTransaction)
-        {
-            DeadTransaction = deadTransaction;
-            ReplacementTransaction = replacementTransaction;
         }
     }
 }

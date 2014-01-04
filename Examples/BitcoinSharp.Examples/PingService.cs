@@ -21,7 +21,9 @@ using System.Net;
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Shared.Interfaces;
 using BitcoinSharp.Core.Store;
+using BitcoinSharp.Wallet;
 
 namespace BitcoinSharp.Examples
 {
@@ -53,7 +55,7 @@ namespace BitcoinSharp.Examples
             var filePrefix = testNet ? "pingservice-testnet" : "pingservice-prodnet";
 
             // Try to read the wallet from storage, create a new one if not possible.
-            DefaultWallet defaultWallet;
+            IDefaultWallet defaultWallet;
             var walletFile = new FileInfo(filePrefix + ".wallet");
             try
             {

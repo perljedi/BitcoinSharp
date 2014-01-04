@@ -17,6 +17,7 @@
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.Store;
+using BitcoinSharp.Wallet;
 using NUnit.Framework;
 
 namespace BitcoinSharp.Tests.Unit

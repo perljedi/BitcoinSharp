@@ -24,7 +24,9 @@ using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Model;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.Store;
+using BitcoinSharp.Testing;
 using BitcoinSharp.Tests.Unit.Moq;
+using BitcoinSharp.Wallet;
 using Moq;
 using NUnit.Framework;
 
