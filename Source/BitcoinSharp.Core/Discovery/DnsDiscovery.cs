@@ -38,22 +38,12 @@ namespace BitcoinSharp.Core.Discovery
         private readonly string[] _hostNames;
         private readonly NetworkParameters _netParams;
 
-        public static readonly string[] DefaultHosts =
-            new[]
-            {
-                "seed.bitcoin.sipa.be",
-                "dnsseed.bluematt.me",
-                "dnsseed.bitcoin.dashjr.org",
-                "bitseed.xf2.org"
-                //"testnet-seed.bitcoin.petertodd.org"
-            };
-
         /// <summary>
         /// Supports finding peers through DNS A records. Community run DNS entry points will be used.
         /// </summary>
         /// <param name="netParams">Network parameters to be used for port information.</param>
         public DnsDiscovery(NetworkParameters netParams)
-            : this(DefaultHostNames, netParams)
+            : this(netParams.DnsSeeds, netParams)
         {
         }
 
@@ -113,14 +103,6 @@ namespace BitcoinSharp.Core.Discovery
                 }
             }
             return addresses;
-        }
-
-        /// <summary>
-        /// Returns the well known discovery host names on the production network.
-        /// </summary>
-        public static string[] DefaultHostNames
-        {
-            get { return DefaultHosts; }
         }
     }
 }
