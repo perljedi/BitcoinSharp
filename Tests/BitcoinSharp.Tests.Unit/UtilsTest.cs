@@ -25,6 +25,20 @@ namespace BitcoinSharp.Tests.Unit
     [TestFixture]
     public class UtilsTest
     {
+	    private CultureInfo initialCulture;
+
+	    [SetUp]
+	    public void SetUp()
+	    {
+		    initialCulture = Thread.CurrentThread.CurrentCulture;
+	    }
+
+	    [TearDown]
+	    public void TearDown()
+	    {
+		    Thread.CurrentThread.CurrentCulture = initialCulture;
+	    }
+
         [Test]
         public void TestToNanoCoins()
         {
