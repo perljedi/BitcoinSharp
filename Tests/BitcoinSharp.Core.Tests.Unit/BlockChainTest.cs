@@ -35,7 +35,7 @@ namespace BitcoinSharp.Tests.Unit
         private IBlockStore _testNetChainBlockStore;
         private BlockChain _testNetChain;
 
-        private Wallet _wallet;
+        private DefaultWallet _defaultWallet;
         private BlockChain _chain;
         private IBlockStore _blockStore;
         private Address _coinbaseTo;
@@ -50,15 +50,15 @@ namespace BitcoinSharp.Tests.Unit
         public void SetUp()
         {
             _testNetChainBlockStore = new MemoryBlockStore(_testNet);
-            _testNetChain = new BlockChain(_testNet, new Wallet(_testNet), _testNetChainBlockStore);
+            _testNetChain = new BlockChain(_testNet, new DefaultWallet(_testNet), _testNetChainBlockStore);
             _unitTestParams = NetworkParameters.UnitTests();
-            _wallet = new Wallet(_unitTestParams);
-            _wallet.AddKey(new EcKey());
+            _defaultWallet = new DefaultWallet(_unitTestParams);
+            _defaultWallet.AddKey(new EcKey());
 
             ResetBlockStore();
-            _chain = new BlockChain(_unitTestParams, _wallet, _blockStore);
+            _chain = new BlockChain(_unitTestParams, _defaultWallet, _blockStore);
 
-            _coinbaseTo = _wallet.Keychain[0].ToAddress(_unitTestParams);
+            _coinbaseTo = _defaultWallet.Keychain[0].ToAddress(_unitTestParams);
         }
 
         [TearDown]
@@ -99,11 +99,11 @@ namespace BitcoinSharp.Tests.Unit
         public void ReceiveCoins()
         {
             // Quick check that we can actually receive coins.
-            var transaction = TestUtils.CreateFakeTx(_unitTestParams, Utils.ToNanoCoins(1, 0), _wallet.Keychain[0].ToAddress(_unitTestParams));
+            var transaction = TestUtils.CreateFakeTx(_unitTestParams, Utils.ToNanoCoins(1, 0), _defaultWallet.Keychain[0].ToAddress(_unitTestParams));
             var block = TestUtils.CreateFakeBlock(_unitTestParams, _blockStore, transaction).Block;
 
             _chain.Add(block);
-            Assert.IsTrue(_wallet.GetBalance().CompareTo(0UL) > 0);
+            Assert.IsTrue(_defaultWallet.GetBalance().CompareTo(0UL) > 0);
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace BitcoinSharp.Tests.Unit
             // there isn't any such tx present (as an optimization).
             var tx1 = TestUtils.CreateFakeTx(_unitTestParams,
                                              Utils.ToNanoCoins(1, 0),
-                                             _wallet.Keychain[0].ToAddress(_unitTestParams));
+                                             _defaultWallet.Keychain[0].ToAddress(_unitTestParams));
             var b1 = TestUtils.CreateFakeBlock(_unitTestParams, _blockStore, tx1).Block;
             _chain.Add(b1);
             ResetBlockStore();

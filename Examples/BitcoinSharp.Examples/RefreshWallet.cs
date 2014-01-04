@@ -32,7 +32,7 @@ namespace BitcoinSharp.Examples
         public static void Run(string[] args)
         {
 
-            var wallet = new Wallet(NetworkParameters);
+            var wallet = new DefaultWallet(NetworkParameters);
 
             using (var blockStore = new MemoryBlockStore(NetworkParameters))
             {

@@ -53,22 +53,22 @@ namespace BitcoinSharp.Examples
             var filePrefix = testNet ? "pingservice-testnet" : "pingservice-prodnet";
 
             // Try to read the wallet from storage, create a new one if not possible.
-            Wallet wallet;
+            DefaultWallet defaultWallet;
             var walletFile = new FileInfo(filePrefix + ".wallet");
             try
             {
-                wallet = Wallet.LoadFromFile(walletFile);
+                defaultWallet = DefaultWallet.LoadFromFile(walletFile);
             }
             catch (IOException)
             {
-                wallet = new Wallet(@params);
-                wallet.Keychain.Add(new EcKey());
-                wallet.SaveToFile(walletFile);
+                defaultWallet = new DefaultWallet(@params);
+                defaultWallet.Keychain.Add(new EcKey());
+                defaultWallet.SaveToFile(walletFile);
             }
             // Fetch the first key in the wallet (should be the only key).
-            var key = wallet.Keychain[0];
+            var key = defaultWallet.Keychain[0];
 
-            Console.WriteLine(wallet);
+            Console.WriteLine(defaultWallet);
 
             // Load the block chain, if there is one stored locally.
             Console.WriteLine("Reading block store from disk");
@@ -76,14 +76,14 @@ namespace BitcoinSharp.Examples
             {
                 // Connect to the localhost node. One minute timeout since we won't try any other peers
                 Console.WriteLine("Connecting ...");
-                var chain = new BlockChain(@params, wallet, blockStore);
+                var chain = new BlockChain(@params, defaultWallet, blockStore);
 
                 var peerGroup = new PeerGroup(blockStore, @params, chain);
                 peerGroup.AddAddress(new PeerAddress(IPAddress.Loopback));
                 peerGroup.Start();
 
                 // We want to know when the balance changes.
-                wallet.CoinsReceived +=
+                defaultWallet.CoinsReceived +=
                     (sender, e) =>
                     {
                         // Running on a peer thread.
@@ -93,13 +93,13 @@ namespace BitcoinSharp.Examples
                         // owned by the same person.
                         var input = e.Transaction.TransactionInputs[0];
                         var from = input.FromAddress;
-                        var value = e.Transaction.GetValueSentToMe(wallet);
+                        var value = e.Transaction.GetValueSentToMe(defaultWallet);
                         Console.WriteLine("Received " + Utils.BitcoinValueToFriendlyString(value) + " from " + from);
                         // Now send the coins back!
-                        var sendTx = wallet.SendCoins(peerGroup, from, value);
+                        var sendTx = defaultWallet.SendCoins(peerGroup, from, value);
                         Debug.Assert(sendTx != null); // We should never try to send more coins than we have!
                         Console.WriteLine("Sent coins back! Transaction hash is " + sendTx.HashAsString);
-                        wallet.SaveToFile(walletFile);
+                        defaultWallet.SaveToFile(walletFile);
                     };
 
                 peerGroup.DownloadBlockChain();

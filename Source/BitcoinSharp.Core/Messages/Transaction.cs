@@ -115,11 +115,11 @@ namespace BitcoinSharp.Core.Messages
         /// Calculates the sum of the outputs that are sending coins to a key in the wallet. The flag controls whether to
         /// include spent outputs or not.
         /// </summary>
-        internal ulong GetValueSentToMe(Wallet wallet, bool includeSpent)
+        internal ulong GetValueSentToMe(DefaultWallet defaultWallet, bool includeSpent)
         {
             // This is tested in WalletTest.
             return
-                _transactionOutputs.Where(transactionOutput => transactionOutput.IsMine(wallet))
+                _transactionOutputs.Where(transactionOutput => transactionOutput.IsMine(defaultWallet))
                     .Where(transactionOutput => includeSpent || transactionOutput.IsAvailableForSpending)
                     .Aggregate(0UL, (current, transactionOutput) => current + transactionOutput.Value);
         }
@@ -127,9 +127,9 @@ namespace BitcoinSharp.Core.Messages
         /// <summary>
         /// Calculates the sum of the outputs that are sending coins to a key in the wallet.
         /// </summary>
-        public ulong GetValueSentToMe(Wallet wallet)
+        public ulong GetValueSentToMe(DefaultWallet defaultWallet)
         {
-            return GetValueSentToMe(wallet, true);
+            return GetValueSentToMe(defaultWallet, true);
         }
 
         /// <summary>
@@ -159,17 +159,17 @@ namespace BitcoinSharp.Core.Messages
         /// </summary>
         /// <returns>Sum in nanocoins.</returns>
         /// <exception cref="ScriptException"/>
-        public ulong GetValueSentFromMe(Wallet wallet)
+        public ulong GetValueSentFromMe(DefaultWallet defaultWallet)
         {
             // This is tested in WalletTest.
             return
                 _transactionInputs.Select(
                     transactionInput =>
-                        (transactionInput.GetConnectedOutput(wallet.Unspent) ??
-                         transactionInput.GetConnectedOutput(wallet.Spent)) ??
-                        transactionInput.GetConnectedOutput(wallet.Pending))
+                        (transactionInput.GetConnectedOutput(defaultWallet.Unspent) ??
+                         transactionInput.GetConnectedOutput(defaultWallet.Spent)) ??
+                        transactionInput.GetConnectedOutput(defaultWallet.Pending))
                     .Where(connected => connected != null)
-                    .Where(connected => connected.IsMine(wallet))
+                    .Where(connected => connected.IsMine(defaultWallet))
                     .Aggregate(0UL, (current, connected) => current + connected.Value);
         }
 
@@ -349,9 +349,9 @@ namespace BitcoinSharp.Core.Messages
         /// This method is similar to SignatureHash in script.cpp
         /// </remarks>
         /// <param name="hashType">This should always be set to SigHash.ALL currently. Other types are unused. </param>
-        /// <param name="wallet">A wallet is required to fetch the keys needed for signing.</param>
+        /// <param name="defaultWallet">A wallet is required to fetch the keys needed for signing.</param>
         /// <exception cref="ScriptException"/>
-        public void SignInputs(SigHash hashType, Wallet wallet)
+        public void SignInputs(SigHash hashType, DefaultWallet defaultWallet)
         {
             Debug.Assert(_transactionInputs.Count > 0);
             Debug.Assert(_transactionOutputs.Count > 0);
@@ -376,7 +376,7 @@ namespace BitcoinSharp.Core.Messages
                 transactionInput.ScriptBytes = transactionInput.Outpoint.ConnectedPubKeyScript;
                 // Find the signing key we'll need to use.
                 var connectedPublicKeyHash = transactionInput.Outpoint.ConnectedPubKeyHash;
-                var key = wallet.FindKeyFromPublicHash(connectedPublicKeyHash);
+                var key = defaultWallet.FindKeyFromPublicHash(connectedPublicKeyHash);
                 // This assert should never fire. If it does, it means the wallet is inconsistent.
                 Debug.Assert(key != null,
                     "Transaction exists in wallet that we cannot redeem: " +

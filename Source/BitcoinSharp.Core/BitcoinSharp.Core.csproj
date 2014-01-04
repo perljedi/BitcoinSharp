@@ -105,7 +105,7 @@
     <Compile Include="Store\MemoryBlockStore.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="VersionedChecksummedBytes.cs" />
-    <Compile Include="Wallet.cs" />
+    <Compile Include="DefaultWallet.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

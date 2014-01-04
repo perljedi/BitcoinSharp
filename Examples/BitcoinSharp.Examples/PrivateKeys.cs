@@ -57,7 +57,7 @@ namespace BitcoinSharp.Examples
                 var destination = new Address(@params, args[1]);
 
                 // Import the private key to a fresh wallet.
-                var wallet = new Wallet(@params);
+                var wallet = new DefaultWallet(@params);
                 wallet.AddKey(key);
 
                 // Find the transactions that involve those coins.

@@ -26,16 +26,16 @@ namespace BitcoinSharp.Tests.Unit
     {
         private static readonly NetworkParameters _params = NetworkParameters.UnitTests();
 
-        private Wallet _wallet;
+        private DefaultWallet _defaultWallet;
         private IBlockStore _blockStore;
         private PeerGroup _peerGroup;
 
         [SetUp]
         public void SetUp()
         {
-            _wallet = new Wallet(_params);
+            _defaultWallet = new DefaultWallet(_params);
             _blockStore = new MemoryBlockStore(_params);
-            var chain = new BlockChain(_params, _wallet, _blockStore);
+            var chain = new BlockChain(_params, _defaultWallet, _blockStore);
             _peerGroup = new PeerGroup(_blockStore, _params, chain);
         }
     }

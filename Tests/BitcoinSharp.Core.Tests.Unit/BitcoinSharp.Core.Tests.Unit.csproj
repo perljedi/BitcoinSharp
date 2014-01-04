@@ -56,12 +56,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\BitCoinSharp.Core\BitcoinSharp.Core.csproj">
-      <Project>{82B20619-3469-4DB6-8D18-628B64842499}</Project>
-      <Name>BitcoinSharp.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="AddressTest.cs" />
     <Compile Include="Base58Test.cs" />
     <Compile Include="BitcoinSerializerTest.cs" />
@@ -90,7 +84,12 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\BitcoinSharp.Core\BitcoinSharp.Core.csproj">
+      <Project>{82B20619-3469-4DB6-8D18-628B64842499}</Project>
+      <Name>BitcoinSharp.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>

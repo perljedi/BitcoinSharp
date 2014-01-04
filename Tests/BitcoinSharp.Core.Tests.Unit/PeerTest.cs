@@ -45,7 +45,7 @@ namespace BitcoinSharp.Tests.Unit
         {
             _unitTestParams = NetworkParameters.UnitTests();
             _blockStore = new MemoryBlockStore(_unitTestParams);
-            _blockChain = new BlockChain(_unitTestParams, new Wallet(_unitTestParams), _blockStore);
+            _blockChain = new BlockChain(_unitTestParams, new DefaultWallet(_unitTestParams), _blockStore);
             var address = new PeerAddress(IPAddress.Loopback);
             _control = new Mock<NetworkConnection>();
             _conn = _control.Object;

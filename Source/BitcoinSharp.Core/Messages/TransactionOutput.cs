@@ -164,12 +164,12 @@ namespace BitcoinSharp.Core.Messages
         /// <summary>
         /// Returns true if this output is to an address we have the keys for in the wallet.
         /// </summary>
-        public bool IsMine(Wallet wallet)
+        public bool IsMine(DefaultWallet defaultWallet)
         {
             try
             {
                 var publicKeyHash = ScriptPublicKey.PublicKeyHash;
-                return wallet.IsPubKeyHashMine(publicKeyHash);
+                return defaultWallet.IsPubKeyHashMine(publicKeyHash);
             }
             catch (ScriptException e)
             {

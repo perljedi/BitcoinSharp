@@ -40,9 +40,9 @@ namespace BitcoinSharp.Core
     /// serialization library.<p/>
     /// </remarks>
     [Serializable]
-    public class Wallet
+    public class DefaultWallet
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof (Wallet));
+        private static readonly ILog Log = LogManager.GetLogger(typeof (DefaultWallet));
 
         // Algorithm for movement of transactions between pools. Outbound tx = us spending coins. Inbound tx = us
         // receiving coins. If a tx is both inbound and outbound (spend with change) it is considered outbound for the
@@ -144,7 +144,7 @@ namespace BitcoinSharp.Core
         /// Creates a new, empty wallet with no keys and no transactions. If you want to restore a wallet from disk instead,
         /// see loadFromFile.
         /// </summary>
-        public Wallet(NetworkParameters networkParameters)
+        public DefaultWallet(NetworkParameters networkParameters)
         {
             _networkParameters = networkParameters;
             Keychain = new List<EcKey>();
@@ -187,7 +187,7 @@ namespace BitcoinSharp.Core
         /// Returns a wallet deserialized from the given file.
         /// </summary>
         /// <exception cref="IOException"/>
-        public static Wallet LoadFromFile(FileInfo fileInfo)
+        public static DefaultWallet LoadFromFile(FileInfo fileInfo)
         {
             return LoadFromFileStream(fileInfo.OpenRead());
         }
@@ -196,10 +196,10 @@ namespace BitcoinSharp.Core
         /// Returns a wallet deserialized from the given file input stream.
         /// </summary>
         /// <exception cref="IOException"/>
-        public static Wallet LoadFromFileStream(FileStream fileStream)
+        public static DefaultWallet LoadFromFileStream(FileStream fileStream)
         {
             var ois = new BinaryFormatter();
-            return (Wallet) ois.Deserialize(fileStream);
+            return (DefaultWallet) ois.Deserialize(fileStream);
         }
 
         /// <summary>

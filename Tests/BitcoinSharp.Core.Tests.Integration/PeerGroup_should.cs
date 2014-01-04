@@ -21,7 +21,7 @@ namespace BitcoinSharp.Tests.Integration
         {
             
             //Arrange
-            var wallet = new Wallet(_networkParameters);
+            var wallet = new DefaultWallet(_networkParameters);
            
             using (var blockStore = new MemoryBlockStore(_networkParameters))
             {
