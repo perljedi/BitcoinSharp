@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
-using BitcoinSharp.Blockchain.Collections;
+using BitcoinSharp.Core.Common.Collections;
 using BitcoinSharp.Blockchain.StreamInterop;
 using BitcoinSharp.Core.Common.Hashing;
 using BitcoinSharp.Core.Exceptions;
@@ -48,12 +50,12 @@ namespace BitcoinSharp.Blockchain.Store
     /// </remarks>
     public class BoundedOverheadBlockStore : IBlockStore
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof (BoundedOverheadBlockStore));
-        private const byte _fileFormatVersion = 1;
+        private static readonly ILog Log = LogManager.GetLogger(typeof (BoundedOverheadBlockStore));
+        private const byte FileFormatVersion = 1;
 
         // We keep some recently found blocks in the blockCache. It can help to optimize some cases where we are
         // looking up blocks we recently stored or requested. When the cache gets too big older entries are deleted.
-        private readonly OrderedDictionary<Sha256Hash, StoredBlock> _blockCache = new OrderedDictionary<Sha256Hash, StoredBlock>();
+        private readonly OrderedDictionary _blockCache = new OrderedDictionary();
         // Use a separate cache to track get() misses. This is to efficiently handle the case of an unconnected block
         // during chain download. Each new block will do a get() on the unconnected block so if we haven't seen it yet we
         // must efficiently respond.
@@ -61,7 +63,7 @@ namespace BitcoinSharp.Blockchain.Store
         // We don't care about the value in this cache. It is always notFoundMarker. Unfortunately LinkedHashSet does not
         // provide the removeEldestEntry control.
         private readonly StoredBlock _notFoundMarker = new StoredBlock(null, null, uint.MaxValue);
-        private readonly OrderedDictionary<Sha256Hash, StoredBlock> _notFoundCache = new OrderedDictionary<Sha256Hash, StoredBlock>();
+        private readonly OrderedDictionary _notFoundCache = new OrderedDictionary();
 
         private Sha256Hash _chainHead;
         private readonly NetworkParameters _params;
@@ -71,19 +73,19 @@ namespace BitcoinSharp.Blockchain.Store
         {
             // A BigInteger representing the total amount of work done so far on this chain. As of May 2011 it takes 8
             // bytes to represent this field, so 16 bytes should be plenty for a long time.
-            private const int _chainWorkBytes = 16;
-            private static readonly byte[] _emptyBytes = new byte[_chainWorkBytes];
+            private const int ChainWorkBytes = 16;
+            private static readonly byte[] EmptyBytes = new byte[ChainWorkBytes];
 
             private uint _height; // 4 bytes
             private readonly byte[] _chainWork; // 16 bytes
             private readonly byte[] _blockHeader; // 80 bytes
 
-            public const int Size = 4 + _chainWorkBytes + Block.HeaderSize;
+            public const int Size = 4 + ChainWorkBytes + Block.HeaderSize;
 
             public Record()
             {
                 _height = 0;
-                _chainWork = new byte[_chainWorkBytes];
+                _chainWork = new byte[ChainWorkBytes];
                 _blockHeader = new byte[Block.HeaderSize];
             }
 
@@ -94,11 +96,11 @@ namespace BitcoinSharp.Blockchain.Store
                 {
                     buf.PutInt((int) block.Height);
                     var chainWorkBytes = block.ChainWork.ToByteArray();
-                    Debug.Assert(chainWorkBytes.Length <= _chainWorkBytes, "Ran out of space to store chain work!");
-                    if (chainWorkBytes.Length < _chainWorkBytes)
+                    Debug.Assert(chainWorkBytes.Length <= ChainWorkBytes, "Ran out of space to store chain work!");
+                    if (chainWorkBytes.Length < ChainWorkBytes)
                     {
                         // Pad to the right size.
-                        buf.Put(_emptyBytes, 0, _chainWorkBytes - chainWorkBytes.Length);
+                        buf.Put(EmptyBytes, 0, ChainWorkBytes - chainWorkBytes.Length);
                     }
                     buf.Put(chainWorkBytes);
                     buf.Put(block.BlockHeader.BitcoinSerialize());
@@ -162,7 +164,7 @@ namespace BitcoinSharp.Blockchain.Store
             }
             catch (IOException e)
             {
-                _log.Error("failed to load block store from file", e);
+                Log.Error("failed to load block store from file", e);
                 CreateNewStore(@params, file);
             }
         }
@@ -191,7 +193,7 @@ namespace BitcoinSharp.Blockchain.Store
                     }
                 }
                 _channel = file.Create(); // Create fresh.
-                _channel.Write(_fileFormatVersion);
+                _channel.Write(FileFormatVersion);
             }
             catch (IOException e1)
             {
@@ -217,7 +219,7 @@ namespace BitcoinSharp.Blockchain.Store
         /// <exception cref="BlockStoreException"/>
         private void Load(FileInfo file)
         {
-            _log.InfoFormat("Reading block store from {0}", file);
+            Log.InfoFormat("Reading block store from {0}", file);
             if (_channel != null)
             {
                 _channel.Dispose();
@@ -232,7 +234,7 @@ namespace BitcoinSharp.Blockchain.Store
                     // No such file or the file was empty.
                     throw new FileNotFoundException(file.Name + " does not exist or is empty");
                 }
-                if (version != _fileFormatVersion)
+                if (version != FileFormatVersion)
                 {
                     throw new BlockStoreException("Bad version number: " + version);
                 }
@@ -241,7 +243,7 @@ namespace BitcoinSharp.Blockchain.Store
                 if (_channel.Read(chainHeadHash) < chainHeadHash.Length)
                     throw new BlockStoreException("Truncated store: could not read chain head hash.");
                 _chainHead = new Sha256Hash(chainHeadHash);
-                _log.InfoFormat("Read chain head from disk: {0}", _chainHead);
+                Log.InfoFormat("Read chain head from disk: {0}", _chainHead);
                 _channel.Position = _channel.Length - Record.Size;
             }
             catch (IOException)
@@ -284,13 +286,12 @@ namespace BitcoinSharp.Blockchain.Store
         {
             lock (this)
             {
-                // Check the memory cache first.
-                StoredBlock fromMem;
-                if (_blockCache.TryGetValue(hash, out fromMem))
+                if (_blockCache.Contains(hash))
                 {
-                    return fromMem;
+                    return _blockCache[hash] as StoredBlock;
                 }
-                if (_notFoundCache.TryGetValue(hash, out fromMem) && fromMem == _notFoundMarker)
+
+                if (_notFoundCache.Contains(hash) && Equals(_notFoundCache[hash] as StoredBlock, _notFoundMarker))
                 {
                     return null;
                 }
@@ -338,33 +339,33 @@ namespace BitcoinSharp.Blockchain.Store
         {
             var startPos = _channel.Position;
             // Use our own file pointer within the tight loop as updating channel positions is really expensive.
-            var pos = startPos;
+            var position = startPos;
             var record = new Record();
             do
             {
-                if (!record.Read(_channel, pos, _buf))
+                if (!record.Read(_channel, position, _buf))
                     throw new IOException("Failed to read buffer");
                 if (record.GetHeader(_params).Hash.Equals(hash))
                 {
                     // Found it. Update file position for next time.
-                    _channel.Position = pos;
+                    _channel.Position = position;
                     return record;
                 }
                 // Did not find it.
-                if (pos == 1 + 32)
+                if (position == 1 + 32)
                 {
                     // At the start so wrap around to the end.
-                    pos = _channel.Length - Record.Size;
+                    position = _channel.Length - Record.Size;
                 }
                 else
                 {
                     // Move backwards.
-                    pos = pos - Record.Size;
-                    Debug.Assert(pos >= 1 + 32, pos.ToString());
+                    position = position - Record.Size;
+                    Debug.Assert(position >= 1 + 32, position.ToString(CultureInfo.InvariantCulture));
                 }
-            } while (pos != startPos);
+            } while (position != startPos);
             // Was never stored.
-            _channel.Position = pos;
+            _channel.Position = position;
             return null;
         }
 
