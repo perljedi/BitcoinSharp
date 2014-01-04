@@ -76,8 +76,6 @@ namespace BitcoinSharp.Core
         /// <exception cref="ArithmeticException">If you try to specify fractional nanocoins.</exception>
         public static ulong ToNanoCoins(string coins)
         {
-            Console.WriteLine(coins);
-            Console.WriteLine(Thread.CurrentThread.CurrentCulture);
             var value = decimal.Parse(coins, NumberStyles.Float, CultureInfo.InvariantCulture) * Coin;
             if (value != Math.Round(value))
             {
