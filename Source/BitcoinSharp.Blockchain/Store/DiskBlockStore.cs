@@ -24,11 +24,11 @@ using BitcoinSharp.Core.Exceptions;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Shared;
 using BitcoinSharp.Core.Shared.Interfaces;
 using log4net;
 
-
-namespace BitcoinSharp.Core.Store
+namespace BitcoinSharp.Blockchain.Store
 {
     /// <summary>
     /// Stores the block chain to disk but still holds it in memory. This is intended for desktop apps and tests.
@@ -98,7 +98,7 @@ namespace BitcoinSharp.Core.Store
             }
         }
 
-        /// <exception cref="IOException"/>
+        /// <exception cref="System.IO.IOException"/>
         /// <exception cref="BlockStoreException"/>
         private void Load(FileInfo file)
         {
@@ -106,7 +106,7 @@ namespace BitcoinSharp.Core.Store
             using (var input = file.OpenRead())
             {
                 // Read a version byte.
-                var version = StreamExtensions.Read(input);
+                var version = input.Read();
                 if (version == -1)
                 {
                     // No such file or the file was empty.

@@ -16,13 +16,13 @@
 
 using System;
 using System.IO;
+using BitcoinSharp.Blockchain.Store;
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
-using BitcoinSharp.Core.Store;
 using NUnit.Framework;
 
-namespace BitcoinSharp.Tests.Unit.Store
+namespace BitcoinSharp.Blockchain.Tests.Unit.Store
 {
     [TestFixture]
     public class BoundedOverheadBlockStoreTest

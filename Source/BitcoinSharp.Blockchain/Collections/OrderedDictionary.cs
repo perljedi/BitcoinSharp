@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace BitcoinSharp.Core.Common.Collections
+namespace BitcoinSharp.Blockchain.Collections
 {
     /// <summary>
     /// Represents a generic collection of key/value pairs that are ordered independently of the key and value.

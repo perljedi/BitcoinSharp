@@ -18,12 +18,13 @@ using System.Collections.Generic;
 using BitcoinSharp.Core.Common.Hashing;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Shared;
 using BitcoinSharp.Core.Shared.Interfaces;
 
-namespace BitcoinSharp.Core.Store
+namespace BitcoinSharp.Blockchain.Store
 {
     /// <summary>
-    /// Keeps <see cref="StoredBlock"/>s in memory. Used primarily for unit testing.
+    /// Keeps <see cref="BitcoinSharp.Core.PersistableMessages.StoredBlock"/>s in memory. Used primarily for unit testing.
     /// </summary>
     public class MemoryBlockStore : IBlockStore
     {

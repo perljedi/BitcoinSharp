@@ -17,13 +17,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using BitcoinSharp.Blockchain.Store;
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Common.Hashing;
 using BitcoinSharp.Core.Exceptions;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Model;
 using BitcoinSharp.Core.Network;
-using BitcoinSharp.Core.Store;
+using BitcoinSharp.Core.Shared.Interfaces;
 using BitcoinSharp.Testing;
 using BitcoinSharp.Tests.Unit.Moq;
 using BitcoinSharp.Wallet;
@@ -39,7 +40,7 @@ namespace BitcoinSharp.Tests.Unit
         private Mock<NetworkConnection> _control;
         private NetworkConnection _conn;
         private NetworkParameters _unitTestParams;
-        private MemoryBlockStore _blockStore;
+        private IBlockStore _blockStore;
         private BlockChain _blockChain;
 
         [SetUp]

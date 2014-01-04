@@ -17,7 +17,6 @@
 using System;
 using BitcoinSharp.Core.Common.Hashing;
 using BitcoinSharp.Core.PersistableMessages;
-using BitcoinSharp.Core.Store;
 
 namespace BitcoinSharp.Core.Shared.Interfaces
 {
@@ -38,26 +37,26 @@ namespace BitcoinSharp.Core.Shared.Interfaces
         /// StoredBlock directly. Can throw if there is a problem with the underlying storage layer such as running out of
         /// disk space.
         /// </summary>
-        /// <exception cref="BlockStoreException"/>
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException"/>
         void Put(StoredBlock block);
 
         /// <summary>
         /// Returns the StoredBlock given a hash. The returned values block.getHash() method will be equal to the
         /// parameter. If no such block is found, returns null.
         /// </summary>
-        /// <exception cref="BlockStoreException"/>
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException"/>
         StoredBlock Get(Sha256Hash hash);
 
         /// <summary>
         /// Returns the <see cref="StoredBlock"/> that represents the top of the chain of greatest total work.
         /// </summary>
-        /// <exception cref="BlockStoreException"/>
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException"/>
         StoredBlock GetChainHead();
 
         /// <summary>
         /// Sets the <see cref="StoredBlock"/> that represents the top of the chain of greatest total work.
         /// </summary>
-        /// <exception cref="BlockStoreException"/>
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException"/>
         void SetChainHead(StoredBlock chainHead);
     }
 }

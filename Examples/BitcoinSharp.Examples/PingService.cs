@@ -18,11 +18,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using BitcoinSharp.Blockchain.Store;
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.Shared.Interfaces;
-using BitcoinSharp.Core.Store;
 using BitcoinSharp.Wallet;
 
 namespace BitcoinSharp.Examples

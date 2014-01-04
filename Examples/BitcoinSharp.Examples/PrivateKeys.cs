@@ -17,11 +17,11 @@
 using System;
 using System.Net;
 using System.Threading;
+using BitcoinSharp.Blockchain.Store;
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Common.Encoding;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
-using BitcoinSharp.Core.Store;
 using BitcoinSharp.Wallet;
 
 namespace BitcoinSharp.Examples

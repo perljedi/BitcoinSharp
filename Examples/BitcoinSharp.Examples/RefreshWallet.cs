@@ -15,10 +15,10 @@
  */
 
 using System;
+using BitcoinSharp.Blockchain.Store;
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Discovery;
 using BitcoinSharp.Core.Network;
-using BitcoinSharp.Core.Store;
 using BitcoinSharp.Wallet;
 
 namespace BitcoinSharp.Examples
@@ -42,14 +42,12 @@ namespace BitcoinSharp.Examples
                 var peerGroup = new PeerGroup(blockStore, NetworkParameters, chain);
                 //peerGroup.AddAddress(new PeerAddress(new IPAddress(new byte[]{ 192, 168, 1, 136 }), 18333));
                 peerGroup.AddPeerDiscovery(new DnsDiscovery(NetworkParameters));
-                Console.WriteLine("AddAddress");
                 peerGroup.Start();
-                Console.WriteLine("Started");
 
                 // Act
                 peerGroup.DownloadBlockChain();
 
-                //peerGroup.Stop();
+                peerGroup.Stop();
             }
 
             //var file = new FileInfo(args[0]);

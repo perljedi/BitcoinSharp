@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+using BitcoinSharp.Blockchain.Store;
 using BitcoinSharp.Core;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.Shared.Enums;
 using BitcoinSharp.Core.Shared.Interfaces;
-using BitcoinSharp.Core.Store;
 using BitcoinSharp.Wallet;
 using NUnit.Framework;
 

@@ -49,6 +49,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\BitcoinSharp.Blockchain\BitcoinSharp.Blockchain.csproj">
+      <Project>{AA2AF32A-3561-4F5C-A607-7236FF2F5E2D}</Project>
+      <Name>BitcoinSharp.Blockchain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\BitCoinSharp.Core\BitCoinSharp.Core.csproj">
       <Project>{82B20619-3469-4DB6-8D18-628B64842499}</Project>
       <Name>BitCoinSharp.Core</Name>

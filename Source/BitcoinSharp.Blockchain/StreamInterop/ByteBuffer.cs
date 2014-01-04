@@ -22,7 +22,7 @@
 using System;
 using System.IO;
 
-namespace BitcoinSharp.Core.Common.StreamInterop
+namespace BitcoinSharp.Blockchain.StreamInterop
 {
     /// <summary>
     /// This type supports the Fluorine infrastructure and is not intended to be used directly from your code.
@@ -33,7 +33,7 @@ namespace BitcoinSharp.Core.Common.StreamInterop
     /// </summary>
     /// TODO: Review how much this class is used. It was only created so that the C# version was a line by line copy of bitcoinj
     /// There is a good chance we can just use binarystream.
-    internal class ByteBuffer : System.IO.Stream
+    public class ByteBuffer : System.IO.Stream
     {
         private MemoryStream _stream;
         private long _bookmark;

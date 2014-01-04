@@ -16,7 +16,7 @@
 
 using System;
 
-namespace BitcoinSharp.Core.Store
+namespace BitcoinSharp.Core.Shared
 {
     /// <summary>
     /// Thrown when something goes wrong with storing a block.

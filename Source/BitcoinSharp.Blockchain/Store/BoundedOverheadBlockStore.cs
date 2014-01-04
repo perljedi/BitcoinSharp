@@ -16,19 +16,20 @@
 
 using System.Diagnostics;
 using System.IO;
-using BitcoinSharp.Core.Common.Collections;
-using BitcoinSharp.Core.Common.ExtensionMethods;
+using BitcoinSharp.Blockchain.Collections;
+using BitcoinSharp.Blockchain.StreamInterop;
 using BitcoinSharp.Core.Common.Hashing;
-using BitcoinSharp.Core.Common.StreamInterop;
 using BitcoinSharp.Core.Exceptions;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Shared;
 using BitcoinSharp.Core.Shared.Interfaces;
 using log4net;
+using BitcoinSharp.Core.Common.ExtensionMethods;
 using Org.BouncyCastle.Math;
 
-namespace BitcoinSharp.Core.Store
+namespace BitcoinSharp.Blockchain.Store
 {
     /// <summary>
     /// Stores the block chain to disk.
@@ -86,7 +87,7 @@ namespace BitcoinSharp.Core.Store
                 _blockHeader = new byte[Block.HeaderSize];
             }
 
-            /// <exception cref="IOException"/>
+            /// <exception cref="System.IO.IOException"/>
             public static void Write(Stream channel, StoredBlock block)
             {
                 using (var buf = ByteBuffer.Allocate(Size))
@@ -108,7 +109,7 @@ namespace BitcoinSharp.Core.Store
                 }
             }
 
-            /// <exception cref="IOException"/>
+            /// <exception cref="System.IO.IOException"/>
             public bool Read(Stream channel, long position, ByteBuffer buffer)
             {
                 buffer.Position = 0;
@@ -133,7 +134,7 @@ namespace BitcoinSharp.Core.Store
                 get { return new BigInteger(1, _chainWork); }
             }
 
-            /// <exception cref="ProtocolException"/>
+            /// <exception cref="BitcoinSharp.Core.Exceptions.ProtocolException"/>
             public Block GetHeader(NetworkParameters @params)
             {
                 return new Block(@params, _blockHeader);
@@ -144,7 +145,7 @@ namespace BitcoinSharp.Core.Store
                 get { return _height; }
             }
 
-            /// <exception cref="ProtocolException"/>
+            /// <exception cref="BitcoinSharp.Core.Exceptions.ProtocolException"/>
             public StoredBlock ToStoredBlock(NetworkParameters @params)
             {
                 return new StoredBlock(GetHeader(@params), ChainWork, Height);
@@ -212,7 +213,7 @@ namespace BitcoinSharp.Core.Store
             }
         }
 
-        /// <exception cref="IOException"/>
+        /// <exception cref="System.IO.IOException"/>
         /// <exception cref="BlockStoreException"/>
         private void Load(FileInfo file)
         {
@@ -331,8 +332,8 @@ namespace BitcoinSharp.Core.Store
         private ByteBuffer _buf = ByteBuffer.Allocate(Record.Size);
 
         /// <exception cref="BlockStoreException"/>
-        /// <exception cref="IOException"/>
-        /// <exception cref="ProtocolException"/>
+        /// <exception cref="System.IO.IOException"/>
+        /// <exception cref="BitcoinSharp.Core.Exceptions.ProtocolException"/>
         private Record GetRecord(Sha256Hash hash)
         {
             var startPos = _channel.Position;

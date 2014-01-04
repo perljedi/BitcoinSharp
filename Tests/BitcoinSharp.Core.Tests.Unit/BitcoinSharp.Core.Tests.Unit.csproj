@@ -72,8 +72,6 @@
     <Compile Include="PrivateKeyTests.cs" />
     <Compile Include="ScriptTest.cs" />
     <Compile Include="Moq\SetupExtensions.cs" />
-    <Compile Include="Store\BoundedOverheadBlockStoreTest.cs" />
-    <Compile Include="Store\DiskBlockStoreTest.cs" />
     <Compile Include="TestConfig.cs" />
     <Compile Include="UtilsTest.cs" />
     <Compile Include="VarIntTest.cs" />
@@ -83,6 +81,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\BitcoinSharp.Blockchain\BitcoinSharp.Blockchain.csproj">
+      <Project>{AA2AF32A-3561-4F5C-A607-7236FF2F5E2D}</Project>
+      <Name>BitcoinSharp.Blockchain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\BitcoinSharp.Core\BitcoinSharp.Core.csproj">
       <Project>{82B20619-3469-4DB6-8D18-628B64842499}</Project>
       <Name>BitcoinSharp.Core</Name>
