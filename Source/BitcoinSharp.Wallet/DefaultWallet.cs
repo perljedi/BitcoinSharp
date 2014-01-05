@@ -789,11 +789,11 @@ namespace BitcoinSharp.Wallet
                 stringBuilder.AppendFormat((string) "Wallet containing {0} BTC in:",
                     (object) Utils.BitcoinValueToFriendlyString(GetBalance()))
                     .AppendLine();
-                stringBuilder.AppendFormat((string) "  {0} unspent transactions", (object) Unspent.Count).AppendLine();
-                stringBuilder.AppendFormat((string) "  {0} spent transactions", (object) Spent.Count).AppendLine();
-                stringBuilder.AppendFormat((string) "  {0} pending transactions", (object) Pending.Count).AppendLine();
-                stringBuilder.AppendFormat((string) "  {0} inactive transactions", (object) _inactive.Count).AppendLine();
-                stringBuilder.AppendFormat((string) "  {0} dead transactions", (object) _dead.Count).AppendLine();
+                stringBuilder.AppendFormat("  {0} unspent transactions", (object) Unspent.Count).AppendLine();
+                stringBuilder.AppendFormat("  {0} spent transactions", (object) Spent.Count).AppendLine();
+                stringBuilder.AppendFormat("  {0} pending transactions", (object) Pending.Count).AppendLine();
+                stringBuilder.AppendFormat("  {0} inactive transactions", (object) _inactive.Count).AppendLine();
+                stringBuilder.AppendFormat("  {0} dead transactions", (object) _dead.Count).AppendLine();
                 // Do the keys.
                 stringBuilder.AppendLine().AppendLine("Keys:");
                 foreach (var key in Keychain)
