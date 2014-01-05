@@ -5,8 +5,6 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Core", "Source\BitcoinSharp.Core\BitcoinSharp.Core.csproj", "{82B20619-3469-4DB6-8D18-628B64842499}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Examples", "Examples\BitcoinSharp.Examples\BitcoinSharp.Examples.csproj", "{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Core.Tests.Unit", "Tests\BitcoinSharp.Core.Tests.Unit\BitcoinSharp.Core.Tests.Unit.csproj", "{1F699CA0-3353-488F-BA48-26D82B287F2D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Wallet.Tests.Unit", "Tests\BitcoinSharp.Wallet.Tests.Unit\BitcoinSharp.Wallet.Tests.Unit.csproj", "{575266F4-F7D0-4EF2-A2A4-3E2E20F51383}"
@@ -19,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Blockchain", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Blockchain.Tests.Unit", "Tests\BitcoinSharp.Blockchain.Tests.Unit\BitcoinSharp.Blockchain.Tests.Unit.csproj", "{28BBEB0C-865F-4913-B9D8-D6E450359F11}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinSharp.Examples", "Examples\BitcoinSharp.Examples\BitcoinSharp.Examples.csproj", "{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +29,6 @@ Global
 		{82B20619-3469-4DB6-8D18-628B64842499}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82B20619-3469-4DB6-8D18-628B64842499}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82B20619-3469-4DB6-8D18-628B64842499}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1F699CA0-3353-488F-BA48-26D82B287F2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1F699CA0-3353-488F-BA48-26D82B287F2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F699CA0-3353-488F-BA48-26D82B287F2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,6 +53,10 @@ Global
 		{28BBEB0C-865F-4913-B9D8-D6E450359F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28BBEB0C-865F-4913-B9D8-D6E450359F11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28BBEB0C-865F-4913-B9D8-D6E450359F11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC3DD824-1552-4D40-B1E0-D2827C95C1AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

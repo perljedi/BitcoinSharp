@@ -18,7 +18,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using BitcoinSharp.Core.Common.Collections;
 using BitcoinSharp.Blockchain.StreamInterop;
 using BitcoinSharp.Core.Common.Hashing;
 using BitcoinSharp.Core.Exceptions;
