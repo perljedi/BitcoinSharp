@@ -26,6 +26,7 @@ using BitcoinSharp.Core.Common.ValueTypes;
 using BitcoinSharp.Core.Exceptions;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
+using BitcoinSharp.Core.Shared.Interfaces;
 
 namespace BitcoinSharp.Core.Messages
 {
@@ -51,7 +52,7 @@ namespace BitcoinSharp.Core.Messages
         // This is an in memory helper only.
         [NonSerialized] private Sha256Hash _hash;
 
-        internal Transaction(NetworkParameters networkParameters)
+        public Transaction(NetworkParameters networkParameters)
             : base(networkParameters)
         {
             _version = 1;
@@ -115,11 +116,11 @@ namespace BitcoinSharp.Core.Messages
         /// Calculates the sum of the outputs that are sending coins to a key in the wallet. The flag controls whether to
         /// include spent outputs or not.
         /// </summary>
-        internal ulong GetValueSentToMe(Wallet wallet, bool includeSpent)
+        public ulong GetValueSentToMe(IDefaultWallet defaultWallet, bool includeSpent)
         {
             // This is tested in WalletTest.
             return
-                _transactionOutputs.Where(transactionOutput => transactionOutput.IsMine(wallet))
+                _transactionOutputs.Where(transactionOutput => transactionOutput.IsMine(defaultWallet))
                     .Where(transactionOutput => includeSpent || transactionOutput.IsAvailableForSpending)
                     .Aggregate(0UL, (current, transactionOutput) => current + transactionOutput.Value);
         }
@@ -127,23 +128,23 @@ namespace BitcoinSharp.Core.Messages
         /// <summary>
         /// Calculates the sum of the outputs that are sending coins to a key in the wallet.
         /// </summary>
-        public ulong GetValueSentToMe(Wallet wallet)
+        public ulong GetValueSentToMe(IDefaultWallet defaultWallet)
         {
-            return GetValueSentToMe(wallet, true);
+            return GetValueSentToMe(defaultWallet, true);
         }
 
         /// <summary>
         /// Returns a set of blocks which contain the transaction, or null if this transaction doesn't have that data
         /// because it's not stored in the wallet or because it has never appeared in a block.
         /// </summary>
-        internal ICollection<StoredBlock> AppearsIn { get; private set; }
+        public ICollection<StoredBlock> AppearsIn { get; private set; }
 
         /// <summary>
         /// Adds the given block to the internal serializable set of blocks in which this transaction appears. This is
         /// used by the wallet to ensure transactions that appear on side chains are recorded properly even though the
         /// block stores do not save the transaction data at all.
         /// </summary>
-        internal void AddBlockAppearance(StoredBlock block)
+        public void AddBlockAppearance(StoredBlock block)
         {
             if (AppearsIn == null)
             {
@@ -159,21 +160,21 @@ namespace BitcoinSharp.Core.Messages
         /// </summary>
         /// <returns>Sum in nanocoins.</returns>
         /// <exception cref="ScriptException"/>
-        public ulong GetValueSentFromMe(Wallet wallet)
+        public ulong GetValueSentFromMe(IDefaultWallet defaultWallet)
         {
             // This is tested in WalletTest.
             return
                 _transactionInputs.Select(
                     transactionInput =>
-                        (transactionInput.GetConnectedOutput(wallet.Unspent) ??
-                         transactionInput.GetConnectedOutput(wallet.Spent)) ??
-                        transactionInput.GetConnectedOutput(wallet.Pending))
+                        (transactionInput.GetConnectedOutput(defaultWallet.Unspent) ??
+                         transactionInput.GetConnectedOutput(defaultWallet.Spent)) ??
+                        transactionInput.GetConnectedOutput(defaultWallet.Pending))
                     .Where(connected => connected != null)
-                    .Where(connected => connected.IsMine(wallet))
+                    .Where(connected => connected.IsMine(defaultWallet))
                     .Aggregate(0UL, (current, connected) => current + connected.Value);
         }
 
-        internal bool DisconnectInputs()
+        public bool DisconnectInputs()
         {
             return _transactionInputs.Aggregate(false, (current, input) => current | input.Disconnect());
         }
@@ -182,7 +183,7 @@ namespace BitcoinSharp.Core.Messages
         /// Connects all inputs using the provided transactions. If any input cannot be connected returns that input or
         /// null on success.
         /// </summary>
-        internal TransactionInput ConnectForReorganize(IDictionary<Sha256Hash, Transaction> transactions)
+        public TransactionInput ConnectForReorganize(IDictionary<Sha256Hash, Transaction> transactions)
         {
             return (from transactionInput in _transactionInputs
                 where !transactionInput.IsCoinBase
@@ -349,9 +350,9 @@ namespace BitcoinSharp.Core.Messages
         /// This method is similar to SignatureHash in script.cpp
         /// </remarks>
         /// <param name="hashType">This should always be set to SigHash.ALL currently. Other types are unused. </param>
-        /// <param name="wallet">A wallet is required to fetch the keys needed for signing.</param>
+        /// <param name="defaultWallet">A wallet is required to fetch the keys needed for signing.</param>
         /// <exception cref="ScriptException"/>
-        public void SignInputs(SigHash hashType, Wallet wallet)
+        public void SignInputs(SigHash hashType, IDefaultWallet defaultWallet)
         {
             Debug.Assert(_transactionInputs.Count > 0);
             Debug.Assert(_transactionOutputs.Count > 0);
@@ -376,7 +377,7 @@ namespace BitcoinSharp.Core.Messages
                 transactionInput.ScriptBytes = transactionInput.Outpoint.ConnectedPubKeyScript;
                 // Find the signing key we'll need to use.
                 var connectedPublicKeyHash = transactionInput.Outpoint.ConnectedPubKeyHash;
-                var key = wallet.FindKeyFromPublicHash(connectedPublicKeyHash);
+                var key = defaultWallet.FindKeyFromPublicHash(connectedPublicKeyHash);
                 // This assert should never fire. If it does, it means the wallet is inconsistent.
                 Debug.Assert(key != null,
                     "Transaction exists in wallet that we cannot redeem: " +

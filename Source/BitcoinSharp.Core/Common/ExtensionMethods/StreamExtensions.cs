@@ -2,7 +2,7 @@
 
 namespace BitcoinSharp.Core.Common.ExtensionMethods
 {
-    internal static class StreamExtensions
+    public static class StreamExtensions
     {
         public static int Read(this Stream stream)
         {

@@ -22,9 +22,10 @@ using BitcoinSharp.Core.Exceptions;
 using BitcoinSharp.Core.Messages;
 using BitcoinSharp.Core.Network;
 using BitcoinSharp.Core.PersistableMessages;
-using BitcoinSharp.Core.Store;
+using BitcoinSharp.Core.Shared.Interfaces;
 using log4net;
 using Org.BouncyCastle.Math;
+
 
 namespace BitcoinSharp.Core
 {
@@ -33,7 +34,7 @@ namespace BitcoinSharp.Core
     ///     chain follows the rules of the <see cref="NetworkParameters" /> for this chain.
     /// </summary>
     /// <remarks>
-    ///     A BlockChain requires a <see cref="Wallet" /> to receive transactions that it finds during the initial download.
+    ///     A BlockChain requires a <see cref="BitcoinSharp.Wallet.DefaultWallet" /> to receive transactions that it finds during the initial download.
     ///     However,
     ///     if you don't care about this, you can just pass in an empty wallet and nothing bad will happen.<p />
     ///     A newly constructed BlockChain is empty. To fill it up, use a <see cref="Peer" /> object to download the chain from
@@ -72,51 +73,51 @@ namespace BitcoinSharp.Core
         private StoredBlock _chainHead;
 
         private readonly NetworkParameters _networkParameters;
-        private readonly IList<Wallet> _wallets;
+        private readonly IList<IDefaultWallet> _wallets;
 
         // Holds blocks that we have received but can't plug into the chain yet, eg because they were created whilst we
         // were downloading the block chain.
         private readonly IList<Block> _unconnectedBlocks = new List<Block>();
 
         /// <summary>
-        ///     Constructs a BlockChain connected to the given wallet and store. To obtain a <see cref="Wallet" /> you can
+        ///     Constructs a BlockChain connected to the given wallet and store. To obtain a <see cref="BitcoinSharp.Wallet.DefaultWallet" /> you can
         ///     construct
-        ///     one from scratch, or you can deserialize a saved wallet from disk using <see cref="Wallet.LoadFromFile" />.
+        ///     one from scratch, or you can deserialize a saved wallet from disk using <see cref="BitcoinSharp.Wallet.DefaultWallet.LoadFromFile" />.
         /// </summary>
         /// <remarks>
-        ///     For the store you can use a <see cref="MemoryBlockStore" /> if you don't care about saving the downloaded data, or
+        ///     For the store you can use a <see cref="BitcoinSharp.Blockchain.Store.MemoryBlockStore" /> if you don't care about saving the downloaded data, or
         ///     a
-        ///     <see cref="BoundedOverheadBlockStore" /> if you'd like to ensure fast start-up the next time you run the program.
+        ///     <see cref="BitcoinSharp.Blockchain.Store.BoundedOverheadBlockStore" /> if you'd like to ensure fast start-up the next time you run the program.
         /// </remarks>
-        /// <exception cref="BlockStoreException" />
-        public BlockChain(NetworkParameters networkParameters, Wallet wallet, IBlockStore blockStore)
-            : this(networkParameters, new List<Wallet>(), blockStore)
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
+        public BlockChain(NetworkParameters networkParameters, IDefaultWallet defaultWallet, IBlockStore blockStore)
+            : this(networkParameters, new List<IDefaultWallet>(), blockStore)
         {
-            if (wallet != null)
-                AddWallet(wallet);
+            if (defaultWallet != null)
+                AddWallet(defaultWallet);
         }
 
         /// <summary>
         ///     Constructs a BlockChain that has no wallet at all. This is helpful when you don't actually care about sending
         ///     and receiving coins but rather, just want to explore the network data structures.
         /// </summary>
-        /// <exception cref="BlockStoreException" />
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
         public BlockChain(NetworkParameters networkParameters, IBlockStore blockStore)
-            : this(networkParameters, new List<Wallet>(), blockStore)
+            : this(networkParameters, new List<IDefaultWallet>(), blockStore)
         {
         }
 
         /// <summary>
         ///     Constructs a BlockChain connected to the given list of wallets and a store.
         /// </summary>
-        /// <exception cref="BlockStoreException" />
-        public BlockChain(NetworkParameters networkParameters, IEnumerable<Wallet> wallets, IBlockStore blockStore)
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
+        public BlockChain(NetworkParameters networkParameters, IEnumerable<IDefaultWallet> wallets, IBlockStore blockStore)
         {
             _blockStore = blockStore;
             _chainHead = blockStore.GetChainHead();
             Log.InfoFormat("chain head is:{0}{1}", Environment.NewLine, _chainHead.BlockHeader);
             _networkParameters = networkParameters;
-            _wallets = new List<Wallet>(wallets);
+            _wallets = new List<IDefaultWallet>(wallets);
         }
 
         /// <summary>
@@ -124,11 +125,11 @@ namespace BitcoinSharp.Core
         ///     was not part of this BlockChain. This method is useful if the wallet has just been created, and its keys
         ///     have never been in use, or if the wallet has been loaded along with the BlockChain
         /// </summary>
-        public void AddWallet(Wallet wallet)
+        public void AddWallet(IDefaultWallet defaultWallet)
         {
             lock (this)
             {
-                _wallets.Add(wallet);
+                _wallets.Add(defaultWallet);
             }
         }
 
@@ -151,7 +152,7 @@ namespace BitcoinSharp.Core
         private int _statsLastTime = Environment.TickCount;
         private long _statsBlocksAdded;
 
-        /// <exception cref="BlockStoreException" />
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
         /// <exception cref="VerificationException" />
         /// <exception cref="ScriptException" />
         private bool Add(Block block, bool tryConnecting)
@@ -176,7 +177,7 @@ namespace BitcoinSharp.Core
                 // blocks validity so we can skip the merkle root verification if the contents aren't interesting. This saves
                 // a lot of time for big blocks.
                 var contentsImportant = false;
-                var walletToTransactionMap = new Dictionary<Wallet, List<Transaction>>();
+                var walletToTransactionMap = new Dictionary<IDefaultWallet, List<Transaction>>();
                 if (block.Transactions != null)
                 {
                     ScanTransactions(block, walletToTransactionMap);
@@ -229,10 +230,10 @@ namespace BitcoinSharp.Core
             }
         }
 
-        /// <exception cref="BlockStoreException" />
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
         /// <exception cref="VerificationException" />
         private void ConnectBlock(StoredBlock newStoredBlock, StoredBlock previousStoredBlock,
-            IEnumerable<KeyValuePair<Wallet, List<Transaction>>> newTransactions)
+            IEnumerable<KeyValuePair<IDefaultWallet, List<Transaction>>> newTransactions)
         {
             if (previousStoredBlock.Equals(_chainHead))
             {
@@ -276,7 +277,7 @@ namespace BitcoinSharp.Core
         /// <summary>
         ///     Called as part of connecting a block when the new block results in a different chain having higher total work.
         /// </summary>
-        /// <exception cref="BlockStoreException" />
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
         /// <exception cref="VerificationException" />
         private void HandleNewBestChain(StoredBlock newChainHead)
         {
@@ -306,7 +307,7 @@ namespace BitcoinSharp.Core
         /// <summary>
         ///     Returns the set of contiguous blocks between 'higher' and 'lower'. Higher is included, lower is not.
         /// </summary>
-        /// <exception cref="BlockStoreException" />
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
         private IList<StoredBlock> GetPartialChain(StoredBlock higher, StoredBlock lower)
         {
             Debug.Assert(higher.Height > lower.Height);
@@ -326,7 +327,7 @@ namespace BitcoinSharp.Core
         ///     Locates the point in the chain at which newStoredBlock and chainHead diverge. Returns null if no split point was
         ///     found (ie they are part of the same chain).
         /// </summary>
-        /// <exception cref="BlockStoreException" />
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
         private StoredBlock FindSplit(StoredBlock newChainHead, StoredBlock chainHead)
         {
             var currentChainCursor = chainHead;
@@ -353,7 +354,7 @@ namespace BitcoinSharp.Core
             return currentChainCursor;
         }
 
-        internal enum NewBlockType
+        public enum NewBlockType
         {
             BestChain,
             SideChain
@@ -361,7 +362,7 @@ namespace BitcoinSharp.Core
 
         /// <exception cref="VerificationException" />
         private static void SendTransactionsToWallet(StoredBlock block, NewBlockType blockType,
-            IEnumerable<KeyValuePair<Wallet, List<Transaction>>> newTransactions)
+            IEnumerable<KeyValuePair<IDefaultWallet, List<Transaction>>> newTransactions)
         {
             foreach (var item in newTransactions)
             {
@@ -386,7 +387,7 @@ namespace BitcoinSharp.Core
         /// </summary>
         /// <exception cref="VerificationException" />
         /// <exception cref="ScriptException" />
-        /// <exception cref="BlockStoreException" />
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
         private void TryConnectingUnconnected()
         {
             // For each block in our unconnected list, try and fit it onto the head of the chain. If we succeed remove it
@@ -420,7 +421,7 @@ namespace BitcoinSharp.Core
         /// <summary>
         ///     Throws an exception if the blocks difficulty is not correct.
         /// </summary>
-        /// <exception cref="BlockStoreException" />
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
         /// <exception cref="VerificationException" />
         private void CheckDifficultyTransitions(StoredBlock previousStoredBlock, StoredBlock nextStoredBlock)
         {
@@ -500,7 +501,7 @@ namespace BitcoinSharp.Core
         ///     transactions for which it is relevant.
         /// </summary>
         /// <exception cref="VerificationException" />
-        private void ScanTransactions(Block block, IDictionary<Wallet, List<Transaction>> walletToTransactionMap)
+        private void ScanTransactions(Block block, IDictionary<IDefaultWallet, List<Transaction>> walletToTransactionMap)
         {
             foreach (var transaction in block.Transactions)
             {
@@ -549,7 +550,7 @@ namespace BitcoinSharp.Core
         ///     Returns the block at the head of the current best chain. This is the block which represents the greatest
         ///     amount of cumulative work done.
         /// </summary>
-        /// <exception cref="BlockStoreException" />
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException" />
         public StoredBlock ChainHead
         {
             get

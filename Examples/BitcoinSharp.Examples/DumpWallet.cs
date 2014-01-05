@@ -16,7 +16,7 @@
 
 using System;
 using System.IO;
-using BitcoinSharp.Core;
+using BitcoinSharp.Wallet;
 
 namespace BitcoinSharp.Examples
 {
@@ -33,7 +33,7 @@ namespace BitcoinSharp.Examples
                 return;
             }
 
-            var wallet = Wallet.LoadFromFile(new FileInfo(args[0]));
+            var wallet = DefaultWallet.LoadFromFile(new FileInfo(args[0]));
             Console.WriteLine(wallet.ToString());
         }
     }

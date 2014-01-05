@@ -55,7 +55,6 @@
     <Compile Include="Common\Encoding\Base58.cs" />
     <Compile Include="Common\ExtensionMethods\StreamExtensions.cs" />
     <Compile Include="Common\Hashing\Sha256Hash.cs" />
-    <Compile Include="Common\StreamInterop\ByteBuffer.cs" />
     <Compile Include="Common\ValueTypes\VarInt.cs" />
     <Compile Include="Discovery\DnsDiscovery.cs" />
     <Compile Include="Discovery\IPeerDiscovery.cs" />
@@ -97,14 +96,15 @@
     <Compile Include="PersistableMessages\StoredBlock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Script.cs" />
-    <Compile Include="Store\BlockStoreException.cs" />
-    <Compile Include="Store\BoundedOverheadBlockStore.cs" />
-    <Compile Include="Store\DiskBlockStore.cs" />
-    <Compile Include="Store\IBlockStore.cs" />
-    <Compile Include="Store\MemoryBlockStore.cs" />
+    <Compile Include="Shared\BlockStoreException.cs" />
+    <Compile Include="Shared\Enums\BalanceType.cs" />
+    <Compile Include="Shared\Enums\WalletPool.cs" />
+    <Compile Include="Shared\Events\WalletCoinsReceivedEventArgs.cs" />
+    <Compile Include="Shared\Events\WalletDeadTransactionEventArgs.cs" />
+    <Compile Include="Shared\Interfaces\IBlockStore.cs" />
+    <Compile Include="Shared\Interfaces\IDefaultWallet.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="VersionedChecksummedBytes.cs" />
-    <Compile Include="Wallet.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -40,6 +40,7 @@
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.7.4114.6375, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <SpecificVersion>False</SpecificVersion>
+	</Reference>
     <Reference Include="BouncyCastle.Crypto">
       <HintPath>..\..\packages\bccrypto-net-1.7-bin\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
@@ -50,9 +51,17 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\BitcoinSharp.Blockchain\BitcoinSharp.Blockchain.csproj">
+      <Project>{AA2AF32A-3561-4F5C-A607-7236FF2F5E2D}</Project>
+      <Name>BitcoinSharp.Blockchain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\BitCoinSharp.Core\BitCoinSharp.Core.csproj">
       <Project>{82B20619-3469-4DB6-8D18-628B64842499}</Project>
       <Name>BitCoinSharp.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\BitcoinSharp.Wallet\BitcoinSharp.Wallet.csproj">
+      <Project>{023C4D86-3604-4B71-9CD2-C9F4D4B6113C}</Project>
+      <Name>BitcoinSharp.Wallet</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

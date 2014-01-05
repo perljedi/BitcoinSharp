@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1F699CA0-3353-488F-BA48-26D82B287F2D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>BitcoinSharp.Tests.Unit</RootNamespace>
+    <AssemblyName>BitcoinSharp.Tests.Unit</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto">
+      <HintPath>..\..\packages\bccrypto-net-1.7-bin\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentAssertions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\FluentAssertions.2.1.0.0\lib\net40\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq">
+      <HintPath>..\..\packages\Moq.4.2.1312.1622\lib\net40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddressTest.cs" />
+    <Compile Include="Base58Test.cs" />
+    <Compile Include="BitcoinSerializerTest.cs" />
+    <Compile Include="BlockChainTest.cs" />
+    <Compile Include="BlockTest.cs" />
+    <Compile Include="ChainSplitTests.cs" />
+    <Compile Include="Discovery\IrcDiscoveryTest.cs" />
+    <Compile Include="Discovery\SeedPeersTest.cs" />
+    <Compile Include="EcKeyTest.cs" />
+    <Compile Include="Infrastructure\SystemTimeTests.cs" />
+    <Compile Include="PeerAddressTest.cs" />
+    <Compile Include="PeerGroupTest.cs" />
+    <Compile Include="PeerTest.cs" />
+    <Compile Include="PrivateKeyTests.cs" />
+    <Compile Include="ScriptTest.cs" />
+    <Compile Include="Moq\SetupExtensions.cs" />
+    <Compile Include="TestConfig.cs" />
+    <Compile Include="UtilsTest.cs" />
+    <Compile Include="VarIntTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\BitcoinSharp.Blockchain\BitcoinSharp.Blockchain.csproj">
+      <Project>{AA2AF32A-3561-4F5C-A607-7236FF2F5E2D}</Project>
+      <Name>BitcoinSharp.Blockchain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\BitcoinSharp.Core\BitcoinSharp.Core.csproj">
+      <Project>{82B20619-3469-4DB6-8D18-628B64842499}</Project>
+      <Name>BitcoinSharp.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\BitcoinSharp.Wallet\BitcoinSharp.Wallet.csproj">
+      <Project>{023C4D86-3604-4B71-9CD2-C9F4D4B6113C}</Project>
+      <Name>BitcoinSharp.Wallet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BitcoinSharp.Testing\BitcoinSharp.Testing.csproj">
+      <Project>{504C1830-F995-44B7-9890-E88C6EFF722B}</Project>
+      <Name>BitcoinSharp.Testing</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+</Project>

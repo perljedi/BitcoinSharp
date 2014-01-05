@@ -21,6 +21,7 @@ using BitcoinSharp.Core.Common.ExtensionMethods;
 using BitcoinSharp.Core.Common.ValueTypes;
 using BitcoinSharp.Core.Exceptions;
 using BitcoinSharp.Core.Network;
+using BitcoinSharp.Core.Shared.Interfaces;
 using log4net;
 
 namespace BitcoinSharp.Core.Messages
@@ -48,7 +49,7 @@ namespace BitcoinSharp.Core.Messages
         private bool _availableForSpending;
 
         // A reference to the transaction which holds this output.
-        internal Transaction ParentTransaction { get; set; }
+        public Transaction ParentTransaction { get; set; }
 
         /// <summary>
         /// Deserializes a transaction output message. This is usually part of a transaction message.
@@ -62,7 +63,7 @@ namespace BitcoinSharp.Core.Messages
             _availableForSpending = true;
         }
 
-        internal TransactionOutput(NetworkParameters networkParameters, Transaction parentTransaction, ulong value,
+        public TransactionOutput(NetworkParameters networkParameters, Transaction parentTransaction, ulong value,
             Address to)
             : base(networkParameters)
         {
@@ -75,7 +76,7 @@ namespace BitcoinSharp.Core.Messages
         /// <summary>
         /// Used only in creation of the genesis blocks and in unit tests.
         /// </summary>
-        internal TransactionOutput(NetworkParameters networkParameters, Transaction parentTransaction,
+        public TransactionOutput(NetworkParameters networkParameters, Transaction parentTransaction,
             byte[] scriptBytes)
             : base(networkParameters)
         {
@@ -138,7 +139,7 @@ namespace BitcoinSharp.Core.Messages
         /// Sets this objects availableToSpend flag to false and the spentBy pointer to the given input.
         /// If the input is null, it means this output was signed over to somebody else rather than one of our own keys.
         /// </summary>
-        internal void MarkAsSpent(TransactionInput input)
+        public void MarkAsSpent(TransactionInput input)
         {
             Debug.Assert(_availableForSpending);
             _availableForSpending = false;
@@ -151,7 +152,7 @@ namespace BitcoinSharp.Core.Messages
             SpentBy = null;
         }
 
-        internal bool IsAvailableForSpending
+        public bool IsAvailableForSpending
         {
             get { return _availableForSpending; }
         }
@@ -164,12 +165,12 @@ namespace BitcoinSharp.Core.Messages
         /// <summary>
         /// Returns true if this output is to an address we have the keys for in the wallet.
         /// </summary>
-        public bool IsMine(Wallet wallet)
+        public bool IsMine(IDefaultWallet defaultWallet)
         {
             try
             {
                 var publicKeyHash = ScriptPublicKey.PublicKeyHash;
-                return wallet.IsPubKeyHashMine(publicKeyHash);
+                return defaultWallet.IsPubKeyHashMine(publicKeyHash);
             }
             catch (ScriptException e)
             {
@@ -190,6 +191,6 @@ namespace BitcoinSharp.Core.Messages
         /// <summary>
         /// Returns the connected input.
         /// </summary>
-        internal TransactionInput SpentBy { get; private set; }
+        public TransactionInput SpentBy { get; private set; }
     }
 }

@@ -26,7 +26,8 @@ using System.Threading.Tasks;
 using BitcoinSharp.Core.Discovery;
 using BitcoinSharp.Core.Exceptions;
 using BitcoinSharp.Core.Messages;
-using BitcoinSharp.Core.Store;
+using BitcoinSharp.Core.Shared;
+using BitcoinSharp.Core.Shared.Interfaces;
 using log4net;
 
 namespace BitcoinSharp.Core.Network

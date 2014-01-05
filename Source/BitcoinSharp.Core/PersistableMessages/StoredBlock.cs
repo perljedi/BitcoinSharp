@@ -17,7 +17,7 @@
 using System;
 using BitcoinSharp.Core.Exceptions;
 using BitcoinSharp.Core.Messages;
-using BitcoinSharp.Core.Store;
+using BitcoinSharp.Core.Shared.Interfaces;
 using Org.BouncyCastle.Math;
 
 namespace BitcoinSharp.Core.PersistableMessages
@@ -111,7 +111,7 @@ namespace BitcoinSharp.Core.PersistableMessages
         /// <tt>store.get(this.getHeader().getPrevBlockHash())</tt>.
         /// </summary>
         /// <returns>The previous block in the chain or null if it was not found in the store.</returns>
-        /// <exception cref="BlockStoreException"/>
+        /// <exception cref="BitcoinSharp.Blockchain.Store.BlockStoreException"/>
         public StoredBlock GetPrev(IBlockStore blockStore)
         {
             return blockStore.Get(BlockHeader.PreviousBlockHash);
