@@ -93,6 +93,8 @@ namespace BitcoinSharp.Core.Network
         /// </summary>
         public int TargetTimespan { get; private set; }
 
+        public String[] DnsSeeds { get; private set; }
+
         private static Block CreateGenesis(NetworkParameters networkParameters)
         {
             var genesisBlock = new Block(networkParameters);
@@ -135,6 +137,11 @@ namespace BitcoinSharp.Core.Network
             networkParameters.GenesisBlock.TimeSeconds = 1296688602;
             networkParameters.GenesisBlock.TargetDifficulty = 0x1d07fff8;
             networkParameters.GenesisBlock.Nonce = 384568319;
+            networkParameters.DnsSeeds = new[]
+            {
+                "testnet-seed.bitcoin.petertodd.org",
+                "testnet-seed.bluematt.me"
+            };
             var genesisHash = networkParameters.GenesisBlock.HashAsString;
             Debug.Assert(genesisHash.Equals("00000007199508e34a9ff81e6ec0c477a4cccff2a4767a8eee39c11db367b008"),genesisHash);
             return networkParameters;
@@ -169,6 +176,14 @@ namespace BitcoinSharp.Core.Network
             networkParameters.GenesisBlock.TargetDifficulty = 0x1d00ffff;
             networkParameters.GenesisBlock.TimeSeconds = 1231006505;
             networkParameters.GenesisBlock.Nonce = 2083236893;
+            networkParameters.DnsSeeds = new[]
+            {
+                //Well known discovery host names on the production network.
+                "seed.bitcoin.sipa.be",
+                "dnsseed.bluematt.me",
+                "dnsseed.bitcoin.dashjr.org",
+                "bitseed.xf2.org"
+            };
             var genesisHash = networkParameters.GenesisBlock.HashAsString;
             //TODO: If the genesis block must be created why don't we throw if it's invalid?
             Debug.Assert(genesisHash.Equals("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
